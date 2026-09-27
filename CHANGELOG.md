@@ -5,6 +5,12 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouté
+
+- Archives : plusieurs fichiers ou un dossier sont regroupés en une archive `.zip` produite en flux (`src/archive.js`, bibliothèque client-zip), puis chiffrés en un seul fichier. Arborescence et noms Unicode préservés, chemins nettoyés (ni chemin absolu ni `..`), doublons renommés, Zip64 au-delà de 4 Go, fichiers ouverts un par un.
+
 ## [1.1.0] - 2026-09-27
 
 Générateur de phrases de passe, site en anglais, et chaîne de publication

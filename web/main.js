@@ -1,6 +1,7 @@
 import { DETECT_SIZE, detectFormat } from '../src/detect.js';
-import { decryptedName, encryptedName } from '../src/names.js';
+import { EXTENSIONS, archiveName, decryptedName, encryptedName } from '../src/names.js';
 import { version } from '../package.json';
+import { collectDrop, collectInput, entriesFromDrop } from './files.js';
 import { applyTranslations, getLanguage, setLanguage, t } from './i18n.js';
 import { assess } from './strength.js';
 
@@ -10,6 +11,9 @@ const ui = {
   form: $('form'),
   dropzone: $('dropzone'),
   fileInput: $('file'),
+  folderInput: $('folder'),
+  pickFolder: $('pick-folder'),
+  altPick: $('alt-pick'),
   emptyView: document.querySelector('.dropzone-empty'),
   fileView: document.querySelector('.dropzone-file'),
   fileBadge: $('file-badge'),
@@ -38,6 +42,7 @@ const ui = {
   result: $('result'),
   resultTitle: $('result-title'),
   resultDetail: $('result-detail'),
+  resultHint: $('result-hint'),
   download: $('download'),
   restart: $('restart'),
   error: $('error'),
@@ -45,7 +50,10 @@ const ui = {
 };
 
 const state = {
-  file: null,
+  items: [], // [{ file, path }] choisis
+  folder: null, // nom du dossier choisi, s'il n'y en a qu'un
+  archive: false, // plusieurs fichiers (ou un dossier) → archive .zip
+  file: null, // le fichier, s'il n'y en a qu'un
   mode: 'encrypt', // 'encrypt' | 'decrypt'
   sourceFormat: null, // format détecté si le fichier est déjà chiffré
   worker: null,
@@ -75,7 +83,7 @@ function render() {
   setRevealed(ui.password.type === 'text');
   updateStrength();
   ui.copy.textContent = t(state.copyKey);
-  if (state.file) renderFile();
+  if (state.items.length > 0) renderFile();
   if (state.result) renderResult();
   if (state.error) ui.error.textContent = t(state.error.key, state.error.params);
 }
@@ -84,8 +92,12 @@ function render() {
 // Choix du fichier
 
 ui.fileInput.addEventListener('change', () => {
-  const [file] = ui.fileInput.files;
-  if (file) selectFile(file);
+  if (ui.fileInput.files.length > 0) selectItems(collectInput(ui.fileInput.files));
+});
+ui.pickFolder.addEventListener('click', () => ui.folderInput.click());
+ui.folderInput.addEventListener('change', () => {
+  // Un dossier vide ne déclenche parfois aucun fichier : on le signale.
+  selectItems(collectInput(ui.folderInput.files));
 });
 
 for (const type of ['dragenter', 'dragover']) {
@@ -97,24 +109,34 @@ for (const type of ['dragenter', 'dragover']) {
 for (const type of ['dragleave', 'drop']) {
   ui.dropzone.addEventListener(type, () => ui.dropzone.classList.remove('is-dragging'));
 }
-ui.dropzone.addEventListener('drop', (event) => {
-  event.preventDefault();
-  const [file] = event.dataTransfer.files;
-  if (file && !isBusy()) selectFile(file);
-});
-// Un fichier lâché à côté de la zone ne doit pas remplacer la page.
+// Un fichier lâché n'importe où sur la page (zone comprise) est pris en compte,
+// et ne doit jamais remplacer la page.
 window.addEventListener('dragover', (event) => event.preventDefault());
 window.addEventListener('drop', (event) => {
   event.preventDefault();
-  const [file] = event.dataTransfer?.files ?? [];
-  if (file && !isBusy() && ui.result.hidden) selectFile(file);
+  if (isBusy() || !ui.result.hidden || !event.dataTransfer) return;
+  const dropped = entriesFromDrop(event.dataTransfer); // synchrone, avant tout await
+  collectDrop(dropped).then(selectItems);
 });
 
-async function selectFile(file) {
+async function selectItems({ items, folder }) {
   hideError();
-  const head = new Uint8Array(await file.slice(0, DETECT_SIZE).arrayBuffer());
-  state.file = file;
-  state.sourceFormat = detectFormat(head);
+  if (items.length === 0) return showError('error.emptySelection');
+
+  const archive = items.length > 1 || folder !== null;
+  // Plusieurs fichiers chiffrés déposés ensemble : on ne les archive pas.
+  const encryptedExts = Object.values(EXTENSIONS);
+  if (archive && items.every(({ file }) => encryptedExts.some((ext) => file.name.toLowerCase().endsWith(ext)))) {
+    return showError('error.multipleEncrypted');
+  }
+
+  Object.assign(state, { items, folder, archive, file: archive ? null : items[0].file });
+  if (archive) {
+    state.sourceFormat = null;
+  } else {
+    const head = new Uint8Array(await state.file.slice(0, DETECT_SIZE).arrayBuffer());
+    state.sourceFormat = detectFormat(head);
+  }
   state.mode = state.sourceFormat ? 'decrypt' : 'encrypt';
   ui.password.value = '';
   ui.confirm.value = '';
@@ -125,18 +147,25 @@ async function selectFile(file) {
 }
 
 function renderFile() {
-  const { file, mode, sourceFormat } = state;
+  const { file, items, archive, folder, mode, sourceFormat } = state;
   const encrypting = mode === 'encrypt';
-  const size = formatSize(file.size);
+  const size = formatSize(items.reduce((sum, item) => sum + item.file.size, 0));
 
   ui.dropzone.classList.add('has-file');
   ui.emptyView.hidden = true;
   ui.fileView.hidden = false;
-  ui.fileName.textContent = file.name;
-  ui.fileBadge.textContent = encrypting ? extensionOf(file.name) : '🔒';
-  ui.fileInfo.textContent = encrypting
-    ? t('file.willEncrypt', { size })
-    : t('file.willDecrypt', { size, format: sourceFormat });
+  ui.altPick.hidden = true;
+  if (archive) {
+    ui.fileName.textContent = archiveName(folder);
+    ui.fileBadge.textContent = 'zip';
+    ui.fileInfo.textContent = t('file.willArchive', { count: items.length, size });
+  } else {
+    ui.fileName.textContent = file.name;
+    ui.fileBadge.textContent = encrypting ? extensionOf(file.name) : '🔒';
+    ui.fileInfo.textContent = encrypting
+      ? t('file.willEncrypt', { size })
+      : t('file.willDecrypt', { size, format: sourceFormat });
+  }
 
   ui.options.disabled = false;
   ui.confirmField.hidden = !encrypting;
@@ -213,7 +242,7 @@ function clearInvalid() {
 
 ui.form.addEventListener('submit', (event) => {
   event.preventDefault();
-  if (!state.file || isBusy()) return;
+  if (state.items.length === 0 || isBusy()) return;
   const password = ui.password.value;
   const encrypting = state.mode === 'encrypt';
 
@@ -229,7 +258,7 @@ ui.form.addEventListener('submit', (event) => {
   }
 
   const format = encrypting ? ui.form.elements.format.value : null;
-  run({ file: state.file, password, mode: state.mode, format });
+  run({ files: state.items, archive: state.archive, folder: state.folder, password, mode: state.mode, format });
 });
 
 function run(job) {
@@ -272,7 +301,8 @@ function run(job) {
     stopWorker();
     showFailure('INTERNAL');
   };
-  worker.postMessage(job);
+  const { folder, ...message } = job;
+  worker.postMessage(message);
 }
 
 function setProgress(ratio, label, detail) {
@@ -287,7 +317,8 @@ function setProgress(ratio, label, detail) {
 
 function showResult(job, { blob, format }) {
   const encrypting = job.mode === 'encrypt';
-  const name = encrypting ? encryptedName(job.file.name, format) : decryptedName(job.file.name);
+  const sourceName = job.archive ? archiveName(job.folder) : job.files[0].file.name;
+  const name = encrypting ? encryptedName(sourceName, format) : decryptedName(sourceName);
   state.downloadUrl = URL.createObjectURL(blob);
   state.downloaded = false;
   state.result = { encrypting, name, size: blob.size };
@@ -310,6 +341,8 @@ function renderResult() {
   ui.resultTitle.textContent = t(encrypting ? 'result.encrypted' : 'result.decrypted');
   ui.resultDetail.textContent = `${name} · ${formatSize(size)}`;
   ui.download.textContent = t('result.download', { name });
+  ui.resultHint.hidden = encrypting || !name.toLowerCase().endsWith('.zip');
+  ui.resultHint.textContent = t('result.zipHint');
 }
 
 function showFailure(code) {
@@ -350,6 +383,9 @@ function reset() {
   stopWorker();
   if (state.downloadUrl) URL.revokeObjectURL(state.downloadUrl);
   Object.assign(state, {
+    items: [],
+    folder: null,
+    archive: false,
     file: null,
     mode: 'encrypt',
     sourceFormat: null,
@@ -358,10 +394,12 @@ function reset() {
     result: null,
   });
   ui.fileInput.value = '';
+  ui.folderInput.value = '';
   ui.password.value = '';
   ui.confirm.value = '';
   setRevealed(false);
   ui.generated.hidden = true;
+  ui.altPick.hidden = false;
   ui.dropzone.classList.remove('has-file');
   ui.emptyView.hidden = false;
   ui.fileView.hidden = true;

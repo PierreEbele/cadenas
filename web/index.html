@@ -33,12 +33,12 @@
         <form id="form" novalidate>
           <!-- Étape 1 : choix du fichier -->
           <label class="dropzone" id="dropzone" for="file">
-            <input type="file" id="file" class="visually-hidden" />
+            <input type="file" id="file" class="visually-hidden" multiple />
             <span class="dropzone-empty">
               <svg viewBox="0 0 24 24" aria-hidden="true" class="dropzone-icon">
                 <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <span class="dropzone-title" data-i18n="drop.title">Déposez un fichier ici</span>
+              <span class="dropzone-title" data-i18n="drop.title">Déposez des fichiers ou un dossier ici</span>
               <span class="dropzone-hint" data-i18n-html="drop.hint">ou <span class="link-like">parcourez vos fichiers</span></span>
             </span>
             <span class="dropzone-file" hidden>
@@ -50,6 +50,10 @@
               <span class="link-like file-change" data-i18n="file.change">Changer</span>
             </span>
           </label>
+          <p class="alt-pick" id="alt-pick">
+            <input type="file" id="folder" class="visually-hidden" webkitdirectory multiple tabindex="-1" aria-hidden="true" />
+            <button type="button" class="text-button" id="pick-folder" data-i18n="drop.folder">Choisir un dossier entier</button>
+          </p>
 
           <!-- Étape 2 : mot de passe -->
           <fieldset id="options" class="options" disabled>
@@ -121,6 +125,7 @@
           </div>
           <p class="status-title" id="result-title"></p>
           <p class="status-detail" id="result-detail"></p>
+          <p class="status-detail" id="result-hint" hidden></p>
           <a class="primary" id="download" download></a>
           <button type="button" class="secondary" id="restart" data-i18n="result.restart">Traiter un autre fichier</button>
         </section>

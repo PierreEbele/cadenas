@@ -10,6 +10,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 ### Ajouté
 
 - Archives : plusieurs fichiers ou un dossier sont regroupés en une archive `.zip` produite en flux (`src/archive.js`, bibliothèque client-zip), puis chiffrés en un seul fichier. Arborescence et noms Unicode préservés, chemins nettoyés (ni chemin absolu ni `..`), doublons renommés, Zip64 au-delà de 4 Go, fichiers ouverts un par un.
+- Site : plusieurs fichiers ou un dossier entier, par glisser-déposer ou par sélection (bouton « Choisir un dossier entier »). Ils sont réunis dans `dossier.zip` (ou `cadenas-AAAA-MM-JJ.zip`) puis chiffrés ; au déchiffrement, le site rappelle qu'il suffit d'ouvrir l'archive.
 
 ## [1.1.0] - 2026-09-27
 

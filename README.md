@@ -3,6 +3,7 @@
 > Chiffrez un fichier avec un mot de passe, simplement.
 
 [![CI](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml/badge.svg)](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/cadenas.svg)](https://www.npmjs.com/package/cadenas)
 [![Licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
 
 **cadenas** chiffre et déchiffre un fichier avec un mot de passe, **directement dans votre
@@ -69,8 +70,10 @@ Pour la construire vous-même : `docker build -t cadenas .`
 Node.js 22 ou plus récent est nécessaire.
 
 ```bash
-npm install -g github:PierreEbele/cadenas
+npm install -g cadenas
 ```
+
+Ou sans installation, avec `npx cadenas lock rapport.pdf`.
 
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
@@ -118,8 +121,8 @@ Détails et signalement de vulnérabilités : [SECURITY.md](SECURITY.md).
 
 ## Utiliser cadenas comme bibliothèque
 
-Le cœur fonctionne à l'identique dans Node.js et dans les navigateurs, avec l'API
-Web Streams :
+`npm install cadenas`. Le cœur fonctionne à l'identique dans Node.js et dans les
+navigateurs, avec l'API Web Streams :
 
 ```js
 import { encrypt, decrypt, readAll, streamFromBytes } from 'cadenas';

@@ -5,6 +5,15 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [1.0.1] - 2026-09-27
+
+Première publication sur npm : `npm install -g cadenas`. Aucun changement de code.
+
+### Modifié
+
+- README : installation via npm (`npm install -g cadenas`, `npx cadenas`) et badge de version npm.
+- `package.json` : les tests sont lancés automatiquement avant chaque publication (`prepublishOnly`) ; publication publique par défaut.
+
 ## [1.0.0] - 2026-09-27
 
 Première version stable. Le format `.cadenas` v1 est désormais figé : les fichiers
@@ -112,6 +121,7 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[1.0.1]: https://github.com/PierreEbele/cadenas/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/PierreEbele/cadenas/compare/v0.7.0...v1.0.0
 [0.7.0]: https://github.com/PierreEbele/cadenas/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/PierreEbele/cadenas/compare/v0.5.0...v0.6.0

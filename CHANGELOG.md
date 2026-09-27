@@ -5,13 +5,21 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [1.3.0] - 2026-09-27
+
+Site installable et utilisable hors ligne, exécutables autonomes de la CLI.
+Aucun changement du format de fichier.
 
 ### Ajouté
 
 - Site installable et utilisable hors ligne (application web progressive) : manifeste, icônes, et service worker qui met en cache tous les fichiers du site. Une nouvelle version s'installe en arrière-plan et ne s'applique qu'après un clic sur « Mettre à jour », jamais au milieu d'un chiffrement.
 - Image Docker : le service worker reçoit sa propre politique de sécurité (`connect-src 'self'`, pour mettre le site en cache) ; la page garde `connect-src 'none'`. Manifeste servi avec le bon type MIME.
 - Exécutables autonomes de la CLI, sans Node.js à installer : Windows x64, macOS arm64, Linux x64 et arm64. Construits par la CI (Node.js « Single Executable Application »), testés sur chaque plateforme avant publication, joints à chaque release avec empreintes et attestation de provenance. `npm run build:exe` construit celui de la plateforme courante.
+- Le workflow de release peut être lancé à la main pour tout construire et tester sans rien publier.
+
+### Modifié
+
+- README : captures d'écran à jour (générateur de phrase de passe, sélecteur de langue), installation hors ligne.
 
 ## [1.2.0] - 2026-09-27
 
@@ -186,6 +194,7 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PierreEbele/cadenas/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PierreEbele/cadenas/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/PierreEbele/cadenas/compare/v1.0.1...v1.0.2

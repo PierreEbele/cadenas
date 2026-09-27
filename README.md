@@ -15,7 +15,7 @@ existe en ligne de commande.
   <a href="https://pierreebele.github.io/cadenas/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
-      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, le mot de passe est jugé excellent, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
+      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, une phrase de passe de cinq mots vient d'être générée et jugée excellente, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
     </picture>
   </a>
 </p>
@@ -48,6 +48,11 @@ Version en ligne : **<https://pierreebele.github.io/cadenas/>**
 
 cadenas reconnaît tout seul si le fichier est à chiffrer ou à déchiffrer. Le site
 est disponible en français et en anglais, selon la langue du navigateur.
+
+Après une première visite, **le site fonctionne hors ligne** et peut s'installer
+comme une application (menu du navigateur → « Installer cadenas » ou « Ajouter à
+l'écran d'accueil »). Sur Chrome et Edge, les fichiers de plus de 256 Mio sont
+écrits directement sur le disque : pas de limite de taille liée à la mémoire.
 
 ## Héberger soi-même avec Docker
 

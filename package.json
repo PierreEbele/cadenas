@@ -1,6 +1,6 @@
 {
   "name": "cadenas",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Chiffrez un fichier avec un mot de passe, simplement. Dans le navigateur ou en ligne de commande.",
   "keywords": [
     "encryption",

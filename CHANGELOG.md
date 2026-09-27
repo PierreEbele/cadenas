@@ -5,7 +5,10 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [1.0.2] - 2026-09-27
+
+Première version publiée automatiquement par GitHub Actions, avec attestation de
+provenance vérifiable sur npm. Aucun changement de code.
 
 ### Ajouté
 
@@ -127,6 +130,7 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[1.0.2]: https://github.com/PierreEbele/cadenas/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/PierreEbele/cadenas/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/PierreEbele/cadenas/compare/v0.7.0...v1.0.0
 [0.7.0]: https://github.com/PierreEbele/cadenas/compare/v0.6.0...v0.7.0

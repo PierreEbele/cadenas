@@ -47,6 +47,9 @@ export const MESSAGES = {
     'result.download': 'Télécharger {name}',
     'result.restart': 'Traiter un autre fichier',
     'result.zipHint': 'C’est une archive .zip : ouvrez-la pour retrouver vos fichiers.',
+    'result.saved': 'Enregistré : {name} · {size}',
+    'file.largeHint':
+      'Fichier volumineux : ce navigateur garde le résultat en mémoire jusqu’au téléchargement. Pour plusieurs Go, préférez Chrome ou Edge, qui l’écrivent directement sur le disque, ou la ligne de commande.',
     'facts.label': 'Garanties',
     'facts.local.title': '100 % local',
     'facts.local.text': "Le chiffrement a lieu dans votre navigateur. Aucun fichier ni mot de passe n'est envoyé.",
@@ -123,6 +126,9 @@ export const MESSAGES = {
     'result.download': 'Download {name}',
     'result.restart': 'Process another file',
     'result.zipHint': 'This is a .zip archive: open it to get your files back.',
+    'result.saved': 'Saved: {name} · {size}',
+    'file.largeHint':
+      'Large file: this browser keeps the result in memory until you download it. For several GB, prefer Chrome or Edge, which write it straight to disk, or the command line.',
     'facts.label': 'Guarantees',
     'facts.local.title': '100% local',
     'facts.local.text': 'Encryption happens in your browser. No file or password is ever sent.',

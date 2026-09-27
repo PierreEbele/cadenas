@@ -7,6 +7,11 @@ import { assess } from './strength.js';
 
 const $ = (id) => document.getElementById(id);
 
+// Au-delà de cette taille, le résultat est écrit directement sur le disque
+// quand le navigateur le permet (File System Access), plutôt qu'en mémoire.
+const LARGE_FILE = 256 * 1024 * 1024;
+const canSaveDirectly = typeof window.showSaveFilePicker === 'function';
+
 const ui = {
   form: $('form'),
   dropzone: $('dropzone'),
@@ -32,6 +37,7 @@ const ui = {
   confirm: $('confirm'),
   formatField: $('format-field'),
   hint: $('password-hint'),
+  largeHint: $('large-hint'),
   submit: $('submit'),
   progress: $('progress'),
   progressBar: $('progress-bar'),
@@ -149,7 +155,9 @@ async function selectItems({ items, folder }) {
 function renderFile() {
   const { file, items, archive, folder, mode, sourceFormat } = state;
   const encrypting = mode === 'encrypt';
-  const size = formatSize(items.reduce((sum, item) => sum + item.file.size, 0));
+  const total = totalSize();
+  const size = formatSize(total);
+  ui.largeHint.hidden = canSaveDirectly || total < LARGE_FILE;
 
   ui.dropzone.classList.add('has-file');
   ui.emptyView.hidden = true;
@@ -240,7 +248,7 @@ function clearInvalid() {
 // ---------------------------------------------------------------------------
 // Chiffrement / déchiffrement
 
-ui.form.addEventListener('submit', (event) => {
+ui.form.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (state.items.length === 0 || isBusy()) return;
   const password = ui.password.value;
@@ -258,10 +266,27 @@ ui.form.addEventListener('submit', (event) => {
   }
 
   const format = encrypting ? ui.form.elements.format.value : null;
-  run({ files: state.items, archive: state.archive, folder: state.folder, password, mode: state.mode, format });
+  const sourceName = state.archive ? archiveName(state.folder) : state.file.name;
+  const outputName = encrypting ? encryptedName(sourceName, format) : decryptedName(sourceName);
+
+  // Gros volume : on demande où enregistrer avant de commencer (le dialogue
+  // doit s'ouvrir tant que le clic de l'utilisateur est « récent »).
+  let handle;
+  if (canSaveDirectly && totalSize() >= LARGE_FILE) {
+    try {
+      handle = await window.showSaveFilePicker({ suggestedName: outputName });
+    } catch (err) {
+      if (err.name === 'AbortError') return; // l'utilisateur a fermé le dialogue
+      handle = undefined; // refusé (politique, iframe…) : on garde le résultat en mémoire
+    }
+  }
+
+  run({ files: state.items, archive: state.archive, password, mode: state.mode, format, handle }, outputName);
 });
 
-function run(job) {
+const totalSize = () => state.items.reduce((sum, item) => sum + item.file.size, 0);
+
+function run(job, outputName) {
   hideError();
   ui.form.hidden = true;
   ui.progress.hidden = false;
@@ -288,7 +313,7 @@ function run(job) {
         break;
       case 'done':
         stopWorker();
-        showResult(job, data);
+        showResult(job, outputName, data);
         break;
       case 'error':
         stopWorker();
@@ -301,8 +326,7 @@ function run(job) {
     stopWorker();
     showFailure('INTERNAL');
   };
-  const { folder, ...message } = job;
-  worker.postMessage(message);
+  worker.postMessage(job);
 }
 
 function setProgress(ratio, label, detail) {
@@ -315,31 +339,35 @@ function setProgress(ratio, label, detail) {
   ui.progressDetail.textContent = detail;
 }
 
-function showResult(job, { blob, format }) {
+function showResult(job, name, { blob, saved, size }) {
   const encrypting = job.mode === 'encrypt';
-  const sourceName = job.archive ? archiveName(job.folder) : job.files[0].file.name;
-  const name = encrypting ? encryptedName(sourceName, format) : decryptedName(sourceName);
-  state.downloadUrl = URL.createObjectURL(blob);
-  state.downloaded = false;
-  state.result = { encrypting, name, size: blob.size };
+  // Déjà sur le disque : rien à télécharger, rien à perdre en quittant la page.
+  state.downloadUrl = saved ? null : URL.createObjectURL(blob);
+  state.downloaded = Boolean(saved);
+  state.result = { encrypting, name, size, saved: Boolean(saved) };
 
   ui.progress.hidden = true;
   ui.result.hidden = false;
-  ui.download.href = state.downloadUrl;
-  ui.download.download = name;
+  ui.download.hidden = Boolean(saved);
+  if (!saved) {
+    ui.download.href = state.downloadUrl;
+    ui.download.download = name;
+  }
   renderResult();
   ui.password.value = '';
   ui.confirm.value = '';
   setRevealed(false);
   ui.generated.hidden = true;
   updateStrength();
-  ui.download.focus();
+  (saved ? ui.restart : ui.download).focus();
 }
 
 function renderResult() {
-  const { encrypting, name, size } = state.result;
+  const { encrypting, name, size, saved } = state.result;
   ui.resultTitle.textContent = t(encrypting ? 'result.encrypted' : 'result.decrypted');
-  ui.resultDetail.textContent = `${name} · ${formatSize(size)}`;
+  ui.resultDetail.textContent = saved
+    ? t('result.saved', { name, size: formatSize(size) })
+    : `${name} · ${formatSize(size)}`;
   ui.download.textContent = t('result.download', { name });
   ui.resultHint.hidden = encrypting || !name.toLowerCase().endsWith('.zip');
   ui.resultHint.textContent = t('result.zipHint');
@@ -400,6 +428,8 @@ function reset() {
   setRevealed(false);
   ui.generated.hidden = true;
   ui.altPick.hidden = false;
+  ui.download.hidden = false;
+  ui.largeHint.hidden = true;
   ui.dropzone.classList.remove('has-file');
   ui.emptyView.hidden = false;
   ui.fileView.hidden = true;

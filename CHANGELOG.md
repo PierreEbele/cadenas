@@ -11,6 +11,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Archives : plusieurs fichiers ou un dossier sont regroupés en une archive `.zip` produite en flux (`src/archive.js`, bibliothèque client-zip), puis chiffrés en un seul fichier. Arborescence et noms Unicode préservés, chemins nettoyés (ni chemin absolu ni `..`), doublons renommés, Zip64 au-delà de 4 Go, fichiers ouverts un par un.
 - Site : plusieurs fichiers ou un dossier entier, par glisser-déposer ou par sélection (bouton « Choisir un dossier entier »). Ils sont réunis dans `dossier.zip` (ou `cadenas-AAAA-MM-JJ.zip`) puis chiffrés ; au déchiffrement, le site rappelle qu'il suffit d'ouvrir l'archive.
+- Site : au-delà de 256 Mio, le résultat est écrit directement sur le disque (Chrome, Edge : le site demande où l'enregistrer avant de commencer), en mémoire constante quelle que soit la taille. Sur les autres navigateurs, un message conseille Chrome, Edge ou la ligne de commande pour plusieurs Go.
 
 ## [1.1.0] - 2026-09-27
 

@@ -5,11 +5,12 @@
  * Message reçu :
  *   { mode: 'encrypt' | 'decrypt', password, format,
  *     files: [{ file, path }],   // un seul fichier, ou plusieurs à archiver
- *     archive: boolean }         // regrouper les fichiers dans un .zip avant chiffrement
+ *     archive: boolean,          // regrouper les fichiers dans un .zip avant chiffrement
+ *     handle? }                  // FileSystemFileHandle : écrire directement sur le disque
  * Messages émis :
  *   { type: 'phase', phase: 'key' | 'process' }
  *   { type: 'progress', done, total }
- *   { type: 'done', blob, format }
+ *   { type: 'done', blob | saved: true, size, format }
  *   { type: 'error', code }
  */
 import { CadenasError, archiveSize, createArchive, decrypt, encrypt, prepareEntries } from '../src/core.js';
@@ -29,6 +30,23 @@ self.onmessage = async ({ data: job }) => {
     }
 
     self.postMessage({ type: 'phase', phase: 'process' });
+    if (job.handle) {
+      // Écriture directe sur le disque (File System Access) : mémoire constante,
+      // quelle que soit la taille. En cas d'erreur, pipeTo annule l'écriture et
+      // le navigateur supprime le fichier temporaire.
+      let written = 0;
+      const counter = new TransformStream({
+        transform(chunk, controller) {
+          written += chunk.length;
+          controller.enqueue(chunk);
+        },
+      });
+      await output.pipeThrough(counter).pipeTo(await job.handle.createWritable());
+      self.postMessage({ type: 'progress', done: size, total: size });
+      self.postMessage({ type: 'done', saved: true, size: written, format });
+      return;
+    }
+
     const parts = [];
     const reader = output.getReader();
     for (;;) {
@@ -38,7 +56,7 @@ self.onmessage = async ({ data: job }) => {
     }
     const blob = new Blob(parts, { type: 'application/octet-stream' });
     self.postMessage({ type: 'progress', done: size, total: size });
-    self.postMessage({ type: 'done', blob, format });
+    self.postMessage({ type: 'done', blob, size: blob.size, format });
   } catch (err) {
     if (!(err instanceof CadenasError)) console.error(err);
     self.postMessage({ type: 'error', code: err instanceof CadenasError ? err.code : 'INTERNAL' });

@@ -4,54 +4,67 @@
  */
 import { randomBytes } from 'node:crypto';
 import { createReadStream, createWriteStream, readFileSync } from 'node:fs';
-import { open, rename, rm, stat } from 'node:fs/promises';
+import { lstat, open, readdir, rename, rm, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
-import { argv, exit, stderr, stdout } from 'node:process';
-import { Readable, Transform } from 'node:stream';
+import { argv, exit, stderr, stdin, stdout } from 'node:process';
+import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { parseArgs } from 'node:util';
 import {
   CadenasError,
   DETECT_SIZE,
+  archiveName,
+  archiveSize,
+  createArchive,
   decrypt,
   decryptedName,
   detectFormat,
   encrypt,
   encryptedName,
+  prepareEntries,
 } from '../src/core.js';
 import { DEFAULT_WORDS, LANGUAGES, MAX_WORDS, MIN_WORDS, generatePassphrase } from '../src/passphrase.js';
-import { PromptCancelled, promptPassword, readPasswordFromStdin } from '../src/prompt.js';
+import { PromptCancelled, promptPassword, readPasswordFromFile, readPasswordFromStdin } from '../src/prompt.js';
 
-const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const version =
+  typeof __CADENAS_VERSION__ === 'string'
+    ? __CADENAS_VERSION__ // injecté à la compilation des exécutables autonomes
+    : JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 
 const HELP = `cadenas ${version} — chiffrer un fichier avec un mot de passe
 
 Utilisation :
-  cadenas lock <fichier>     chiffre le fichier (→ <fichier>.cadenas)
-  cadenas unlock <fichier>   déchiffre un fichier .cadenas ou .age
-  cadenas passphrase         génère une phrase de passe aléatoire
+  cadenas lock <fichier|dossier>...   chiffre (plusieurs fichiers ou un dossier → archive .zip chiffrée)
+  cadenas unlock <fichier>            déchiffre un fichier .cadenas ou .age
+  cadenas passphrase                  génère une phrase de passe aléatoire
+
+  « - » désigne l'entrée standard (fichier) ou la sortie standard (-o -).
 
 Options :
-  -o, --output <chemin>   fichier de sortie
-  -f, --force             écrase le fichier de sortie s'il existe
-      --age               chiffre au format age (→ <fichier>.age), lisible par age / rage
-      --password-stdin    lit le mot de passe sur l'entrée standard (scripts)
-  -h, --help              affiche cette aide
-  -v, --version           affiche la version
+  -o, --output <chemin>     fichier de sortie (« - » : sortie standard)
+  -f, --force               écrase le fichier de sortie s'il existe
+      --age                 chiffre au format age, lisible par age / rage
+      --password-file <f>   lit le mot de passe dans un fichier (première ligne)
+      --password-stdin      lit le mot de passe sur l'entrée standard
+  -h, --help                affiche cette aide
+  -v, --version             affiche la version
 
 Options de passphrase :
-  -w, --words <n>         nombre de mots (${DEFAULT_WORDS} par défaut, ${MIN_WORDS} à ${MAX_WORDS})
-      --lang <fr|en>      langue des mots (fr par défaut)
+  -w, --words <n>           nombre de mots (${DEFAULT_WORDS} par défaut, ${MIN_WORDS} à ${MAX_WORDS})
+      --lang <fr|en>        langue des mots (fr par défaut)
 
 Exemples :
-  cadenas lock rapport.pdf
+  cadenas lock rapport.pdf                    → rapport.pdf.cadenas
+  cadenas lock photos/                        → photos.zip.cadenas
+  cadenas lock a.txt b.txt -o docs.zip.cadenas
   cadenas unlock rapport.pdf.cadenas
-  cadenas passphrase --words 6
-  echo "$MOT_DE_PASSE" | cadenas lock --password-stdin sauvegarde.tar
+  tar c projet | cadenas lock - --password-file ~/.secret > projet.tar.cadenas
+  cadenas unlock sauvegarde.cadenas -o - --password-file ~/.secret | tar x
 
 Documentation : https://github.com/PierreEbele/cadenas`;
 
 const COMMANDS = { lock: 'lock', encrypt: 'lock', unlock: 'unlock', decrypt: 'unlock' };
+const STDIO = '-';
 
 /** Erreur d'utilisation (code de sortie 2). */
 class UsageError extends Error {}
@@ -67,6 +80,7 @@ async function main() {
         force: { type: 'boolean', short: 'f', default: false },
         age: { type: 'boolean', default: false },
         'password-stdin': { type: 'boolean', default: false },
+        'password-file': { type: 'string' },
         words: { type: 'string', short: 'w' },
         lang: { type: 'string' },
         help: { type: 'boolean', short: 'h', default: false },
@@ -81,26 +95,32 @@ async function main() {
   if (options.version) return stdout.write(`${version}\n`);
   if (options.help || positionals.length === 0) return stdout.write(`${HELP}\n`);
 
-  const [commandName, file, ...extra] = positionals;
-  if (commandName === 'passphrase') return passphrase(options, positionals.slice(1));
+  const [commandName, ...inputs] = positionals;
+  if (commandName === 'passphrase') return passphrase(options, inputs);
   const command = COMMANDS[commandName];
   if (!command) throw new UsageError(`Commande inconnue : ${commandName}. Utilisez lock, unlock ou passphrase.`);
-  if (!file) throw new UsageError(`Indiquez le fichier à traiter : cadenas ${commandName} <fichier>`);
-  if (extra.length > 0) throw new UsageError('Un seul fichier à la fois.');
-  if (command === 'unlock' && options.age) {
-    throw new UsageError('--age ne s’utilise qu’avec lock : le format est détecté automatiquement au déchiffrement.');
+  if (inputs.length === 0) throw new UsageError(`Indiquez ce qu’il faut traiter : cadenas ${commandName} <fichier>`);
+
+  if (inputs.includes(STDIO) && inputs.length > 1) {
+    throw new UsageError('« - » (entrée standard) ne peut pas être combiné à d’autres fichiers.');
+  }
+  if (options['password-stdin'] && options['password-file']) {
+    throw new UsageError('Choisissez --password-stdin ou --password-file, pas les deux.');
+  }
+  if (options['password-stdin'] && inputs.includes(STDIO)) {
+    throw new UsageError('L’entrée standard sert déjà aux données : utilisez --password-file.');
+  }
+  if (command === 'unlock') {
+    if (options.age) throw new UsageError('--age ne s’utilise qu’avec lock : le format est détecté automatiquement.');
+    if (inputs.length > 1) throw new UsageError('Déchiffrez un seul fichier à la fois.');
   }
 
-  const input = resolve(file);
-  const info = await stat(input).catch((err) => {
-    if (err.code === 'ENOENT') throw new CadenasError('NOT_FOUND', `Fichier introuvable : ${file}`);
-    throw err;
-  });
-  if (!info.isFile()) throw new CadenasError('NOT_A_FILE', `${file} n’est pas un fichier.`);
-
-  if (command === 'lock') await lock(input, info.size, options);
-  else await unlock(input, info.size, options);
+  if (command === 'lock') await lock(inputs, options);
+  else await unlock(inputs[0], options);
 }
+
+// ---------------------------------------------------------------------------
+// Commandes
 
 async function passphrase(options, extra) {
   if (extra.length > 0) throw new UsageError('passphrase ne prend pas de fichier.');
@@ -117,47 +137,124 @@ async function passphrase(options, extra) {
   if (stderr.isTTY) stderr.write(`(${Math.round(bits)} bits d’entropie — notez-la, elle ne pourra pas être retrouvée)\n`);
 }
 
-async function lock(input, size, options) {
+async function lock(inputs, options) {
   const format = options.age ? 'age' : 'cadenas';
-  const output = resolve(options.output ?? join(dirname(input), encryptedName(basename(input), format)));
+  const source = await openSource(inputs);
+  const output = resolveOutput(options.output, () => join(source.dir, encryptedName(source.name, format)), source.fromStdin);
   await ensureWritable(output, options.force);
 
-  let password;
-  if (options['password-stdin']) {
-    password = await readPasswordFromStdin();
-  } else {
-    password = await promptPassword('Mot de passe : ');
-    const again = await promptPassword('Confirmez le mot de passe : ');
-    if (password !== again) throw new CadenasError('MISMATCH', 'Les deux mots de passe ne correspondent pas.');
-  }
-
-  const progress = new Progress('Chiffrement', size);
+  const password = await readPassword(options, { confirm: true, stdinIsData: source.fromStdin });
+  const progress = new Progress('Chiffrement', source.size);
   progress.phase('Préparation de la clé…');
-  const encrypted = await encrypt(Readable.toWeb(createReadStream(input).pipe(progress.counter())), password, { format });
-  await writeAtomically(Readable.fromWeb(encrypted), output);
+  const encrypted = await encrypt(progress.count(source.stream()), password, { format });
+  await writeOutput(encrypted, output);
   progress.done();
-  stdout.write(`✔ Fichier chiffré : ${displayPath(output)}\n`);
+  if (output !== STDIO) {
+    const what = source.count > 1 ? `${source.count} fichiers chiffrés` : 'Fichier chiffré';
+    stderr.write(`✔ ${what} : ${displayPath(output)}\n`);
+  }
 }
 
-async function unlock(input, size, options) {
-  const head = await readHead(input);
-  const format = detectFormat(head);
-  if (!format) {
-    throw new CadenasError('UNKNOWN_FORMAT', 'Ce fichier n’est ni un fichier .cadenas ni un fichier .age.');
+async function unlock(input, options) {
+  const fromStdin = input === STDIO;
+  let size;
+  let path;
+  if (!fromStdin) {
+    path = resolve(input);
+    const info = await statInput(input);
+    if (!info.isFile()) throw new CadenasError('NOT_A_FILE', `${input} n’est pas un fichier.`);
+    size = info.size;
+    // Détection avant de demander le mot de passe : erreur immédiate si ce n'est pas un fichier chiffré.
+    if (!detectFormat(await readHead(path))) {
+      throw new CadenasError('UNKNOWN_FORMAT', 'Ce fichier n’est ni un fichier .cadenas ni un fichier .age.');
+    }
   }
-  const output = resolve(options.output ?? join(dirname(input), decryptedName(basename(input))));
+  const output = resolveOutput(options.output, () => join(dirname(path), decryptedName(basename(path))), fromStdin);
   await ensureWritable(output, options.force);
 
-  const password = options['password-stdin']
-    ? await readPasswordFromStdin()
-    : await promptPassword('Mot de passe : ');
-
+  const password = await readPassword(options, { confirm: false, stdinIsData: fromStdin });
   const progress = new Progress('Déchiffrement', size);
   progress.phase('Préparation de la clé…');
-  const { stream } = await decrypt(Readable.toWeb(createReadStream(input).pipe(progress.counter())), password);
-  await writeAtomically(Readable.fromWeb(stream), output);
+  const inputStream = fromStdin ? Readable.toWeb(stdin) : Readable.toWeb(createReadStream(path));
+  const { stream } = await decrypt(progress.count(inputStream), password);
+  await writeOutput(stream, output);
   progress.done();
-  stdout.write(`✔ Fichier déchiffré : ${displayPath(output)}\n`);
+  if (output !== STDIO) stderr.write(`✔ Fichier déchiffré : ${displayPath(output)}\n`);
+}
+
+// ---------------------------------------------------------------------------
+// Entrées
+
+/**
+ * Décrit ce qui sera chiffré : l'entrée standard, un fichier, ou une archive
+ * .zip de plusieurs fichiers / dossiers.
+ */
+async function openSource(inputs) {
+  if (inputs[0] === STDIO) {
+    return { fromStdin: true, count: 1, size: undefined, stream: () => Readable.toWeb(stdin) };
+  }
+
+  const infos = await Promise.all(inputs.map(statInput));
+  if (inputs.length === 1 && infos[0].isFile()) {
+    const path = resolve(inputs[0]);
+    return {
+      dir: dirname(path),
+      name: basename(path),
+      count: 1,
+      size: infos[0].size,
+      stream: () => Readable.toWeb(createReadStream(path)),
+    };
+  }
+
+  // Plusieurs entrées ou un dossier : archive .zip.
+  const files = [];
+  for (const [i, input] of inputs.entries()) {
+    const path = resolve(input);
+    if (infos[i].isDirectory()) await collectDirectory(path, basename(path), files);
+    else if (infos[i].isFile()) files.push({ absolute: path, path: basename(path), info: infos[i] });
+    else throw new CadenasError('NOT_A_FILE', `${input} n’est ni un fichier ni un dossier.`);
+  }
+  if (files.length === 0) throw new CadenasError('EMPTY', 'Aucun fichier à chiffrer : les dossiers sont vides.');
+
+  const entries = prepareEntries(
+    files.map(({ absolute, path, info }) => ({
+      path,
+      size: info.size,
+      lastModified: info.mtime,
+      open: () => Readable.toWeb(createReadStream(absolute)),
+    })),
+  );
+  const singleFolder = inputs.length === 1 ? basename(resolve(inputs[0])) : null;
+  const first = resolve(inputs[0]);
+  return {
+    dir: singleFolder ? dirname(first) : resolve('.'),
+    name: archiveName(singleFolder),
+    count: entries.length,
+    size: archiveSize(entries),
+    stream: () => createArchive(entries),
+  };
+}
+
+/** Parcourt un dossier récursivement ; les liens symboliques sont ignorés. */
+async function collectDirectory(absolute, path, out) {
+  const children = await readdir(absolute, { withFileTypes: true });
+  children.sort((a, b) => a.name.localeCompare(b.name));
+  for (const child of children) {
+    const childAbsolute = join(absolute, child.name);
+    const childPath = `${path}/${child.name}`;
+    if (child.isDirectory()) await collectDirectory(childAbsolute, childPath, out);
+    else if (child.isFile()) out.push({ absolute: childAbsolute, path: childPath, info: await stat(childAbsolute) });
+    else stderr.write(`Ignoré (lien ou fichier spécial) : ${displayPath(childAbsolute)}\n`);
+  }
+}
+
+async function statInput(input) {
+  try {
+    return await lstat(input).then((info) => (info.isSymbolicLink() ? stat(input) : info));
+  } catch (err) {
+    if (err.code === 'ENOENT') throw new CadenasError('NOT_FOUND', `Introuvable : ${input}`);
+    throw err;
+  }
 }
 
 async function readHead(path) {
@@ -171,8 +268,36 @@ async function readHead(path) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Mot de passe
+
+async function readPassword(options, { confirm, stdinIsData }) {
+  if (options['password-file']) return readPasswordFromFile(options['password-file']);
+  if (options['password-stdin']) return readPasswordFromStdin();
+  const password = await promptPassword('Mot de passe : ', { stdinIsData });
+  if (confirm) {
+    const again = await promptPassword('Confirmez le mot de passe : ', { stdinIsData });
+    if (password !== again) throw new CadenasError('MISMATCH', 'Les deux mots de passe ne correspondent pas.');
+  }
+  return password;
+}
+
+// ---------------------------------------------------------------------------
+// Sorties
+
+/** « - » ou absence de -o avec l'entrée standard → sortie standard. */
+function resolveOutput(option, defaultPath, fromStdin) {
+  if (option === STDIO || (option === undefined && fromStdin)) {
+    if (stdout.isTTY) {
+      throw new UsageError('Refus d’écrire des données binaires dans le terminal : redirigez la sortie ou utilisez -o <fichier>.');
+    }
+    return STDIO;
+  }
+  return resolve(option ?? defaultPath());
+}
+
 async function ensureWritable(output, force) {
-  if (force) return;
+  if (force || output === STDIO) return;
   const exists = await stat(output).then(() => true, () => false);
   if (exists) {
     throw new CadenasError('EXISTS', `${displayPath(output)} existe déjà. Utilisez -f pour l’écraser ou -o pour choisir un autre nom.`);
@@ -180,13 +305,16 @@ async function ensureWritable(output, force) {
 }
 
 /**
- * Écrit dans un fichier temporaire puis le renomme : en cas d'erreur (mauvais
- * mot de passe, fichier altéré…) aucun fichier partiel n'est laissé.
+ * Vers un fichier : écriture dans un fichier temporaire renommé à la fin, pour
+ * qu'une erreur (mauvais mot de passe, fichier altéré…) ne laisse jamais de
+ * fichier partiel. Vers la sortie standard : en flux ; en cas d'erreur, le
+ * code de sortie non nul signale que les données sont incomplètes.
  */
-async function writeAtomically(readable, output) {
+async function writeOutput(webStream, output) {
+  if (output === STDIO) return pipeline(Readable.fromWeb(webStream), stdout);
   const temp = join(dirname(output), `.${basename(output)}.${randomBytes(4).toString('hex')}.tmp`);
   try {
-    await pipeline(readable, createWriteStream(temp, { flags: 'wx' }));
+    await pipeline(Readable.fromWeb(webStream), createWriteStream(temp, { flags: 'wx' }));
     await rename(temp, output);
   } catch (err) {
     await rm(temp, { force: true });
@@ -208,22 +336,27 @@ class Progress {
     if (this.enabled) stderr.write(`\r\x1b[K${text}`);
   }
 
-  counter() {
-    return new Transform({
-      transform: (chunk, _encoding, callback) => {
-        this.#done += chunk.length;
-        this.#render();
-        callback(null, chunk);
-      },
-    });
+  /** Relaie un flux web en comptant les octets lus. */
+  count(webStream) {
+    return webStream.pipeThrough(
+      new TransformStream({
+        transform: (chunk, controller) => {
+          this.#done += chunk.length;
+          this.#render();
+          controller.enqueue(chunk);
+        },
+      }),
+    );
   }
 
   #render() {
     const now = Date.now();
     if (!this.enabled || now - this.#last < 100) return;
     this.#last = now;
-    const percent = this.total ? Math.floor((this.#done / this.total) * 100) : 100;
-    stderr.write(`\r\x1b[K${this.label}… ${percent} %`);
+    const status = this.total
+      ? `${Math.floor((this.#done / this.total) * 100)} %`
+      : `${(this.#done / 1e6).toFixed(1)} Mo`;
+    stderr.write(`\r\x1b[K${this.label}… ${status}`);
   }
 
   done() {

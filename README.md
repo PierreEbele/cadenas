@@ -89,22 +89,39 @@ Ou sans installation, avec `npx cadenas lock rapport.pdf`.
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
 cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
+cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
+cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
 cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 
+Plusieurs fichiers ou des dossiers sont réunis dans une archive `.zip` avant
+d'être chiffrés ; une fois déchiffrée, elle s'ouvre avec n'importe quel outil.
+
+`-` désigne l'entrée ou la sortie standard, pour les scripts et les sauvegardes :
+
+```bash
+tar c projet | cadenas lock - --password-file ~/.cle > projet.tar.cadenas
+cadenas unlock projet.tar.cadenas -o - --password-file ~/.cle | tar x
+```
+
 | Option | Rôle |
 |---|---|
-| `-o, --output <chemin>` | fichier de sortie |
+| `-o, --output <chemin>` | fichier de sortie (`-` : sortie standard) |
 | `-f, --force` | écrase le fichier de sortie s'il existe |
 | `--age` | chiffre au format age (avec `lock`) |
-| `--password-stdin` | lit le mot de passe sur l'entrée standard, pour les scripts |
+| `--password-file <fichier>` | lit le mot de passe dans un fichier (première ligne) |
+| `--password-stdin` | lit le mot de passe sur l'entrée standard |
 | `-h, --help` / `-v, --version` | aide / version |
 | `-w, --words <n>` | nombre de mots de `passphrase` (5 par défaut) |
 | `--lang <fr\|en>` | langue des mots de `passphrase` (fr par défaut) |
 
-Le mot de passe est demandé sans écho (deux fois pour chiffrer). En cas d'erreur
-(mauvais mot de passe, fichier altéré), aucun fichier partiel n'est écrit.
+Le mot de passe est demandé sans écho (deux fois pour chiffrer), directement dans
+le terminal même quand les données arrivent par l'entrée standard. Vers un
+fichier, une erreur (mauvais mot de passe, fichier altéré) ne laisse jamais de
+fichier partiel ; vers la sortie standard, le code de sortie non nul signale que
+les données sont incomplètes. Les messages vont sur la sortie d'erreur, jamais
+dans les données.
 
 Codes de sortie : `0` succès, `1` erreur, `2` mauvaise utilisation, `130` annulation.
 

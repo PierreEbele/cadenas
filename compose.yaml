@@ -1,0 +1,17 @@
+# Lancement : docker compose up -d   →   http://localhost:8080
+services:
+  cadenas:
+    image: ghcr.io/pierreebele/cadenas:latest
+    # Décommentez pour construire l'image localement au lieu de la télécharger :
+    # build: .
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    # Durcissement : système de fichiers en lecture seule, aucun privilège.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

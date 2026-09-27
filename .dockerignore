@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.github
+.claude
+test
+docs
+scripts
+*.md
+*.cadenas
+*.age
+Dockerfile
+compose.yaml

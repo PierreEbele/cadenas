@@ -5,6 +5,18 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.5.0] - 2026-09-27
+
+### Ajouté
+
+- Image Docker auto-hébergeable (`Dockerfile`) :
+  - construction en deux étapes : Vite dans `node:24-alpine`, puis service par `nginx-unprivileged` (utilisateur non-root, port 8080) ;
+  - le conteneur ne sert que des fichiers statiques : le serveur ne voit jamais ni fichier ni mot de passe ;
+  - vérification de santé intégrée.
+- Configuration nginx (`docker/`) : en-têtes de sécurité stricts, dont une CSP `connect-src 'none'` qui interdit techniquement à la page toute connexion réseau ; cache long pour les fichiers versionnés ; aucun journal d'accès.
+- `compose.yaml` : lancement en une commande, conteneur en lecture seule sans privilèges.
+- La même CSP est injectée dans le HTML au build, pour les hébergeurs sans en-têtes personnalisés (GitHub Pages).
+
 ## [0.4.0] - 2026-09-27
 
 ### Ajouté
@@ -50,6 +62,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[0.5.0]: https://github.com/PierreEbele/cadenas/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/PierreEbele/cadenas/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/PierreEbele/cadenas/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PierreEbele/cadenas/compare/v0.1.0...v0.2.0

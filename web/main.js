@@ -53,6 +53,8 @@ const ui = {
   restart: $('restart'),
   error: $('error'),
   lang: $('lang'),
+  update: $('update'),
+  updateReload: $('update-reload'),
 };
 
 const state = {
@@ -73,6 +75,43 @@ const state = {
 ui.fileInput.value = '';
 $('version').textContent = `v${version}`;
 render();
+
+// ---------------------------------------------------------------------------
+// Hors ligne (service worker, uniquement sur le site construit)
+
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  let waiting = null;
+  let updating = false;
+  // Une nouvelle version s'installe en arrière-plan, mais ne prend la main
+  // qu'avec l'accord de l'utilisateur : jamais au milieu d'un chiffrement.
+  const offerUpdate = (worker) => {
+    if (!worker || !navigator.serviceWorker.controller) return;
+    waiting = worker;
+    ui.update.hidden = false;
+  };
+  navigator.serviceWorker
+    .register('./sw.js')
+    .then((registration) => {
+      offerUpdate(registration.waiting);
+      registration.addEventListener('updatefound', () => {
+        const worker = registration.installing;
+        worker?.addEventListener('statechange', () => {
+          if (worker.state === 'installed') offerUpdate(worker);
+        });
+      });
+    })
+    .catch(() => {
+      // Hors ligne indisponible (navigation privée…) : le site marche quand même.
+    });
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (updating) location.reload();
+  });
+  ui.updateReload.addEventListener('click', () => {
+    if (isBusy() || !waiting) return;
+    updating = true;
+    waiting.postMessage('SKIP_WAITING');
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Langue

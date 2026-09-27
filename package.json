@@ -1,0 +1,31 @@
+{
+  "name": "cadenas",
+  "version": "0.1.0",
+  "description": "Chiffrez un fichier avec un mot de passe, simplement. Dans le navigateur ou en ligne de commande.",
+  "keywords": [
+    "encryption",
+    "chiffrement",
+    "password",
+    "file",
+    "age",
+    "argon2",
+    "xchacha20"
+  ],
+  "homepage": "https://github.com/PierreEbele/cadenas#readme",
+  "bugs": {
+    "url": "https://github.com/PierreEbele/cadenas/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PierreEbele/cadenas.git"
+  },
+  "license": "MIT",
+  "author": "Pierre Ebele",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

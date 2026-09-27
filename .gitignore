@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Fichiers de test manuels
+*.cadenas
+*.age
+!test/fixtures/**

@@ -1,0 +1,50 @@
+name: Publication npm
+
+# Publie le paquet sur npm à chaque tag de version (v*), par « publication de
+# confiance » (trusted publishing) : npm vérifie via OIDC que la publication
+# vient bien de ce workflow de ce dépôt. Aucun jeton npm n'est stocké, et une
+# attestation de provenance est jointe automatiquement à chaque version.
+#
+# Configuration côté npm (une seule fois) : paquet cadenas → Settings →
+# Trusted Publisher → GitHub Actions, dépôt PierreEbele/cadenas, workflow npm.yml.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # La publication de confiance demande npm 11.5.1 ou plus récent.
+      - run: npm install -g npm@latest
+
+      - name: Le tag correspond à la version de package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Le tag $GITHUB_REF_NAME ne correspond pas à la version $version de package.json"
+            exit 1
+          fi
+
+      - run: npm ci
+
+      # prepublishOnly relance les tests avant l'envoi.
+      - name: Publication (ignorée si cette version existe déjà)
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version > /dev/null 2>&1; then
+            echo "$name@$version est déjà publiée, rien à faire."
+            exit 0
+          fi
+          npm publish

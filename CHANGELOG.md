@@ -5,6 +5,12 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouté
+
+- Publication automatique sur npm à chaque tag de version (`.github/workflows/npm.yml`), par publication de confiance (OIDC) : aucun jeton stocké, attestation de provenance jointe à chaque version, contrôle que le tag correspond à `package.json`.
+
 ## [1.0.1] - 2026-09-27
 
 Première publication sur npm : `npm install -g cadenas`. Aucun changement de code.

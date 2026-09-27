@@ -5,6 +5,22 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.6.0] - 2026-09-27
+
+### Ajouté
+
+- Interface en ligne de commande `cadenas` (`bin/cadenas.js`, aucune dépendance supplémentaire) :
+  - `cadenas lock <fichier>` → `<fichier>.cadenas`, ou `<fichier>.age` avec `--age` ;
+  - `cadenas unlock <fichier>` : format détecté automatiquement ;
+  - alias `encrypt` / `decrypt` ;
+  - options `-o/--output`, `-f/--force`, `--password-stdin`, `-h/--help`, `-v/--version`.
+- Saisie masquée du mot de passe avec confirmation (`src/prompt.js`).
+- Écriture atomique : en cas de mauvais mot de passe ou de fichier altéré, aucun fichier partiel n'est laissé.
+- Refus d'écraser un fichier existant sans `-f`.
+- Progression affichée dans le terminal ; codes de sortie 0 (succès), 1 (erreur), 2 (mauvaise utilisation), 130 (annulation).
+- Tests de la CLI de bout en bout (processus réels).
+- `package.json` : champs `bin`, `exports` et `files` pour une future publication npm.
+
 ## [0.5.0] - 2026-09-27
 
 ### Ajouté
@@ -62,6 +78,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[0.6.0]: https://github.com/PierreEbele/cadenas/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/PierreEbele/cadenas/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/PierreEbele/cadenas/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/PierreEbele/cadenas/compare/v0.2.0...v0.3.0

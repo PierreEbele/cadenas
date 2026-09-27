@@ -1,6 +1,6 @@
 {
   "name": "cadenas",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Chiffrez un fichier avec un mot de passe, simplement. Dans le navigateur ou en ligne de commande.",
   "keywords": [
     "encryption",
@@ -22,6 +22,15 @@
   "license": "MIT",
   "author": "Pierre Ebele",
   "type": "module",
+  "bin": {
+    "cadenas": "bin/cadenas.js"
+  },
+  "exports": "./src/core.js",
+  "files": [
+    "bin/",
+    "src/",
+    "docs/FORMAT.md"
+  ],
   "engines": {
     "node": ">=20"
   },

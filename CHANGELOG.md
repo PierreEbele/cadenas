@@ -26,6 +26,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - SECURITY.md : comment vérifier le paquet npm, l'image Docker, les fichiers des releases et un site auto-hébergé.
 - Dépendances de la CI épinglées : actions GitHub par empreinte de commit, images Docker de base par empreinte, version de npm fixée (Dependabot les tient à jour).
 - Branche `main` protégée contre la suppression et la réécriture d'historique.
+- Tests de propriétés (fuzzing avec fast-check) : aller-retour pour tout contenu, mot de passe et découpage ; détection de toute modification, troncature ou ajout d'octets ; refus propre d'entrées arbitraires.
 
 ### Modifié
 

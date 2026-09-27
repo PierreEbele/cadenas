@@ -5,6 +5,12 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Modifié
+
+- README : capture d'écran du site, en version claire et sombre selon le thème du lecteur.
+
 ## [1.0.2] - 2026-09-27
 
 Première version publiée automatiquement par GitHub Actions, avec attestation de

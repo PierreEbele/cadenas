@@ -10,6 +10,15 @@
 navigateur** : aucun fichier ni mot de passe n'est envoyé sur Internet. Le même outil
 existe en ligne de commande.
 
+<p align="center">
+  <a href="https://pierreebele.github.io/cadenas/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
+      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, le mot de passe est jugé excellent, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
+    </picture>
+  </a>
+</p>
+
 - **Simple** : déposez un fichier, choisissez un mot de passe, téléchargez le résultat.
 - **Local** : tout se passe sur votre appareil. La page n'a techniquement pas le droit
   d'ouvrir une connexion réseau (Content Security Policy `connect-src 'none'`).

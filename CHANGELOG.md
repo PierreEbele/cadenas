@@ -5,6 +5,13 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouté
+
+- README complet : utilisation du site, hébergement Docker, ligne de commande, comparaison des formats, sécurité, API, développement.
+- `CONTRIBUTING.md` : principes du projet, règles d'évolution du format, processus de publication.
+
 ## [0.7.0] - 2026-09-27
 
 ### Ajouté

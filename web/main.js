@@ -33,6 +33,7 @@ const ui = {
   progressFill: $('progress-fill'),
   progressLabel: $('progress-label'),
   progressDetail: $('progress-detail'),
+  cancel: $('cancel'),
   result: $('result'),
   resultTitle: $('result-title'),
   resultDetail: $('result-detail'),
@@ -47,6 +48,7 @@ const state = {
   sourceFormat: null, // format détecté si le fichier est déjà chiffré
   worker: null,
   downloadUrl: null,
+  downloaded: false,
 };
 
 ui.fileInput.value = '';
@@ -252,6 +254,7 @@ function showResult(job, { blob, format }) {
   const encrypting = job.mode === 'encrypt';
   const name = encrypting ? encryptedName(job.file.name, format) : decryptedName(job.file.name);
   state.downloadUrl = URL.createObjectURL(blob);
+  state.downloaded = false;
 
   ui.progress.hidden = true;
   ui.result.hidden = false;
@@ -281,10 +284,31 @@ function showFailure({ code, message }) {
 
 ui.restart.addEventListener('click', reset);
 
+// Annuler : le worker est arrêté net, rien n'est conservé.
+ui.cancel.addEventListener('click', () => {
+  stopWorker();
+  ui.progress.hidden = true;
+  ui.form.hidden = false;
+  ui.password.focus();
+});
+
+ui.download.addEventListener('click', () => {
+  state.downloaded = true;
+});
+
+// Prévient avant de quitter la page pendant un traitement, ou si le résultat
+// n'a pas encore été téléchargé : il serait perdu.
+window.addEventListener('beforeunload', (event) => {
+  if (isBusy() || (state.downloadUrl && !state.downloaded)) {
+    event.preventDefault();
+    event.returnValue = '';
+  }
+});
+
 function reset() {
   stopWorker();
   if (state.downloadUrl) URL.revokeObjectURL(state.downloadUrl);
-  Object.assign(state, { file: null, mode: 'encrypt', sourceFormat: null, downloadUrl: null });
+  Object.assign(state, { file: null, mode: 'encrypt', sourceFormat: null, downloadUrl: null, downloaded: false });
   ui.fileInput.value = '';
   ui.password.value = '';
   ui.confirm.value = '';

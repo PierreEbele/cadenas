@@ -24,6 +24,8 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Image Docker signée avec cosign (sans clé, Sigstore), avec SBOM et attestation de provenance.
 - Releases GitHub créées automatiquement par la CI : notes tirées du CHANGELOG, site archivé (`cadenas-site-vX.Y.Z.zip`), empreintes `SHA256SUMS` et `site-files.sha256`, attestation de provenance vérifiable avec `gh attestation verify`.
 - SECURITY.md : comment vérifier le paquet npm, l'image Docker, les fichiers des releases et un site auto-hébergé.
+- Dépendances de la CI épinglées : actions GitHub par empreinte de commit, images Docker de base par empreinte, version de npm fixée (Dependabot les tient à jour).
+- Branche `main` protégée contre la suppression et la réécriture d'historique.
 
 ### Modifié
 

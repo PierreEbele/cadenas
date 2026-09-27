@@ -41,7 +41,8 @@ existe en ligne de commande.
 
 Version en ligne : **<https://pierreebele.github.io/cadenas/>**
 
-1. Déposez un fichier (ou cliquez pour le choisir).
+1. Déposez un fichier, plusieurs fichiers ou un dossier entier (ils sont alors
+   réunis dans une archive `.zip` chiffrée).
 2. Saisissez un mot de passe.
 3. Téléchargez le résultat.
 

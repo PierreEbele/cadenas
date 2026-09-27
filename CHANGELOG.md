@@ -12,6 +12,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Générateur de phrases de passe : bouton « Générer une phrase de passe » sur le site (avec copie en un clic) et commande `cadenas passphrase [--words n] [--lang fr|en]`. 5 mots tirés sans biais par le générateur aléatoire du système, plus de 64 bits d'entropie. Listes de mots : Tails (français, CC0) et EFF (anglais, CC BY 3.0 US), chargées seulement à la demande sur le site.
 - Site : bouton « Annuler » pendant le chiffrement ou le déchiffrement.
 - Site : le navigateur demande confirmation avant de quitter la page pendant un traitement, ou si le résultat n'a pas encore été téléchargé.
+- Site en anglais : langue choisie d'après le navigateur, bouton « English / Français » en pied de page, choix mémorisé. Le générateur de phrases de passe utilise la liste de mots de la langue affichée.
 
 ### Modifié
 

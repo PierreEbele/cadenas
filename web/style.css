@@ -611,6 +611,12 @@ input[aria-invalid='true'] {
   color: inherit;
 }
 
+.footer-lang {
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
 @media (max-width: 34rem) {
   .facts {
     grid-template-columns: 1fr;

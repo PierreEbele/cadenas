@@ -44,7 +44,8 @@ Version en ligne : **<https://pierreebele.github.io/cadenas/>**
 2. Saisissez un mot de passe.
 3. Téléchargez le résultat.
 
-cadenas reconnaît tout seul si le fichier est à chiffrer ou à déchiffrer.
+cadenas reconnaît tout seul si le fichier est à chiffrer ou à déchiffrer. Le site
+est disponible en français et en anglais, selon la langue du navigateur.
 
 ## Héberger soi-même avec Docker
 

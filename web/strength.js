@@ -7,12 +7,13 @@ const WEAK_PATTERNS = [
   'bonjour', 'admin', 'secret', 'iloveyou', 'loulou', 'doudou', '000000', '111111',
 ];
 
+// Niveaux 0 (très faible) à 4 (excellent) ; libellés traduits dans i18n.js.
 export const LEVELS = [
-  { max: 35, label: 'Très faible', color: 'var(--weak)' },
-  { max: 50, label: 'Faible', color: 'var(--weak)' },
-  { max: 70, label: 'Correct', color: 'var(--fair)' },
-  { max: 90, label: 'Fort', color: 'var(--good)' },
-  { max: Infinity, label: 'Excellent', color: 'var(--strong)' },
+  { max: 35, color: 'var(--weak)' },
+  { max: 50, color: 'var(--weak)' },
+  { max: 70, color: 'var(--fair)' },
+  { max: 90, color: 'var(--good)' },
+  { max: Infinity, color: 'var(--strong)' },
 ];
 
 /** Estime l'entropie en bits. */
@@ -37,9 +38,9 @@ export function entropyBits(password) {
   return bits;
 }
 
-/** Renvoie { bits, ratio (0..1), label, color }. */
+/** Renvoie { bits, ratio (0..1), level (0..4), color }. */
 export function assess(password) {
   const bits = entropyBits(password);
-  const level = LEVELS.find((l) => bits < l.max);
-  return { bits, ratio: Math.min(1, bits / 100), label: level.label, color: level.color };
+  const level = LEVELS.findIndex((l) => bits < l.max);
+  return { bits, ratio: Math.min(1, bits / 100), level, color: LEVELS[level].color };
 }

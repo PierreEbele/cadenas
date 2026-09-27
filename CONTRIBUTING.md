@@ -47,9 +47,10 @@ Le format v1 est figé : des fichiers existent déjà.
 
 1. Déplacer les entrées `[Non publié]` du CHANGELOG sous le nouveau numéro de version.
 2. `npm version <x.y.z> --no-git-tag-version`, puis commit `chore(release): x.y.z`.
-3. `git tag -a vx.y.z -m "vx.y.z"` puis `git push --follow-tags`.
-4. La CI publie automatiquement le paquet npm (avec attestation de provenance) et
-   l'image Docker ; créer la release GitHub avec l'extrait du CHANGELOG.
+3. `git tag -a vx.y.z -m "vx.y.z — résumé"` puis `git push --follow-tags`.
+4. La CI fait le reste : paquet npm (avec provenance), image Docker signée, et
+   release GitHub (titre = message du tag, notes = section du CHANGELOG, site
+   archivé avec empreintes et attestation).
 
 Ne publiez pas sur npm depuis votre poste : le workflow `npm.yml` vérifie que le tag
 correspond à la version de `package.json` et relance les tests avant l'envoi.

@@ -21,6 +21,9 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - OpenSSF Scorecard : note publique des bonnes pratiques, badge dans le README.
 - Signalement privé de vulnérabilités activé sur GitHub.
 - Actions GitHub mises à jour vers leurs dernières versions majeures.
+- Image Docker signée avec cosign (sans clé, Sigstore), avec SBOM et attestation de provenance.
+- Releases GitHub créées automatiquement par la CI : notes tirées du CHANGELOG, site archivé (`cadenas-site-vX.Y.Z.zip`), empreintes `SHA256SUMS` et `site-files.sha256`, attestation de provenance vérifiable avec `gh attestation verify`.
+- SECURITY.md : comment vérifier le paquet npm, l'image Docker, les fichiers des releases et un site auto-hébergé.
 
 ### Modifié
 

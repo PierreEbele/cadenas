@@ -1,0 +1,67 @@
+name: Release
+
+# À chaque tag de version : crée la release GitHub avec les notes du
+# CHANGELOG, et y joint le site construit (archive + empreintes SHA-256),
+# accompagné d'une attestation de provenance signée (Sigstore).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Site statique
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Archive et empreintes
+        run: |
+          mkdir -p release
+          (cd dist && find . -type f | LC_ALL=C sort | xargs sha256sum) > release/site-files.sha256
+          (cd dist && zip -qrX "../release/cadenas-site-${GITHUB_REF_NAME}.zip" .)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: release/
+
+  publish:
+    name: Publication de la release
+    needs: [site]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: release
+          merge-multiple: true
+      - name: Empreintes de tous les fichiers publiés
+        run: (cd release && sha256sum -- * | grep -v ' SHA256SUMS$') > SHA256SUMS && mv SHA256SUMS release/
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-checksums: release/SHA256SUMS
+      - name: Notes et création de la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          node scripts/changelog-section.js "$version" > notes.md
+          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          title=$(git tag -l --format='%(contents:subject)' "$GITHUB_REF_NAME")
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" release/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/* --verify-tag \
+              --title "${title:-$GITHUB_REF_NAME}" --notes-file notes.md
+          fi

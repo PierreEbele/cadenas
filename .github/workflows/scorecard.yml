@@ -1,0 +1,32 @@
+name: OpenSSF Scorecard
+
+# Évalue les bonnes pratiques de sécurité du projet (revue de code,
+# protection de branche, dépendances, CI…) et publie la note :
+# https://scorecard.dev/viewer/?uri=github.com/PierreEbele/cadenas
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 5 * * 1'
+  branch_protection_rule:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      - uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif

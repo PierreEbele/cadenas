@@ -14,6 +14,14 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Site : le navigateur demande confirmation avant de quitter la page pendant un traitement, ou si le résultat n'a pas encore été téléchargé.
 - Site en anglais : langue choisie d'après le navigateur, bouton « English / Français » en pied de page, choix mémorisé. Le générateur de phrases de passe utilise la liste de mots de la langue affichée.
 
+### Sécurité
+
+- Dependabot : mises à jour hebdomadaires des dépendances npm, des actions GitHub et de l'image de base Docker ; correctifs de sécurité automatiques.
+- Analyse CodeQL du code et des workflows à chaque push et chaque semaine.
+- OpenSSF Scorecard : note publique des bonnes pratiques, badge dans le README.
+- Signalement privé de vulnérabilités activé sur GitHub.
+- Actions GitHub mises à jour vers leurs dernières versions majeures.
+
 ### Modifié
 
 - README : capture d'écran du site, en version claire et sombre selon le thème du lecteur.

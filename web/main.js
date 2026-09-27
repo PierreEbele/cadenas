@@ -17,6 +17,9 @@ const ui = {
   options: $('options'),
   password: $('password'),
   reveal: $('reveal'),
+  generate: $('generate'),
+  generated: $('generated'),
+  copy: $('copy'),
   strength: $('strength'),
   strengthFill: $('strength-fill'),
   strengthLabel: $('strength-label'),
@@ -110,6 +113,8 @@ function renderFile() {
   ui.formatField.hidden = !encrypting;
   ui.hint.hidden = !encrypting;
   ui.strength.hidden = !encrypting;
+  ui.generate.hidden = !encrypting;
+  ui.generated.hidden = true;
   ui.password.autocomplete = encrypting ? 'new-password' : 'current-password';
   ui.submit.textContent = encrypting ? 'Chiffrer' : 'Déchiffrer';
 }
@@ -117,16 +122,41 @@ function renderFile() {
 // ---------------------------------------------------------------------------
 // Mot de passe
 
-ui.reveal.addEventListener('click', () => {
-  const show = ui.password.type === 'password';
+ui.reveal.addEventListener('click', () => setRevealed(ui.password.type === 'password'));
+
+function setRevealed(show) {
   for (const input of [ui.password, ui.confirm]) input.type = show ? 'text' : 'password';
   ui.reveal.setAttribute('aria-pressed', String(show));
   ui.reveal.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
-});
+}
 
 ui.password.addEventListener('input', () => {
   updateStrength();
   clearInvalid();
+  ui.generated.hidden = true;
+});
+
+// La liste de mots (~60 Ko) n'est chargée qu'au premier clic.
+ui.generate.addEventListener('click', async () => {
+  const { generatePassphrase } = await import('../src/passphrase.js');
+  const { passphrase } = await generatePassphrase({ lang: 'fr' });
+  ui.password.value = passphrase;
+  ui.confirm.value = passphrase;
+  setRevealed(true);
+  updateStrength();
+  clearInvalid();
+  ui.copy.textContent = 'Copier';
+  ui.generated.hidden = false;
+});
+
+ui.copy.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(ui.password.value);
+    ui.copy.textContent = 'Copiée ✓';
+  } catch {
+    ui.password.select();
+    ui.copy.textContent = 'Sélectionnée, copiez-la';
+  }
 });
 ui.confirm.addEventListener('input', clearInvalid);
 
@@ -232,6 +262,8 @@ function showResult(job, { blob, format }) {
   ui.download.textContent = `Télécharger ${name}`;
   ui.password.value = '';
   ui.confirm.value = '';
+  setRevealed(false);
+  ui.generated.hidden = true;
   updateStrength();
   ui.download.focus();
 }
@@ -256,6 +288,8 @@ function reset() {
   ui.fileInput.value = '';
   ui.password.value = '';
   ui.confirm.value = '';
+  setRevealed(false);
+  ui.generated.hidden = true;
   ui.dropzone.classList.remove('has-file');
   ui.emptyView.hidden = false;
   ui.fileView.hidden = true;

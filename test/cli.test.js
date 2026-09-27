@@ -94,6 +94,27 @@ describe('sécurité des fichiers', () => {
   });
 });
 
+describe('passphrase', () => {
+  test('5 mots français par défaut, sur stdout', () => {
+    const result = cadenas(['passphrase']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout.trim().split(' ').length, 5);
+  });
+
+  test('--words et --lang', () => {
+    const result = cadenas(['passphrase', '--words', '7', '--lang', 'en']);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout.trim().split(' ').length, 7);
+  });
+
+  test('valeurs invalides : code 2', () => {
+    assert.equal(cadenas(['passphrase', '--words', '2']).code, 2);
+    assert.equal(cadenas(['passphrase', '--words', 'dix']).code, 2);
+    assert.equal(cadenas(['passphrase', '--lang', 'de']).code, 2);
+    assert.equal(cadenas(['passphrase', 'fichier.txt']).code, 2);
+  });
+});
+
 describe('erreurs et aide', () => {
   test('fichier introuvable', () => {
     const result = cadenas(['unlock', '--password-stdin', 'absent.cadenas'], 'pwd');

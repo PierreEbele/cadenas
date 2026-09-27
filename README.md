@@ -88,6 +88,7 @@ Ou sans installation, avec `npx cadenas lock rapport.pdf`.
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
 cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
+cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 
 | Option | Rôle |
@@ -97,6 +98,8 @@ cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / r
 | `--age` | chiffre au format age (avec `lock`) |
 | `--password-stdin` | lit le mot de passe sur l'entrée standard, pour les scripts |
 | `-h, --help` / `-v, --version` | aide / version |
+| `-w, --words <n>` | nombre de mots de `passphrase` (5 par défaut) |
+| `--lang <fr\|en>` | langue des mots de `passphrase` (fr par défaut) |
 
 Le mot de passe est demandé sans écho (deux fois pour chiffrer). En cas d'erreur
 (mauvais mot de passe, fichier altéré), aucun fichier partiel n'est écrit.
@@ -121,7 +124,8 @@ Spécification complète du format `.cadenas` : [docs/FORMAT.md](docs/FORMAT.md)
 ## Sécurité
 
 - Choisissez un mot de passe long : une phrase de 4 ou 5 mots aléatoires est facile
-  à retenir et très solide.
+  à retenir et très solide. Le bouton « Générer une phrase de passe » du site (ou
+  `cadenas passphrase`) en tire une au hasard : 5 mots, plus de 64 bits d'entropie.
 - **Un mot de passe oublié ne peut pas être récupéré.**
 - Le nom du fichier et sa taille approximative restent visibles.
 - Le format `.cadenas` n'a pas encore été audité par des spécialistes indépendants.
@@ -171,3 +175,9 @@ Historique des versions : [CHANGELOG.md](CHANGELOG.md).
 ## Licence
 
 [MIT](LICENSE) © Pierre Ebele
+
+Listes de mots du générateur de phrases de passe :
+
+- français : liste de Tango pour [Tails](https://tails.net), domaine public (CC0 1.0) ;
+- anglais : [EFF Large Wordlist](https://www.eff.org/dice) de l'Electronic Frontier
+  Foundation, sous licence [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/).

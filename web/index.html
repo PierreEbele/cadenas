@@ -56,7 +56,10 @@
             <legend class="visually-hidden">Mot de passe</legend>
 
             <div class="field">
-              <label for="password">Mot de passe</label>
+              <div class="field-head">
+                <label for="password">Mot de passe</label>
+                <button type="button" class="text-button" id="generate">Générer une phrase de passe</button>
+              </div>
               <div class="password-wrap">
                 <input type="password" id="password" autocomplete="new-password" spellcheck="false" required />
                 <button type="button" class="reveal" id="reveal" aria-pressed="false" aria-label="Afficher le mot de passe">
@@ -66,6 +69,10 @@
               <div class="strength" id="strength" hidden>
                 <div class="strength-bar"><span id="strength-fill"></span></div>
                 <span class="strength-label" id="strength-label"></span>
+              </div>
+              <div class="generated" id="generated" hidden>
+                <p>Notez cette phrase de passe maintenant : elle ne pourra pas être retrouvée.</p>
+                <button type="button" class="text-button" id="copy">Copier</button>
               </div>
             </div>
 

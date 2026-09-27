@@ -19,6 +19,7 @@ import {
   encrypt,
   encryptedName,
 } from '../src/core.js';
+import { DEFAULT_WORDS, LANGUAGES, MAX_WORDS, MIN_WORDS, generatePassphrase } from '../src/passphrase.js';
 import { PromptCancelled, promptPassword, readPasswordFromStdin } from '../src/prompt.js';
 
 const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
@@ -28,6 +29,7 @@ const HELP = `cadenas ${version} — chiffrer un fichier avec un mot de passe
 Utilisation :
   cadenas lock <fichier>     chiffre le fichier (→ <fichier>.cadenas)
   cadenas unlock <fichier>   déchiffre un fichier .cadenas ou .age
+  cadenas passphrase         génère une phrase de passe aléatoire
 
 Options :
   -o, --output <chemin>   fichier de sortie
@@ -37,9 +39,14 @@ Options :
   -h, --help              affiche cette aide
   -v, --version           affiche la version
 
+Options de passphrase :
+  -w, --words <n>         nombre de mots (${DEFAULT_WORDS} par défaut, ${MIN_WORDS} à ${MAX_WORDS})
+      --lang <fr|en>      langue des mots (fr par défaut)
+
 Exemples :
   cadenas lock rapport.pdf
   cadenas unlock rapport.pdf.cadenas
+  cadenas passphrase --words 6
   echo "$MOT_DE_PASSE" | cadenas lock --password-stdin sauvegarde.tar
 
 Documentation : https://github.com/PierreEbele/cadenas`;
@@ -60,6 +67,8 @@ async function main() {
         force: { type: 'boolean', short: 'f', default: false },
         age: { type: 'boolean', default: false },
         'password-stdin': { type: 'boolean', default: false },
+        words: { type: 'string', short: 'w' },
+        lang: { type: 'string' },
         help: { type: 'boolean', short: 'h', default: false },
         version: { type: 'boolean', short: 'v', default: false },
       },
@@ -73,8 +82,9 @@ async function main() {
   if (options.help || positionals.length === 0) return stdout.write(`${HELP}\n`);
 
   const [commandName, file, ...extra] = positionals;
+  if (commandName === 'passphrase') return passphrase(options, positionals.slice(1));
   const command = COMMANDS[commandName];
-  if (!command) throw new UsageError(`Commande inconnue : ${commandName}. Utilisez lock ou unlock.`);
+  if (!command) throw new UsageError(`Commande inconnue : ${commandName}. Utilisez lock, unlock ou passphrase.`);
   if (!file) throw new UsageError(`Indiquez le fichier à traiter : cadenas ${commandName} <fichier>`);
   if (extra.length > 0) throw new UsageError('Un seul fichier à la fois.');
   if (command === 'unlock' && options.age) {
@@ -90,6 +100,21 @@ async function main() {
 
   if (command === 'lock') await lock(input, info.size, options);
   else await unlock(input, info.size, options);
+}
+
+async function passphrase(options, extra) {
+  if (extra.length > 0) throw new UsageError('passphrase ne prend pas de fichier.');
+  const words = options.words === undefined ? DEFAULT_WORDS : Number(options.words);
+  if (!Number.isInteger(words) || words < MIN_WORDS || words > MAX_WORDS) {
+    throw new UsageError(`--words attend un nombre entier entre ${MIN_WORDS} et ${MAX_WORDS}.`);
+  }
+  const lang = options.lang ?? 'fr';
+  if (!LANGUAGES.includes(lang)) throw new UsageError(`--lang attend ${LANGUAGES.join(' ou ')}.`);
+
+  const { passphrase: phrase, bits } = await generatePassphrase({ lang, words });
+  stdout.write(`${phrase}\n`);
+  // Informations sur stderr : stdout reste exploitable par un script.
+  if (stderr.isTTY) stderr.write(`(${Math.round(bits)} bits d’entropie — notez-la, elle ne pourra pas être retrouvée)\n`);
 }
 
 async function lock(input, size, options) {

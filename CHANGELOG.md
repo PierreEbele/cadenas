@@ -5,7 +5,19 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [1.0.0] - 2026-09-27
+
+Première version stable. Le format `.cadenas` v1 est désormais figé : les fichiers
+chiffrés avec cette version resteront lisibles par toutes les versions futures.
+
+En résumé :
+
+- **Site** 100 % navigateur pour chiffrer / déchiffrer un fichier avec un mot de passe,
+  en ligne sur <https://pierreebele.github.io/cadenas/>.
+- **Image Docker** auto-hébergeable : `docker run -p 8080:8080 ghcr.io/pierreebele/cadenas`.
+- **Ligne de commande** : `cadenas lock` / `cadenas unlock`.
+- **Format `.cadenas` v1** (Argon2id + XChaCha20-Poly1305), spécifié dans `docs/FORMAT.md`.
+- **Compatibilité age** en lecture et en écriture.
 
 ### Ajouté
 
@@ -100,6 +112,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[1.0.0]: https://github.com/PierreEbele/cadenas/compare/v0.7.0...v1.0.0
 [0.7.0]: https://github.com/PierreEbele/cadenas/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/PierreEbele/cadenas/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/PierreEbele/cadenas/compare/v0.4.0...v0.5.0

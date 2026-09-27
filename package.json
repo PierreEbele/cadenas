@@ -37,6 +37,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:exe": "node scripts/build-sea.js",
     "preview": "vite preview",
     "test": "node --test",
     "prepublishOnly": "npm test"
@@ -52,8 +53,10 @@
     "hash-wasm": "^4.12.0"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "fast-check": "^4.10.2",
     "fflate": "^0.8.3",
+    "postject": "^1.0.0-alpha.6",
     "vite": "^8.3.1"
   }
 }

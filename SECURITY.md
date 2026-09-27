@@ -47,7 +47,7 @@ cosign verify ghcr.io/pierreebele/cadenas:latest \
 L'image embarque aussi un SBOM (liste de ses composants) et une attestation de
 provenance : `docker buildx imagetools inspect ghcr.io/pierreebele/cadenas:latest --format '{{ json .SBOM }}'`.
 
-**Fichiers des releases GitHub** (archive du site, et plus tard exécutables) —
+**Fichiers des releases GitHub** (archive du site, exécutables autonomes) —
 empreintes dans `SHA256SUMS` et attestation de provenance :
 
 ```bash

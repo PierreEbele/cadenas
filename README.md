@@ -79,13 +79,23 @@ Pour la construire vous-même : `docker build -t cadenas .`
 
 ## Ligne de commande
 
-Node.js 22 ou plus récent est nécessaire.
+**Avec Node.js** (22 ou plus récent) :
 
 ```bash
 npm install -g cadenas
 ```
 
 Ou sans installation, avec `npx cadenas lock rapport.pdf`.
+
+**Sans Node.js** : téléchargez l'exécutable de votre système dans la
+[dernière release](https://github.com/PierreEbele/cadenas/releases/latest)
+(`cadenas-vX.Y.Z-windows-x64.exe`, `-macos-arm64`, `-linux-x64`, `-linux-arm64`),
+renommez-le `cadenas` et placez-le dans votre `PATH`. Ces fichiers ne sont pas signés
+par un éditeur reconnu : Windows peut afficher un avertissement SmartScreen
+(« Informations complémentaires » → « Exécuter quand même »), et sous macOS il faut
+retirer la quarantaine avec `xattr -d com.apple.quarantine cadenas`. Vous pouvez
+vérifier qu'un exécutable a bien été construit par ce dépôt :
+`gh attestation verify cadenas-vX.Y.Z-linux-x64 --repo PierreEbele/cadenas`.
 
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas

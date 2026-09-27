@@ -1,6 +1,6 @@
 {
   "name": "cadenas",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Chiffrez un fichier avec un mot de passe, simplement. Dans le navigateur ou en ligne de commande.",
   "keywords": [
     "encryption",
@@ -26,6 +26,9 @@
     "node": ">=20"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test"
   },
   "dependencies": {
@@ -33,5 +36,8 @@
     "@noble/hashes": "^2.4.0",
     "age-encryption": "^0.3.1",
     "hash-wasm": "^4.12.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1"
   }
 }

@@ -21,9 +21,10 @@ import { hkdf } from '@noble/hashes/hkdf.js';
 import { hmac } from '@noble/hashes/hmac.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { ByteQueue } from './bytes.js';
+import { CADENAS_MAGIC as MAGIC, isCadenas } from './detect.js';
 import { CadenasError } from './errors.js';
 
-export const MAGIC = new TextEncoder().encode('CADENAS');
+export { isCadenas };
 export const VERSION = 1;
 export const KDF_ARGON2ID = 1;
 
@@ -50,13 +51,6 @@ export const PARAM_LIMITS = Object.freeze({
 
 const INFO_HEADER = new TextEncoder().encode('cadenas/v1/header');
 const INFO_PAYLOAD = new TextEncoder().encode('cadenas/v1/payload');
-
-/** Indique si les octets donnés commencent par la signature .cadenas. */
-export function isCadenas(bytes) {
-  if (bytes.length < MAGIC.length) return false;
-  for (let i = 0; i < MAGIC.length; i++) if (bytes[i] !== MAGIC[i]) return false;
-  return true;
-}
 
 /** Taille du fichier chiffré pour un clair de `size` octets. */
 export function encryptedSize(size) {

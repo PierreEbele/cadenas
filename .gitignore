@@ -11,3 +11,6 @@ Thumbs.db
 *.cadenas
 *.age
 !test/fixtures/**
+
+# Configuration locale de l'éditeur / assistant
+.claude/

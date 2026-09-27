@@ -9,29 +9,13 @@
 import * as cadenas from './format-cadenas.js';
 import * as age from './format-age.js';
 import { peek } from './bytes.js';
+import { DETECT_SIZE, detectFormat } from './detect.js';
 import { CadenasError } from './errors.js';
 
 export { CadenasError } from './errors.js';
 export { readAll, streamFromBytes } from './bytes.js';
-
-export const FORMATS = Object.freeze({
-  cadenas: { extension: '.cadenas', label: 'cadenas' },
-  age: { extension: '.age', label: 'age' },
-});
-
-// Assez pour la signature et, pour age, la recette scrypt de l'en-tête.
-const DETECT_SIZE = 256;
-
-/**
- * Identifie le format d'un fichier d'après ses premiers octets.
- * @param {Uint8Array} head
- * @returns {'cadenas' | 'age' | null}
- */
-export function detectFormat(head) {
-  if (cadenas.isCadenas(head)) return 'cadenas';
-  if (age.isAge(head) || age.isAgeArmored(head)) return 'age';
-  return null;
-}
+export { DETECT_SIZE, detectFormat } from './detect.js';
+export { EXTENSIONS, decryptedName, encryptedName } from './names.js';
 
 /**
  * Chiffre un flux.

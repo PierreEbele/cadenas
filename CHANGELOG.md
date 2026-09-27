@@ -5,6 +5,20 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.4.0] - 2026-09-27
+
+### Ajouté
+
+- Site web (`web/`), construit avec Vite en pages statiques :
+  - glisser-déposer ou sélection d'un fichier, détection automatique chiffrer / déchiffrer ;
+  - mot de passe avec confirmation, affichage à la demande et indicateur de solidité ;
+  - choix du format `.cadenas` (recommandé) ou `.age` ;
+  - chiffrement dans un Web Worker (la page ne se fige jamais) avec barre de progression ;
+  - thème clair / sombre automatique, mise en page mobile, navigation au clavier ;
+  - aucune ressource externe, aucune requête réseau : tout reste dans le navigateur.
+- `src/detect.js` (détection de format sans dépendance) et `src/names.js` (noms des fichiers produits), partagés avec la future CLI.
+- Scripts `npm run dev`, `npm run build`, `npm run preview`.
+
 ## [0.3.0] - 2026-09-27
 
 ### Ajouté
@@ -36,6 +50,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[0.4.0]: https://github.com/PierreEbele/cadenas/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/PierreEbele/cadenas/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PierreEbele/cadenas/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PierreEbele/cadenas/releases/tag/v0.1.0

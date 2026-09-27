@@ -1,7 +1,16 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Encrypter, armor, generateIdentity, identityToRecipient } from 'age-encryption';
-import { CadenasError, decrypt, detectFormat, encrypt, readAll, streamFromBytes } from '../src/core.js';
+import {
+  CadenasError,
+  decrypt,
+  decryptedName,
+  detectFormat,
+  encrypt,
+  encryptedName,
+  readAll,
+  streamFromBytes,
+} from '../src/core.js';
 import { peek } from '../src/bytes.js';
 
 // Coûts réduits pour garder des tests rapides.
@@ -108,6 +117,15 @@ describe('détection', () => {
   test('fichier inconnu ou vide refusé', async () => {
     await assert.rejects(dec(text('ceci n’est pas chiffré'), 'pwd'), hasCode('UNKNOWN_FORMAT'));
     await assert.rejects(dec(new Uint8Array(0), 'pwd'), hasCode('UNKNOWN_FORMAT'));
+  });
+
+  test('noms de fichiers de sortie', () => {
+    assert.equal(encryptedName('photo.jpg'), 'photo.jpg.cadenas');
+    assert.equal(encryptedName('photo.jpg', 'age'), 'photo.jpg.age');
+    assert.equal(decryptedName('photo.jpg.cadenas'), 'photo.jpg');
+    assert.equal(decryptedName('photo.jpg.AGE'), 'photo.jpg');
+    assert.equal(decryptedName('.cadenas'), '.cadenas.dechiffre');
+    assert.equal(decryptedName('archive.bin'), 'archive.bin.dechiffre');
   });
 
   test('peek ne perd aucun octet', async () => {

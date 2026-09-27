@@ -6,20 +6,8 @@
  */
 import { Decrypter, Encrypter, armor } from 'age-encryption';
 import { readAll, streamFromBytes } from './bytes.js';
+import { isAgeArmored } from './detect.js';
 import { CadenasError } from './errors.js';
-
-const encoder = new TextEncoder();
-export const AGE_MAGIC = encoder.encode('age-encryption.org/v1');
-export const AGE_ARMOR_MAGIC = encoder.encode('-----BEGIN AGE ENCRYPTED FILE-----');
-
-const startsWith = (bytes, prefix) =>
-  bytes.length >= prefix.length && prefix.every((byte, i) => bytes[i] === byte);
-
-/** Fichier age binaire. */
-export const isAge = (bytes) => startsWith(bytes, AGE_MAGIC);
-
-/** Fichier age « armuré » (texte, produit par `age -a`). */
-export const isAgeArmored = (bytes) => startsWith(bytes, AGE_ARMOR_MAGIC);
 
 /** L'en-tête age contient-il une recette scrypt (chiffrement par mot de passe) ? */
 function hasScryptStanza(head) {

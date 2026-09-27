@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cadenas — chiffrer un fichier avec un mot de passe</title>
+    <meta
+      name="description"
+      content="Chiffrez et déchiffrez un fichier avec un mot de passe, directement dans votre navigateur. Rien n'est envoyé sur Internet. Open source."
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M10 14v-3.5a6 6 0 0 1 12 0V14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+          <rect x="6" y="14" width="20" height="15" rx="4" fill="currentColor" />
+          <circle cx="16" cy="20.5" r="2.2" fill="var(--surface)" />
+          <path d="M16 21.5v3" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        <div>
+          <h1>cadenas</h1>
+          <p class="tagline">Chiffrez un fichier avec un mot de passe. Rien ne quitte votre navigateur.</p>
+        </div>
+      </header>
+
+      <main class="card">
+        <form id="form" novalidate>
+          <!-- Étape 1 : choix du fichier -->
+          <label class="dropzone" id="dropzone" for="file">
+            <input type="file" id="file" class="visually-hidden" />
+            <span class="dropzone-empty">
+              <svg viewBox="0 0 24 24" aria-hidden="true" class="dropzone-icon">
+                <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="dropzone-title">Déposez un fichier ici</span>
+              <span class="dropzone-hint">ou <span class="link-like">parcourez vos fichiers</span></span>
+            </span>
+            <span class="dropzone-file" hidden>
+              <span class="file-badge" id="file-badge" aria-hidden="true"></span>
+              <span class="file-meta">
+                <span class="file-name" id="file-name"></span>
+                <span class="file-info" id="file-info"></span>
+              </span>
+              <span class="link-like file-change">Changer</span>
+            </span>
+          </label>
+
+          <!-- Étape 2 : mot de passe -->
+          <fieldset id="options" class="options" disabled>
+            <legend class="visually-hidden">Mot de passe</legend>
+
+            <div class="field">
+              <label for="password">Mot de passe</label>
+              <div class="password-wrap">
+                <input type="password" id="password" autocomplete="new-password" spellcheck="false" required />
+                <button type="button" class="reveal" id="reveal" aria-pressed="false" aria-label="Afficher le mot de passe">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.8" /><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
+                </button>
+              </div>
+              <div class="strength" id="strength" hidden>
+                <div class="strength-bar"><span id="strength-fill"></span></div>
+                <span class="strength-label" id="strength-label"></span>
+              </div>
+            </div>
+
+            <div class="field" id="confirm-field">
+              <label for="confirm">Confirmez le mot de passe</label>
+              <input type="password" id="confirm" autocomplete="new-password" spellcheck="false" />
+            </div>
+
+            <div class="field" id="format-field">
+              <span class="field-label" id="format-label">Format</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="format-label">
+                <label>
+                  <input type="radio" name="format" value="cadenas" checked />
+                  <span><strong>.cadenas</strong><small>Recommandé</small></span>
+                </label>
+                <label>
+                  <input type="radio" name="format" value="age" />
+                  <span><strong>.age</strong><small>Compatible age</small></span>
+                </label>
+              </div>
+            </div>
+
+            <p class="hint" id="password-hint">
+              Astuce : une phrase de 4 ou 5 mots est facile à retenir et très solide.
+              Un mot de passe oublié ne peut pas être récupéré.
+            </p>
+
+            <button type="submit" class="primary" id="submit">Chiffrer</button>
+          </fieldset>
+        </form>
+
+        <!-- Étape 3 : progression -->
+        <section class="status" id="progress" hidden aria-live="polite">
+          <p class="status-title" id="progress-label">Préparation de la clé…</p>
+          <div class="progress" role="progressbar" aria-labelledby="progress-label" id="progress-bar">
+            <span id="progress-fill"></span>
+          </div>
+          <p class="status-detail" id="progress-detail"></p>
+        </section>
+
+        <!-- Étape 4 : résultat -->
+        <section class="status" id="result" hidden aria-live="polite">
+          <div class="result-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </div>
+          <p class="status-title" id="result-title"></p>
+          <p class="status-detail" id="result-detail"></p>
+          <a class="primary" id="download" download>Télécharger</a>
+          <button type="button" class="secondary" id="restart">Traiter un autre fichier</button>
+        </section>
+
+        <p class="error" id="error" role="alert" hidden></p>
+      </main>
+
+      <section class="facts" aria-label="Garanties">
+        <div>
+          <h2>100 % local</h2>
+          <p>Le chiffrement a lieu dans votre navigateur. Aucun fichier ni mot de passe n'est envoyé.</p>
+        </div>
+        <div>
+          <h2>Solide</h2>
+          <p>Argon2id et XChaCha20-Poly1305 : toute modification du fichier chiffré est détectée.</p>
+        </div>
+        <div>
+          <h2>Ouvert</h2>
+          <p>Code source libre, format documenté, compatible avec l'outil <a href="https://age-encryption.org" rel="noopener noreferrer">age</a>.</p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <a href="https://github.com/PierreEbele/cadenas" rel="noopener noreferrer">Code source</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/PierreEbele/cadenas/blob/main/docs/FORMAT.md" rel="noopener noreferrer">Format</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/PierreEbele/cadenas/blob/main/SECURITY.md" rel="noopener noreferrer">Sécurité</a>
+        <span aria-hidden="true">·</span>
+        <span>Licence MIT</span>
+        <span aria-hidden="true">·</span>
+        <span id="version"></span>
+      </footer>
+    </div>
+  </body>
+</html>

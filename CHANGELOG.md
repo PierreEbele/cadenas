@@ -5,6 +5,17 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.3.0] - 2026-09-27
+
+### Ajouté
+
+- Compatibilité avec le format [age](https://age-encryption.org) via la bibliothèque officielle `age-encryption` (`src/format-age.js`) :
+  - chiffrement au format age par mot de passe (scrypt), lisible par `age -d` et `rage` ;
+  - déchiffrement des fichiers age binaires et armurés (`age -a`) ;
+  - message clair pour les fichiers age chiffrés pour une clé publique (non pris en charge).
+- API publique unique `src/core.js` : `encrypt(flux, mot de passe, { format })` et `decrypt(flux, mot de passe)` avec détection automatique du format d'après les premiers octets.
+- Nouveau code d'erreur `UNSUPPORTED_AGE`.
+
 ## [0.2.0] - 2026-09-27
 
 ### Ajouté
@@ -25,5 +36,6 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[0.3.0]: https://github.com/PierreEbele/cadenas/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/PierreEbele/cadenas/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/PierreEbele/cadenas/releases/tag/v0.1.0

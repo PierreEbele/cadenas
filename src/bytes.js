@@ -58,6 +58,38 @@ export async function readAll(stream) {
   return queue.takeAll();
 }
 
+/**
+ * Lit au moins `n` octets du début d'un flux (moins si le flux est plus court)
+ * sans les perdre : renvoie ces octets et un nouveau flux équivalent à
+ * l'original complet.
+ */
+export async function peek(stream, n) {
+  const reader = stream.getReader();
+  const queue = new ByteQueue();
+  let done = false;
+  while (!done && queue.length < n) {
+    const result = await reader.read();
+    if (result.done) done = true;
+    else queue.push(result.value);
+  }
+  const head = queue.takeAll();
+  const replay = new ReadableStream({
+    start(controller) {
+      if (head.length > 0) controller.enqueue(head);
+      if (done) controller.close();
+    },
+    async pull(controller) {
+      const { done: end, value } = await reader.read();
+      if (end) controller.close();
+      else controller.enqueue(value);
+    },
+    cancel(reason) {
+      return reader.cancel(reason);
+    },
+  });
+  return { head, stream: replay };
+}
+
 /** Crée un ReadableStream qui émet un unique Uint8Array. */
 export function streamFromBytes(bytes) {
   return new ReadableStream({

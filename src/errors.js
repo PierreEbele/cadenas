@@ -6,6 +6,7 @@
  * - EMPTY_PASSWORD       le mot de passe est vide
  * - UNKNOWN_FORMAT       le fichier n'est ni un .cadenas ni un .age
  * - UNSUPPORTED_VERSION  fichier .cadenas d'une version plus récente
+ * - UNSUPPORTED_AGE      fichier age chiffré pour une clé publique, pas un mot de passe
  * - INVALID_PARAMS       paramètres de dérivation de clé hors limites
  * - WRONG_PASSWORD       mot de passe incorrect (ou en-tête altéré)
  * - TRUNCATED            fichier incomplet

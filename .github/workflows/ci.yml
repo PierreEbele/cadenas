@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests (Node ${{ matrix.node }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  age-interop:
+    name: Interopérabilité avec age
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: sudo apt-get update && sudo apt-get install -y age expect
+      - name: cadenas chiffre, age déchiffre
+        run: |
+          echo "fichier de test $(date)" > plain.txt
+          echo "mot de passe" | node bin/cadenas.js lock --age --password-stdin plain.txt
+          expect -c '
+            spawn age -d -o from-age.txt plain.txt.age
+            expect "passphrase"
+            send "mot de passe\r"
+            expect eof
+          '
+          cmp plain.txt from-age.txt
+      - name: age chiffre, cadenas déchiffre
+        run: |
+          expect -c '
+            spawn age -p -o by-age.age plain.txt
+            expect "passphrase"
+            send "autre mot de passe\r"
+            expect "Confirm"
+            send "autre mot de passe\r"
+            expect eof
+          '
+          echo "autre mot de passe" | node bin/cadenas.js unlock --password-stdin -o from-cadenas.txt by-age.age
+          cmp plain.txt from-cadenas.txt
+
+  docker:
+    name: Image Docker (build et test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -t cadenas:ci .
+      - name: Le site répond avec les en-têtes de sécurité
+        run: |
+          docker run -d --name cadenas --read-only --tmpfs /tmp --cap-drop ALL -p 8080:8080 cadenas:ci
+          for i in $(seq 1 20); do curl -fsS -o /dev/null http://localhost:8080/ && break; sleep 1; done
+          headers=$(curl -fsSI http://localhost:8080/)
+          echo "$headers"
+          echo "$headers" | grep -qi "content-security-policy: .*connect-src 'none'"
+          echo "$headers" | grep -qi "x-content-type-options: nosniff"
+          curl -fsS http://localhost:8080/ | grep -q "<title>cadenas"
+          test "$(docker exec cadenas id -u)" != "0"
+      - if: always()
+        run: docker logs cadenas || true

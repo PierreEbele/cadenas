@@ -5,6 +5,21 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.7.0] - 2026-09-27
+
+### Ajouté
+
+- Intégration continue GitHub Actions (`.github/workflows/ci.yml`) :
+  - tests et build sur Linux, Windows et macOS avec Node.js 22 et 24 ;
+  - interopérabilité réelle avec l'outil `age` officiel, dans les deux sens ;
+  - construction de l'image Docker et vérification des en-têtes de sécurité, du contenu servi et de l'exécution non-root.
+- Déploiement automatique du site sur GitHub Pages à chaque push sur `main` (`pages.yml`).
+- Publication de l'image sur GitHub Container Registry à chaque version, pour `linux/amd64` et `linux/arm64` (`docker.yml`).
+
+### Modifié
+
+- Node.js 22 minimum (Node.js 20 n'est plus maintenu depuis avril 2026).
+
 ## [0.6.0] - 2026-09-27
 
 ### Ajouté
@@ -78,6 +93,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[0.7.0]: https://github.com/PierreEbele/cadenas/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/PierreEbele/cadenas/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/PierreEbele/cadenas/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/PierreEbele/cadenas/compare/v0.3.0...v0.4.0

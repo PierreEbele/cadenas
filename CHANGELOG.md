@@ -9,6 +9,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Releases GitHub : la provenance signée est jointe à chaque release (`.sigstore.json` et `.intoto.jsonl` au format SLSA), pour une vérification hors ligne.
 - Tags de version signés (SSH) : les workflows de publication (release, npm, Docker) vérifient la signature du tag avec `scripts/verify-tag.js` et refusent de publier une version non signée. Procédure dans `CONTRIBUTING.md`, vérification dans `SECURITY.md`.
 - Badge OpenSSF Best Practices (niveau « passing ») dans le README.
 - README en anglais (`README.md`, affiché par défaut sur GitHub et npm) ; la version française devient `README.fr.md`, avec un lien de l'un à l'autre.
@@ -16,6 +17,11 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - `SECURITY.md` : processus de traitement des signalements de vulnérabilité (délais, publication, crédit).
 - ESLint (configuration recommandée) : `npm run lint`, imposé par la CI, et style de code décrit dans `CONTRIBUTING.md`.
 - CI : couverture des tests de `src/` et `bin/` mesurée à chaque push, avec un minimum de 80 % (`npm run test:coverage`).
+
+### Modifié
+
+- Paquet npm : description en anglais, mots-clés plus complets, page d'accueil pointant vers le site.
+- Publication npm : le npm fourni avec Node.js 24 est utilisé (et sa version vérifiée) au lieu d'installer une autre version non épinglée.
 
 ## [1.3.0] - 2026-09-27
 

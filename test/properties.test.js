@@ -59,7 +59,7 @@ async function rejectsCleanly(promiseFactory) {
     await promiseFactory();
   } catch (err) {
     if (err instanceof CadenasError) return true;
-    throw new Error(`Erreur inattendue (${err?.name}) : ${err?.message}`);
+    throw new Error(`Erreur inattendue (${err?.name}) : ${err?.message}`, { cause: err });
   }
   return false;
 }

@@ -25,6 +25,18 @@ npm run dev
   auditées. Pas de dépendance pour ce que Node.js ou le navigateur font déjà.
 - **Pas de crypto maison.** On assemble des primitives éprouvées, on n'en invente pas.
 
+## Style de code
+
+- JavaScript moderne (modules ES), sans étape de compilation ni TypeScript.
+- Règles : la configuration recommandée d'ESLint
+  ([`eslint.config.js`](eslint.config.js)), vérifiée par `npm run lint` et
+  imposée par la CI.
+- Mise en forme : [`.editorconfig`](.editorconfig) (UTF-8, fins de ligne LF,
+  indentation de 2 espaces), guillemets simples, points-virgules, et le
+  style du code existant.
+- Commentaires et messages d'erreur en français ; fonctions publiques
+  documentées en JSDoc.
+
 ## Modifier le format `.cadenas`
 
 Le format v1 est figé : des fichiers existent déjà.
@@ -37,7 +49,8 @@ Le format v1 est figé : des fichiers existent déjà.
 
 ## Avant d'ouvrir une pull request
 
-- `npm test` et `npm run build` passent.
+- `npm run lint`, `npm test` et `npm run build` passent.
+- La couverture des tests reste au-dessus de 80 % (`npm run test:coverage`).
 - Les nouveaux comportements sont testés.
 - Le [CHANGELOG](CHANGELOG.md) est complété dans une section `[Non publié]`.
 - Les messages de commit suivent [Conventional Commits](https://www.conventionalcommits.org/fr/)
@@ -54,6 +67,12 @@ Le format v1 est figé : des fichiers existent déjà.
 
 Ne publiez pas sur npm depuis votre poste : le workflow `npm.yml` vérifie que le tag
 correspond à la version de `package.json` et relance les tests avant l'envoi.
+
+## Gouvernance et code de conduite
+
+Qui décide et comment : [GOVERNANCE.md](GOVERNANCE.md). Toute participation
+suit le [code de conduite](CODE_OF_CONDUCT.md). Architecture du code :
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Signaler une vulnérabilité
 

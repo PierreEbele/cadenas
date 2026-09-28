@@ -1,6 +1,6 @@
 {
   "name": "cadenas",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Encrypt a file with a password, simply: in the browser (nothing leaves your device) or on the command line. age-compatible.",
   "keywords": [
     "encryption",

@@ -85,7 +85,7 @@ les empreintes publiées).
 | Exfiltration et injection de script (CWE-79) | CSP stricte sans script externe ni en ligne ; aucune ressource tierce ; aucun `innerHTML` alimenté par l'utilisateur. |
 | Exposition d'informations sensibles (CWE-200, CWE-532) | Le mot de passe n'est jamais journalisé ; saisie sans écho dans le terminal ; clés effacées de la mémoire après usage. |
 | Dépendances vulnérables (CWE-1395) | Dependabot (npm, actions, Docker), analyse CodeQL à chaque push et chaque semaine, OpenSSF Scorecard. |
-| Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte) ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. |
+| Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte), après vérification de la signature SSH du tag ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. |
 
 ## Vérification continue
 

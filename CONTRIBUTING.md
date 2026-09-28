@@ -58,12 +58,33 @@ Le format v1 est figé : des fichiers existent déjà.
 
 ## Publier une version (mainteneurs)
 
+Les tags de version doivent être **signés** : les workflows de publication
+vérifient la signature (`scripts/verify-tag.js`) et refusent de publier une
+version dont le tag n'est pas signé par une clé de signature du mainteneur.
+
+**Une fois, sur votre ordinateur** :
+
+```bash
+ssh-keygen -t ed25519 -C "cadenas release signing" -f ~/.ssh/cadenas_signing
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/cadenas_signing.pub
+git config --global tag.gpgSign true
+```
+
+Puis ajoutez le contenu de `~/.ssh/cadenas_signing.pub` sur GitHub : Settings →
+SSH and GPG keys → New SSH key, type **Signing Key**. La clé privée ne quitte
+jamais votre ordinateur ; protégez-la par une phrase de passe.
+
+**À chaque version** :
+
 1. Déplacer les entrées `[Non publié]` du CHANGELOG sous le nouveau numéro de version.
 2. `npm version <x.y.z> --no-git-tag-version`, puis commit `chore(release): x.y.z`.
-3. `git tag -a vx.y.z -m "vx.y.z — résumé"` puis `git push --follow-tags`.
-4. La CI fait le reste : paquet npm (avec provenance), image Docker signée, et
-   release GitHub (titre = message du tag, notes = section du CHANGELOG, site
-   archivé avec empreintes et attestation).
+3. `git tag -s vx.y.z -m "vx.y.z — résumé"`, vérifier avec
+   `node scripts/verify-tag.js vx.y.z`, puis `git push --follow-tags`.
+4. La CI fait le reste : vérification de la signature du tag, paquet npm (avec
+   provenance), image Docker signée, et release GitHub (titre = message du
+   tag, notes = section du CHANGELOG, site archivé avec empreintes et
+   attestation).
 
 Ne publiez pas sur npm depuis votre poste : le workflow `npm.yml` vérifie que le tag
 correspond à la version de `package.json` et relance les tests avant l'envoi.

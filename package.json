@@ -1,17 +1,26 @@
 {
   "name": "cadenas",
   "version": "1.3.0",
-  "description": "Chiffrez un fichier avec un mot de passe, simplement. Dans le navigateur ou en ligne de commande.",
+  "description": "Encrypt a file with a password, simply: in the browser (nothing leaves your device) or on the command line. age-compatible.",
   "keywords": [
     "encryption",
-    "chiffrement",
+    "file-encryption",
+    "encrypt",
+    "decrypt",
     "password",
-    "file",
+    "passphrase",
     "age",
+    "age-encryption",
     "argon2",
-    "xchacha20"
+    "argon2id",
+    "xchacha20-poly1305",
+    "privacy",
+    "offline",
+    "pwa",
+    "cli",
+    "chiffrement"
   ],
-  "homepage": "https://github.com/PierreEbele/cadenas#readme",
+  "homepage": "https://pierreebele.github.io/cadenas/",
   "bugs": {
     "url": "https://github.com/PierreEbele/cadenas/issues"
   },

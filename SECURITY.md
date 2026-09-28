@@ -55,6 +55,11 @@ sha256sum -c SHA256SUMS --ignore-missing
 gh attestation verify cadenas-site-vX.Y.Z.zip --repo PierreEbele/cadenas
 ```
 
+À partir de la version 1.4.0, la provenance signée est aussi jointe à chaque
+release (`cadenas-vX.Y.Z.sigstore.json`, et `cadenas-vX.Y.Z.intoto.jsonl` au
+format SLSA) : `gh attestation verify <fichier> --repo PierreEbele/cadenas
+--bundle cadenas-vX.Y.Z.sigstore.json` la vérifie sans interroger GitHub.
+
 **Tags de version** — à partir de la version 1.4.0, chaque tag est signé
 avec une clé SSH du mainteneur (badge « Verified » sur GitHub). Pour le
 vérifier soi-même dans un clone du dépôt :

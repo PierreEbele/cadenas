@@ -96,9 +96,24 @@ jobs:
           merge-multiple: true
       - name: Empreintes de tous les fichiers publiés
         run: (cd release && sha256sum -- * | grep -v ' SHA256SUMS$') > SHA256SUMS && mv SHA256SUMS release/
-      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+      - id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-checksums: release/SHA256SUMS
+      # La provenance signée est aussi jointe à la release, pour une
+      # vérification hors ligne : le bundle Sigstore complet, et l'enveloppe
+      # DSSE seule au format SLSA (in-toto JSONL).
+      - name: Provenance jointe à la release
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          cp "$BUNDLE" "release/cadenas-${GITHUB_REF_NAME}.sigstore.json"
+          node -e '
+            const lines = require("fs").readFileSync(process.argv[1], "utf8").split("\n").filter(Boolean);
+            const bundle = lines.length === 1 && JSON.parse(lines[0]);
+            if (!bundle?.dsseEnvelope) { console.error("::error::bundle de provenance inattendu"); process.exit(1); }
+            console.log(JSON.stringify(bundle.dsseEnvelope));
+          ' "$BUNDLE" > "release/cadenas-${GITHUB_REF_NAME}.intoto.jsonl"
       - name: Notes et création de la release
         env:
           GH_TOKEN: ${{ github.token }}

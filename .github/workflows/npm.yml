@@ -31,8 +31,16 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      # La publication de confiance demande npm 11.5.1 ou plus récent.
-      - run: npm install -g npm@11.20.0
+      # La publication de confiance demande npm 11.5.1 ou plus récent : celui
+      # fourni avec Node.js 24 suffit. On le vérifie au lieu d'installer une
+      # autre version de npm, qui ne serait pas épinglée par empreinte.
+      - name: npm est assez récent pour la publication de confiance
+        run: |
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            if (!ok) { console.error(`::error::npm ${process.argv[1]} : 11.5.1 ou plus récent requis`); process.exit(1); }
+          ' "$(npm --version)"
 
       - name: Le tag correspond à la version de package.json
         run: |

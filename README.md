@@ -191,6 +191,7 @@ sont des `CadenasError` avec un `code` stable (`WRONG_PASSWORD`, `CORRUPTED`,
 npm install
 npm run dev      # site en local avec rechargement automatique
 npm test         # tests (node:test)
+npm run lint     # vérification du code (ESLint)
 npm run build    # site statique dans dist/
 ```
 
@@ -201,12 +202,17 @@ src/        cœur partagé (formats, détection, noms de fichiers)
 web/        site (page, styles, worker de chiffrement)
 bin/        ligne de commande
 docker/     configuration nginx de l'image
-docs/       spécification du format
+docs/       format, architecture, argumentaire de sécurité
 test/       tests, vecteur de test, implémentation de référence
 ```
 
 Les contributions sont les bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md).
-Historique des versions : [CHANGELOG.md](CHANGELOG.md).
+
+- Architecture : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Feuille de route : [ROADMAP.md](ROADMAP.md)
+- Gouvernance : [GOVERNANCE.md](GOVERNANCE.md)
+- Code de conduite : [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Historique des versions : [CHANGELOG.md](CHANGELOG.md)
 
 ## Licence
 

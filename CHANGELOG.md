@@ -9,6 +9,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Tags de version signés (SSH) : les workflows de publication (release, npm, Docker) vérifient la signature du tag avec `scripts/verify-tag.js` et refusent de publier une version non signée. Procédure dans `CONTRIBUTING.md`, vérification dans `SECURITY.md`.
 - Badge OpenSSF Best Practices (niveau « passing ») dans le README.
 - README en anglais (`README.md`, affiché par défaut sur GitHub et npm) ; la version française devient `README.fr.md`, avec un lien de l'un à l'autre.
 - Documentation du projet : gouvernance et rôles (`GOVERNANCE.md`), code de conduite (Contributor Covenant 2.1), feuille de route (`ROADMAP.md`), architecture (`docs/ARCHITECTURE.md`), argumentaire de sécurité avec modèle de menace (`docs/ASSURANCE.md`).

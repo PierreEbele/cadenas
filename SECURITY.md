@@ -55,6 +55,17 @@ sha256sum -c SHA256SUMS --ignore-missing
 gh attestation verify cadenas-site-vX.Y.Z.zip --repo PierreEbele/cadenas
 ```
 
+**Tags de version** — à partir de la version 1.4.0, chaque tag est signé
+avec une clé SSH du mainteneur (badge « Verified » sur GitHub). Pour le
+vérifier soi-même dans un clone du dépôt :
+
+```bash
+node scripts/verify-tag.js vX.Y.Z
+```
+
+Le script récupère les clés de signature publiées sur le compte GitHub
+[PierreEbele](https://github.com/PierreEbele) et lance `git verify-tag`.
+
 **Un site auto-hébergé** — `site-files.sha256` liste l'empreinte de chaque
 fichier du site : comparez-les avec ceux que sert votre instance.
 

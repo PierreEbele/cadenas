@@ -5,6 +5,16 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouté
+
+- Badge OpenSSF Best Practices (niveau « passing ») dans le README.
+- Documentation du projet : gouvernance et rôles (`GOVERNANCE.md`), code de conduite (Contributor Covenant 2.1), feuille de route (`ROADMAP.md`), architecture (`docs/ARCHITECTURE.md`), argumentaire de sécurité avec modèle de menace (`docs/ASSURANCE.md`).
+- `SECURITY.md` : processus de traitement des signalements de vulnérabilité (délais, publication, crédit).
+- ESLint (configuration recommandée) : `npm run lint`, imposé par la CI, et style de code décrit dans `CONTRIBUTING.md`.
+- CI : couverture des tests de `src/` et `bin/` mesurée à chaque push, avec un minimum de 80 % (`npm run test:coverage`).
+
 ## [1.3.0] - 2026-09-27
 
 Site installable et utilisable hors ligne, exécutables autonomes de la CLI.
@@ -194,6 +204,7 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...HEAD
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PierreEbele/cadenas/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PierreEbele/cadenas/compare/v1.0.2...v1.1.0

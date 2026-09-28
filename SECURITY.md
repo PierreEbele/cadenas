@@ -62,3 +62,24 @@ fichier du site : comparez-les avec ceux que sert votre instance.
 
 Merci de ne **pas** ouvrir d'issue publique. Utilisez le
 [signalement privé de vulnérabilité GitHub](https://github.com/PierreEbele/cadenas/security/advisories/new).
+
+## Traitement des signalements
+
+1. **Accusé de réception** sous 7 jours, dans l'avis de sécurité privé ouvert
+   par votre signalement.
+2. **Analyse** : le mainteneur reproduit le problème, évalue sa gravité
+   (CVSS) et vous tient informé·e au moins toutes les deux semaines.
+3. **Correction** préparée en privé dans l'avis de sécurité GitHub, avec un
+   test qui reproduit le problème. Objectif : moins de 60 jours après le
+   signalement, et au plus vite pour une faille critique.
+4. **Publication** : nouvelle version, avis de sécurité public avec
+   identifiant CVE demandé via GitHub, et mention dans le
+   [CHANGELOG](CHANGELOG.md) (section « Sécurité »).
+5. **Crédit** : la personne qui a signalé la faille est remerciée
+   nommément dans l'avis et le CHANGELOG, sauf si elle préfère rester
+   anonyme.
+
+Seule la dernière version reçoit des correctifs de sécurité.
+
+Pourquoi cadenas respecte ses exigences de sécurité (modèle de menace,
+frontières de confiance, contre-mesures) : [docs/ASSURANCE.md](docs/ASSURANCE.md).

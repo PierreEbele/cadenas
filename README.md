@@ -1,225 +1,230 @@
 # cadenas
 
-> Chiffrez un fichier avec un mot de passe, simplement.
+**English** · [Français](README.fr.md)
+
+> Encrypt a file with a password. Simply.
 
 [![CI](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml/badge.svg)](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/cadenas.svg)](https://www.npmjs.com/package/cadenas)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PierreEbele/cadenas/badge)](https://scorecard.dev/viewer/?uri=github.com/PierreEbele/cadenas)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14992/badge)](https://www.bestpractices.dev/projects/14992)
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**cadenas** chiffre et déchiffre un fichier avec un mot de passe, **directement dans votre
-navigateur** : aucun fichier ni mot de passe n'est envoyé sur Internet. Le même outil
-existe en ligne de commande.
+**cadenas** (French for *padlock*) encrypts and decrypts a file with a password,
+**right in your browser**: no file and no password is ever sent over the
+Internet. The same tool is available on the command line.
 
 <p align="center">
   <a href="https://pierreebele.github.io/cadenas/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
-      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, une phrase de passe de cinq mots vient d'être générée et jugée excellente, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
+      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="The cadenas website: a file named rapport-annuel-2026.pdf is selected, a five-word passphrase has just been generated and rated excellent, the .cadenas format is chosen and the Encrypt button is ready." width="420">
     </picture>
   </a>
 </p>
 
-- **Simple** : déposez un fichier, choisissez un mot de passe, téléchargez le résultat.
-- **Local** : tout se passe sur votre appareil. La page n'a techniquement pas le droit
-  d'ouvrir une connexion réseau (Content Security Policy `connect-src 'none'`).
-- **Solide** : Argon2id et XChaCha20-Poly1305 ; toute modification du fichier chiffré est détectée.
-- **Ouvert** : code libre, [format documenté](docs/FORMAT.md), compatible avec
+- **Simple**: drop a file, choose a password, download the result.
+- **Local**: everything happens on your device. The page is technically not
+  allowed to open any network connection (Content Security Policy `connect-src 'none'`).
+- **Strong**: Argon2id and XChaCha20-Poly1305; any change to an encrypted file is detected.
+- **Open**: free software, [documented format](docs/FORMAT.md), compatible with
   [age](https://age-encryption.org).
 
-## Sommaire
+## Contents
 
-- [Utiliser le site](#utiliser-le-site)
-- [Héberger soi-même avec Docker](#héberger-soi-même-avec-docker)
-- [Ligne de commande](#ligne-de-commande)
-- [Formats `.cadenas` et `.age`](#formats-cadenas-et-age)
-- [Sécurité](#sécurité)
-- [Utiliser cadenas comme bibliothèque](#utiliser-cadenas-comme-bibliothèque)
-- [Développement](#développement)
+- [Use the website](#use-the-website)
+- [Self-host with Docker](#self-host-with-docker)
+- [Command line](#command-line)
+- [`.cadenas` and `.age` formats](#cadenas-and-age-formats)
+- [Security](#security)
+- [Use cadenas as a library](#use-cadenas-as-a-library)
+- [Development](#development)
 
-## Utiliser le site
+## Use the website
 
-Version en ligne : **<https://pierreebele.github.io/cadenas/>**
+Online version: **<https://pierreebele.github.io/cadenas/>**
 
-1. Déposez un fichier, plusieurs fichiers ou un dossier entier (ils sont alors
-   réunis dans une archive `.zip` chiffrée).
-2. Saisissez un mot de passe.
-3. Téléchargez le résultat.
+1. Drop a file, several files or a whole folder (they are then bundled into
+   an encrypted `.zip` archive).
+2. Enter a password.
+3. Download the result.
 
-cadenas reconnaît tout seul si le fichier est à chiffrer ou à déchiffrer. Le site
-est disponible en français et en anglais, selon la langue du navigateur.
+cadenas detects on its own whether a file needs to be encrypted or decrypted.
+The website is available in English and French, following your browser's
+language.
 
-Après une première visite, **le site fonctionne hors ligne** et peut s'installer
-comme une application (menu du navigateur → « Installer cadenas » ou « Ajouter à
-l'écran d'accueil »). Sur Chrome et Edge, les fichiers de plus de 256 Mio sont
-écrits directement sur le disque : pas de limite de taille liée à la mémoire.
+After a first visit, **the website works offline** and can be installed as an
+app (browser menu → “Install cadenas” or “Add to Home Screen”). On Chrome and
+Edge, files larger than 256 MiB are written straight to disk: no size limit
+due to memory.
 
-## Héberger soi-même avec Docker
+## Self-host with Docker
 
-L'image ne contient qu'un petit serveur nginx qui distribue la page. Le chiffrement
-reste dans le navigateur de chaque visiteur : votre serveur ne voit jamais ni les
-fichiers ni les mots de passe.
+The image only contains a small nginx server that serves the page. Encryption
+stays in each visitor's browser: your server never sees the files or the
+passwords.
 
 ```bash
 docker run -d -p 8080:8080 --name cadenas ghcr.io/pierreebele/cadenas
 ```
 
-Le site est alors disponible sur <http://localhost:8080>.
+The website is then available at <http://localhost:8080>.
 
-Avec Docker Compose, en utilisant le [`compose.yaml`](compose.yaml) du dépôt, qui
-lance le conteneur en lecture seule et sans privilèges :
+With Docker Compose, using the repository's [`compose.yaml`](compose.yaml),
+which runs the container read-only and without privileges:
 
 ```bash
 docker compose up -d
 ```
 
-L'image est publiée pour `linux/amd64` et `linux/arm64` (Raspberry Pi, NAS…).
-Elle fonctionne sans droits root et envoie des en-têtes de sécurité stricts
-(voir [`docker/security-headers.conf`](docker/security-headers.conf)).
-Pour la construire vous-même : `docker build -t cadenas .`
+The image is published for `linux/amd64` and `linux/arm64` (Raspberry Pi, NAS…).
+It runs as a non-root user and sends strict security headers
+(see [`docker/security-headers.conf`](docker/security-headers.conf)).
+To build it yourself: `docker build -t cadenas .`
 
-> Servez le site en **HTTPS** si vous l'exposez au-delà de votre réseau local
-> (par exemple derrière Caddy, Traefik ou nginx), sinon la page pourrait être
-> modifiée en chemin.
+> Serve the website over **HTTPS** if you expose it beyond your local network
+> (for example behind Caddy, Traefik or nginx), otherwise the page could be
+> tampered with in transit.
 
-## Ligne de commande
+## Command line
 
-**Avec Node.js** (22 ou plus récent) :
+**With Node.js** (22 or newer):
 
 ```bash
 npm install -g cadenas
 ```
 
-Ou sans installation, avec `npx cadenas lock rapport.pdf`.
+Or without installing anything: `npx cadenas lock report.pdf`.
 
-**Sans Node.js** : téléchargez l'exécutable de votre système dans la
-[dernière release](https://github.com/PierreEbele/cadenas/releases/latest)
+**Without Node.js**: download the executable for your system from the
+[latest release](https://github.com/PierreEbele/cadenas/releases/latest)
 (`cadenas-vX.Y.Z-windows-x64.exe`, `-macos-arm64`, `-linux-x64`, `-linux-arm64`),
-renommez-le `cadenas` et placez-le dans votre `PATH`. Ces fichiers ne sont pas signés
-par un éditeur reconnu : Windows peut afficher un avertissement SmartScreen
-(« Informations complémentaires » → « Exécuter quand même »), et sous macOS il faut
-retirer la quarantaine avec `xattr -d com.apple.quarantine cadenas`. Vous pouvez
-vérifier qu'un exécutable a bien été construit par ce dépôt :
+rename it `cadenas` and put it in your `PATH`. These files are not signed by a
+recognized publisher: Windows may show a SmartScreen warning (“More info” →
+“Run anyway”), and on macOS you need to remove the quarantine flag with
+`xattr -d com.apple.quarantine cadenas`. You can check that an executable was
+built by this repository:
 `gh attestation verify cadenas-vX.Y.Z-linux-x64 --repo PierreEbele/cadenas`.
 
 ```bash
-cadenas lock rapport.pdf              # → rapport.pdf.cadenas
-cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
-cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
-cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
-cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
-cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
+cadenas lock report.pdf               # → report.pdf.cadenas
+cadenas unlock report.pdf.cadenas     # → report.pdf
+cadenas lock photos/                  # → photos.zip.cadenas (the whole folder)
+cadenas lock a.pdf b.pdf              # → cadenas-YYYY-MM-DD.zip.cadenas
+cadenas lock --age report.pdf         # → report.pdf.age, readable by age / rage
+cadenas passphrase --lang en          # → random 5-word passphrase
 ```
 
-Plusieurs fichiers ou des dossiers sont réunis dans une archive `.zip` avant
-d'être chiffrés ; une fois déchiffrée, elle s'ouvre avec n'importe quel outil.
+Several files or folders are bundled into a `.zip` archive before being
+encrypted; once decrypted, it opens with any archive tool.
 
-`-` désigne l'entrée ou la sortie standard, pour les scripts et les sauvegardes :
+`-` stands for standard input or output, for scripts and backups:
 
 ```bash
-tar c projet | cadenas lock - --password-file ~/.cle > projet.tar.cadenas
-cadenas unlock projet.tar.cadenas -o - --password-file ~/.cle | tar x
+tar c project | cadenas lock - --password-file ~/.key > project.tar.cadenas
+cadenas unlock project.tar.cadenas -o - --password-file ~/.key | tar x
 ```
 
-| Option | Rôle |
+| Option | Purpose |
 |---|---|
-| `-o, --output <chemin>` | fichier de sortie (`-` : sortie standard) |
-| `-f, --force` | écrase le fichier de sortie s'il existe |
-| `--age` | chiffre au format age (avec `lock`) |
-| `--password-file <fichier>` | lit le mot de passe dans un fichier (première ligne) |
-| `--password-stdin` | lit le mot de passe sur l'entrée standard |
-| `-h, --help` / `-v, --version` | aide / version |
-| `-w, --words <n>` | nombre de mots de `passphrase` (5 par défaut) |
-| `--lang <fr\|en>` | langue des mots de `passphrase` (fr par défaut) |
+| `-o, --output <path>` | output file (`-`: standard output) |
+| `-f, --force` | overwrite the output file if it exists |
+| `--age` | encrypt in the age format (with `lock`) |
+| `--password-file <file>` | read the password from a file (first line) |
+| `--password-stdin` | read the password from standard input |
+| `-h, --help` / `-v, --version` | help / version |
+| `-w, --words <n>` | number of words for `passphrase` (default 5) |
+| `--lang <fr\|en>` | language of the `passphrase` words (default fr) |
 
-Le mot de passe est demandé sans écho (deux fois pour chiffrer), directement dans
-le terminal même quand les données arrivent par l'entrée standard. Vers un
-fichier, une erreur (mauvais mot de passe, fichier altéré) ne laisse jamais de
-fichier partiel ; vers la sortie standard, le code de sortie non nul signale que
-les données sont incomplètes. Les messages vont sur la sortie d'erreur, jamais
-dans les données.
+The password is asked without echo (twice when encrypting), directly in the
+terminal even when data comes from standard input. When writing to a file, an
+error (wrong password, tampered file) never leaves a partial file behind; when
+writing to standard output, a non-zero exit code means the data is incomplete.
+Messages go to standard error, never into the data. The command line's messages
+are in French for now.
 
-Codes de sortie : `0` succès, `1` erreur, `2` mauvaise utilisation, `130` annulation.
+Exit codes: `0` success, `1` error, `2` usage error, `130` cancelled.
 
-## Formats `.cadenas` et `.age`
+## `.cadenas` and `.age` formats
 
-| | `.cadenas` (par défaut) | `.age` |
+| | `.cadenas` (default) | `.age` |
 |---|---|---|
-| Dérivation du mot de passe | Argon2id (64 Mio, 3 passes) | scrypt (2¹⁸) |
-| Chiffrement | XChaCha20-Poly1305, blocs de 64 Kio | ChaCha20-Poly1305, blocs de 64 Kio |
-| Lisible par | cadenas | cadenas, [age](https://github.com/FiloSottile/age), [rage](https://github.com/str4d/rage) |
-| Audit indépendant | non | le format age est largement relu et utilisé |
+| Password derivation | Argon2id (64 MiB, 3 passes) | scrypt (2¹⁸) |
+| Encryption | XChaCha20-Poly1305, 64 KiB chunks | ChaCha20-Poly1305, 64 KiB chunks |
+| Readable by | cadenas | cadenas, [age](https://github.com/FiloSottile/age), [rage](https://github.com/str4d/rage) |
+| Independent audit | no | the age format is widely reviewed and used |
 
-Au déchiffrement, le format est détecté automatiquement. cadenas lit aussi les
-fichiers age « armurés » (`age -a`). Les fichiers age chiffrés pour une clé publique
-(et non un mot de passe) ne sont pas pris en charge.
+When decrypting, the format is detected automatically. cadenas also reads
+“armored” age files (`age -a`). age files encrypted to a public key (rather
+than a password) are not supported.
 
-Spécification complète du format `.cadenas` : [docs/FORMAT.md](docs/FORMAT.md).
+Full specification of the `.cadenas` format (in French): [docs/FORMAT.md](docs/FORMAT.md).
 
-## Sécurité
+## Security
 
-- Choisissez un mot de passe long : une phrase de 4 ou 5 mots aléatoires est facile
-  à retenir et très solide. Le bouton « Générer une phrase de passe » du site (ou
-  `cadenas passphrase`) en tire une au hasard : 5 mots, plus de 64 bits d'entropie.
-- **Un mot de passe oublié ne peut pas être récupéré.**
-- Le nom du fichier et sa taille approximative restent visibles.
-- Le format `.cadenas` n'a pas encore été audité par des spécialistes indépendants.
+- Choose a long password: a phrase of 4 or 5 random words is easy to remember
+  and very strong. The website's “Generate a passphrase” button (or
+  `cadenas passphrase`) picks one at random: 5 words, more than 64 bits of entropy.
+- **A forgotten password cannot be recovered.**
+- The file name and its approximate size remain visible.
+- The `.cadenas` format has not yet been audited by independent experts.
 
-Détails et signalement de vulnérabilités : [SECURITY.md](SECURITY.md).
+Details and vulnerability reporting: [SECURITY.md](SECURITY.md). Threat model
+and security arguments: [docs/ASSURANCE.md](docs/ASSURANCE.md).
 
-## Utiliser cadenas comme bibliothèque
+## Use cadenas as a library
 
-`npm install cadenas`. Le cœur fonctionne à l'identique dans Node.js et dans les
-navigateurs, avec l'API Web Streams :
+`npm install cadenas`. The core works the same in Node.js and in browsers,
+with the Web Streams API:
 
 ```js
 import { encrypt, decrypt, readAll, streamFromBytes } from 'cadenas';
 
-const sealed = await readAll(await encrypt(streamFromBytes(data), 'mot de passe'));
-const { format, stream } = await decrypt(streamFromBytes(sealed), 'mot de passe');
+const sealed = await readAll(await encrypt(streamFromBytes(data), 'password'));
+const { format, stream } = await decrypt(streamFromBytes(sealed), 'password');
 const plain = await readAll(stream);
 ```
 
-`encrypt(flux, motDePasse, { format: 'age' })` produit un fichier age. Les erreurs
-sont des `CadenasError` avec un `code` stable (`WRONG_PASSWORD`, `CORRUPTED`,
-`TRUNCATED`, `UNKNOWN_FORMAT`…), documentés dans [`src/errors.js`](src/errors.js).
+`encrypt(stream, password, { format: 'age' })` produces an age file. Errors are
+`CadenasError` instances with a stable `code` (`WRONG_PASSWORD`, `CORRUPTED`,
+`TRUNCATED`, `UNKNOWN_FORMAT`…), documented in [`src/errors.js`](src/errors.js).
 
-## Développement
+## Development
 
 ```bash
 npm install
-npm run dev      # site en local avec rechargement automatique
+npm run dev      # local website with hot reload
 npm test         # tests (node:test)
-npm run lint     # vérification du code (ESLint)
-npm run build    # site statique dans dist/
+npm run lint     # code checks (ESLint)
+npm run build    # static website in dist/
 ```
 
-Organisation :
+Layout:
 
 ```
-src/        cœur partagé (formats, détection, noms de fichiers)
-web/        site (page, styles, worker de chiffrement)
-bin/        ligne de commande
-docker/     configuration nginx de l'image
-docs/       format, architecture, argumentaire de sécurité
-test/       tests, vecteur de test, implémentation de référence
+src/        shared core (formats, detection, file names)
+web/        website (page, styles, encryption worker)
+bin/        command line
+docker/     nginx configuration for the image
+docs/       format, architecture, security arguments
+test/       tests, test vector, reference implementation
 ```
 
-Les contributions sont les bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome, in English or French: see [CONTRIBUTING.md](CONTRIBUTING.md).
+The project's other documents are written in French.
 
-- Architecture : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- Feuille de route : [ROADMAP.md](ROADMAP.md)
-- Gouvernance : [GOVERNANCE.md](GOVERNANCE.md)
-- Code de conduite : [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- Historique des versions : [CHANGELOG.md](CHANGELOG.md)
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Roadmap: [ROADMAP.md](ROADMAP.md)
+- Governance: [GOVERNANCE.md](GOVERNANCE.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md)
 
-## Licence
+## License
 
 [MIT](LICENSE) © Pierre Ebele
 
-Listes de mots du générateur de phrases de passe :
+Word lists used by the passphrase generator:
 
-- français : liste de Tango pour [Tails](https://tails.net), domaine public (CC0 1.0) ;
-- anglais : [EFF Large Wordlist](https://www.eff.org/dice) de l'Electronic Frontier
-  Foundation, sous licence [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/).
+- French: Tango's list for [Tails](https://tails.net), public domain (CC0 1.0);
+- English: [EFF Large Wordlist](https://www.eff.org/dice) by the Electronic Frontier
+  Foundation, licensed under [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/).

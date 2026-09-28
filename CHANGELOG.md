@@ -7,14 +7,17 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.4.0] - 2026-09-28
+
+README en anglais, projet documenté (badge OpenSSF Best Practices, niveau
+silver) et publication renforcée : tags de version signés, provenance jointe
+aux releases. Aucun changement du format de fichier ni du chiffrement.
+
 ### Ajouté
 
-- Releases GitHub : la provenance signée est jointe à chaque release (`.sigstore.json` et `.intoto.jsonl` au format SLSA), pour une vérification hors ligne.
-- Tags de version signés (SSH) : les workflows de publication (release, npm, Docker) vérifient la signature du tag avec `scripts/verify-tag.js` et refusent de publier une version non signée. Procédure dans `CONTRIBUTING.md`, vérification dans `SECURITY.md`.
-- Badge OpenSSF Best Practices (niveau « passing ») dans le README.
 - README en anglais (`README.md`, affiché par défaut sur GitHub et npm) ; la version française devient `README.fr.md`, avec un lien de l'un à l'autre.
+- Badge OpenSSF Best Practices (niveau silver) dans le README.
 - Documentation du projet : gouvernance et rôles (`GOVERNANCE.md`), code de conduite (Contributor Covenant 2.1), feuille de route (`ROADMAP.md`), architecture (`docs/ARCHITECTURE.md`), argumentaire de sécurité avec modèle de menace (`docs/ASSURANCE.md`).
-- `SECURITY.md` : processus de traitement des signalements de vulnérabilité (délais, publication, crédit).
 - ESLint (configuration recommandée) : `npm run lint`, imposé par la CI, et style de code décrit dans `CONTRIBUTING.md`.
 - CI : couverture des tests de `src/` et `bin/` mesurée à chaque push, avec un minimum de 80 % (`npm run test:coverage`).
 
@@ -22,6 +25,12 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 - Paquet npm : description en anglais, mots-clés plus complets, page d'accueil pointant vers le site.
 - Publication npm : le npm fourni avec Node.js 24 est utilisé (et sa version vérifiée) au lieu d'installer une autre version non épinglée.
+
+### Sécurité
+
+- Tags de version signés (SSH) : les workflows de publication (release, npm, Docker) vérifient la signature du tag avec `scripts/verify-tag.js` et refusent de publier une version non signée. Procédure dans `CONTRIBUTING.md`, vérification dans `SECURITY.md`.
+- Releases GitHub : la provenance signée est jointe à chaque release (`.sigstore.json` et `.intoto.jsonl` au format SLSA), pour une vérification hors ligne.
+- `SECURITY.md` : processus de traitement des signalements de vulnérabilité (délais, publication, crédit).
 
 ## [1.3.0] - 2026-09-27
 
@@ -212,7 +221,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...HEAD
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PierreEbele/cadenas/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PierreEbele/cadenas/compare/v1.0.2...v1.1.0

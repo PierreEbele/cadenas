@@ -23,12 +23,24 @@ if (!tag) {
   process.exit(2);
 }
 
+// Clé publique SSH : type connu, puis données en base64. Tout le reste
+// (commentaire, retour à la ligne, options) est refusé ou ignoré, pour qu'une
+// réponse inattendue ne puisse pas ajouter de ligne au fichier allowed_signers.
+const SSH_PUBLIC_KEY =
+  /^(ssh-ed25519|sk-ssh-ed25519@openssh\.com|ecdsa-sha2-nistp(?:256|384|521)|sk-ecdsa-sha2-nistp256@openssh\.com|ssh-rsa) ([A-Za-z0-9+/]+={0,2})(?: [^\r\n]*)?$/;
+
 async function signingKeys() {
   const headers = { accept: 'application/vnd.github+json' };
   if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   const response = await fetch(`https://api.github.com/users/${MAINTAINER}/ssh_signing_keys`, { headers });
   if (!response.ok) throw new Error(`API GitHub : ${response.status} ${response.statusText}`);
-  return (await response.json()).map(({ key }) => key.trim());
+  const keys = [];
+  for (const { key } of await response.json()) {
+    const match = SSH_PUBLIC_KEY.exec(String(key).trim());
+    if (match) keys.push(`${match[1]} ${match[2]}`);
+    else console.error('Clé de signature ignorée : format inattendu.');
+  }
+  return keys;
 }
 
 let signersFile = process.env.CADENAS_ALLOWED_SIGNERS;

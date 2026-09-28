@@ -5,6 +5,7 @@
 [![CI](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml/badge.svg)](https://github.com/PierreEbele/cadenas/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/cadenas.svg)](https://www.npmjs.com/package/cadenas)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/PierreEbele/cadenas/badge)](https://scorecard.dev/viewer/?uri=github.com/PierreEbele/cadenas)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14992/badge)](https://www.bestpractices.dev/projects/14992)
 [![Licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
 
 **cadenas** chiffre et déchiffre un fichier avec un mot de passe, **directement dans votre
@@ -15,7 +16,7 @@ existe en ligne de commande.
   <a href="https://pierreebele.github.io/cadenas/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
-      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, le mot de passe est jugé excellent, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
+      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, une phrase de passe de cinq mots vient d'être générée et jugée excellente, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
     </picture>
   </a>
 </p>
@@ -41,12 +42,18 @@ existe en ligne de commande.
 
 Version en ligne : **<https://pierreebele.github.io/cadenas/>**
 
-1. Déposez un fichier (ou cliquez pour le choisir).
+1. Déposez un fichier, plusieurs fichiers ou un dossier entier (ils sont alors
+   réunis dans une archive `.zip` chiffrée).
 2. Saisissez un mot de passe.
 3. Téléchargez le résultat.
 
 cadenas reconnaît tout seul si le fichier est à chiffrer ou à déchiffrer. Le site
 est disponible en français et en anglais, selon la langue du navigateur.
+
+Après une première visite, **le site fonctionne hors ligne** et peut s'installer
+comme une application (menu du navigateur → « Installer cadenas » ou « Ajouter à
+l'écran d'accueil »). Sur Chrome et Edge, les fichiers de plus de 256 Mio sont
+écrits directement sur le disque : pas de limite de taille liée à la mémoire.
 
 ## Héberger soi-même avec Docker
 
@@ -78,7 +85,7 @@ Pour la construire vous-même : `docker build -t cadenas .`
 
 ## Ligne de commande
 
-Node.js 22 ou plus récent est nécessaire.
+**Avec Node.js** (22 ou plus récent) :
 
 ```bash
 npm install -g cadenas
@@ -86,25 +93,52 @@ npm install -g cadenas
 
 Ou sans installation, avec `npx cadenas lock rapport.pdf`.
 
+**Sans Node.js** : téléchargez l'exécutable de votre système dans la
+[dernière release](https://github.com/PierreEbele/cadenas/releases/latest)
+(`cadenas-vX.Y.Z-windows-x64.exe`, `-macos-arm64`, `-linux-x64`, `-linux-arm64`),
+renommez-le `cadenas` et placez-le dans votre `PATH`. Ces fichiers ne sont pas signés
+par un éditeur reconnu : Windows peut afficher un avertissement SmartScreen
+(« Informations complémentaires » → « Exécuter quand même »), et sous macOS il faut
+retirer la quarantaine avec `xattr -d com.apple.quarantine cadenas`. Vous pouvez
+vérifier qu'un exécutable a bien été construit par ce dépôt :
+`gh attestation verify cadenas-vX.Y.Z-linux-x64 --repo PierreEbele/cadenas`.
+
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
 cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
+cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
+cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
 cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 
+Plusieurs fichiers ou des dossiers sont réunis dans une archive `.zip` avant
+d'être chiffrés ; une fois déchiffrée, elle s'ouvre avec n'importe quel outil.
+
+`-` désigne l'entrée ou la sortie standard, pour les scripts et les sauvegardes :
+
+```bash
+tar c projet | cadenas lock - --password-file ~/.cle > projet.tar.cadenas
+cadenas unlock projet.tar.cadenas -o - --password-file ~/.cle | tar x
+```
+
 | Option | Rôle |
 |---|---|
-| `-o, --output <chemin>` | fichier de sortie |
+| `-o, --output <chemin>` | fichier de sortie (`-` : sortie standard) |
 | `-f, --force` | écrase le fichier de sortie s'il existe |
 | `--age` | chiffre au format age (avec `lock`) |
-| `--password-stdin` | lit le mot de passe sur l'entrée standard, pour les scripts |
+| `--password-file <fichier>` | lit le mot de passe dans un fichier (première ligne) |
+| `--password-stdin` | lit le mot de passe sur l'entrée standard |
 | `-h, --help` / `-v, --version` | aide / version |
 | `-w, --words <n>` | nombre de mots de `passphrase` (5 par défaut) |
 | `--lang <fr\|en>` | langue des mots de `passphrase` (fr par défaut) |
 
-Le mot de passe est demandé sans écho (deux fois pour chiffrer). En cas d'erreur
-(mauvais mot de passe, fichier altéré), aucun fichier partiel n'est écrit.
+Le mot de passe est demandé sans écho (deux fois pour chiffrer), directement dans
+le terminal même quand les données arrivent par l'entrée standard. Vers un
+fichier, une erreur (mauvais mot de passe, fichier altéré) ne laisse jamais de
+fichier partiel ; vers la sortie standard, le code de sortie non nul signale que
+les données sont incomplètes. Les messages vont sur la sortie d'erreur, jamais
+dans les données.
 
 Codes de sortie : `0` succès, `1` erreur, `2` mauvaise utilisation, `130` annulation.
 

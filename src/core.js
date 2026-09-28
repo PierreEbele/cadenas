@@ -15,7 +15,8 @@ import { CadenasError } from './errors.js';
 export { CadenasError } from './errors.js';
 export { readAll, streamFromBytes } from './bytes.js';
 export { DETECT_SIZE, detectFormat } from './detect.js';
-export { EXTENSIONS, decryptedName, encryptedName } from './names.js';
+export { EXTENSIONS, archiveName, decryptedName, encryptedName } from './names.js';
+export { archiveSize, createArchive, prepareEntries } from './archive.js';
 
 /**
  * Chiffre un flux.

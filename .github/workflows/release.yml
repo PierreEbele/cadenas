@@ -1,11 +1,14 @@
 name: Release
 
 # À chaque tag de version : crée la release GitHub avec les notes du
-# CHANGELOG, et y joint le site construit (archive + empreintes SHA-256),
+# CHANGELOG, et y joint le site construit (archive + empreintes SHA-256) et
+# les exécutables autonomes de la CLI (Linux, macOS, Windows), le tout
 # accompagné d'une attestation de provenance signée (Sigstore).
 on:
   push:
     tags: ['v*']
+  # Lancement manuel : construit et teste tout, sans rien publier.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -32,9 +35,48 @@ jobs:
           name: site
           path: release/
 
+  binaries:
+    name: Exécutable ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { os: ubuntu-latest, name: linux-x64, ext: '' }
+          - { os: ubuntu-24.04-arm, name: linux-arm64, ext: '' }
+          - { os: macos-latest, name: macos-arm64, ext: '' }
+          - { os: windows-latest, name: windows-x64, ext: '.exe' }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Construction
+        shell: bash
+        run: |
+          mkdir -p release
+          node scripts/build-sea.js "release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+      - name: Test de l'exécutable
+        shell: bash
+        run: |
+          exe="release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+          test "$("$exe" --version)" = "$(node -p "require('./package.json').version")"
+          echo "mot de passe" > pwd.txt
+          head -c 300000 /dev/urandom > data.bin
+          "$exe" lock - --password-file pwd.txt < data.bin > data.cadenas
+          "$exe" unlock - --password-file pwd.txt < data.cadenas > data.out
+          cmp data.bin data.out
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: binary-${{ matrix.name }}
+          path: release/
+
   publish:
     name: Publication de la release
-    needs: [site]
+    needs: [site, binaries]
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: write

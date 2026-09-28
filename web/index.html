@@ -10,12 +10,20 @@
     />
     <meta name="referrer" content="no-referrer" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#116a55" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1412" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./style.css" />
     <script type="module" src="./main.js"></script>
   </head>
   <body>
     <div class="page">
+      <div class="update" id="update" role="status" hidden>
+        <span data-i18n="update.text">Une nouvelle version de cadenas est disponible.</span>
+        <button type="button" class="text-button" id="update-reload" data-i18n="update.reload">Mettre à jour</button>
+      </div>
       <header class="brand">
         <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
           <path d="M10 14v-3.5a6 6 0 0 1 12 0V14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
@@ -33,12 +41,12 @@
         <form id="form" novalidate>
           <!-- Étape 1 : choix du fichier -->
           <label class="dropzone" id="dropzone" for="file">
-            <input type="file" id="file" class="visually-hidden" />
+            <input type="file" id="file" class="visually-hidden" multiple />
             <span class="dropzone-empty">
               <svg viewBox="0 0 24 24" aria-hidden="true" class="dropzone-icon">
                 <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <span class="dropzone-title" data-i18n="drop.title">Déposez un fichier ici</span>
+              <span class="dropzone-title" data-i18n="drop.title">Déposez des fichiers ou un dossier ici</span>
               <span class="dropzone-hint" data-i18n-html="drop.hint">ou <span class="link-like">parcourez vos fichiers</span></span>
             </span>
             <span class="dropzone-file" hidden>
@@ -50,6 +58,10 @@
               <span class="link-like file-change" data-i18n="file.change">Changer</span>
             </span>
           </label>
+          <p class="alt-pick" id="alt-pick">
+            <input type="file" id="folder" class="visually-hidden" webkitdirectory multiple tabindex="-1" aria-hidden="true" />
+            <button type="button" class="text-button" id="pick-folder" data-i18n="drop.folder">Choisir un dossier entier</button>
+          </p>
 
           <!-- Étape 2 : mot de passe -->
           <fieldset id="options" class="options" disabled>
@@ -100,6 +112,8 @@
               Un mot de passe oublié ne peut pas être récupéré.
             </p>
 
+            <p class="hint" id="large-hint" data-i18n="file.largeHint" hidden></p>
+
             <button type="submit" class="primary" id="submit" data-i18n="action.encrypt">Chiffrer</button>
           </fieldset>
         </form>
@@ -121,6 +135,7 @@
           </div>
           <p class="status-title" id="result-title"></p>
           <p class="status-detail" id="result-detail"></p>
+          <p class="status-detail" id="result-hint" hidden></p>
           <a class="primary" id="download" download></a>
           <button type="button" class="secondary" id="restart" data-i18n="result.restart">Traiter un autre fichier</button>
         </section>
@@ -131,7 +146,7 @@
       <section class="facts" data-i18n-attr="aria-label:facts.label" aria-label="Garanties">
         <div>
           <h2 data-i18n="facts.local.title">100 % local</h2>
-          <p data-i18n="facts.local.text">Le chiffrement a lieu dans votre navigateur. Aucun fichier ni mot de passe n'est envoyé.</p>
+          <p data-i18n="facts.local.text">Le chiffrement a lieu dans votre navigateur. Aucun fichier ni mot de passe n'est envoyé, et le site fonctionne même hors ligne.</p>
         </div>
         <div>
           <h2 data-i18n="facts.solid.title">Solide</h2>

@@ -1,10 +1,11 @@
 import { after, before, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { unzipSync } from 'fflate';
 
 const BIN = fileURLToPath(new URL('../bin/cadenas.js', import.meta.url));
 let dir;
@@ -18,6 +19,18 @@ function cadenas(args, password) {
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
+
+/** Variante binaire : `input` envoyé tel quel sur stdin, stdout récupéré en octets. */
+function cadenasRaw(args, input) {
+  const result = spawnSync(process.execPath, [BIN, ...args], { cwd: dir, input, maxBuffer: 64 * 1024 * 1024 });
+  return { code: result.status, stdout: result.stdout, stderr: result.stderr.toString() };
+}
+
+const today = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
 
 const file = (name) => join(dir, name);
 
@@ -94,6 +107,94 @@ describe('sécurité des fichiers', () => {
   });
 });
 
+describe('plusieurs fichiers et dossiers', () => {
+  test('un dossier devient dossier.zip.cadenas, arborescence préservée', () => {
+    mkdirSync(file('photos/été'), { recursive: true });
+    mkdirSync(file('photos/vide'), { recursive: true });
+    writeFileSync(file('photos/a.jpg'), 'image a');
+    writeFileSync(file('photos/été/b.jpg'), 'image b');
+
+    const locked = cadenas(['lock', '--password-stdin', 'photos'], 'pwd');
+    assert.equal(locked.code, 0, locked.stderr);
+    assert.match(locked.stderr, /2 fichiers chiffrés/);
+    assert.ok(existsSync(file('photos.zip.cadenas')));
+
+    const unlocked = cadenas(['unlock', '--password-stdin', 'photos.zip.cadenas'], 'pwd');
+    assert.equal(unlocked.code, 0, unlocked.stderr);
+    const files = unzipSync(readFileSync(file('photos.zip')));
+    assert.deepEqual(Object.keys(files).sort(), ['photos/a.jpg', 'photos/été/b.jpg']);
+    assert.equal(new TextDecoder().decode(files['photos/été/b.jpg']), 'image b');
+  });
+
+  test('plusieurs fichiers : archive datée par défaut, ou nom choisi avec -o', () => {
+    writeFileSync(file('m1.txt'), 'un');
+    writeFileSync(file('m2.txt'), 'deux');
+    assert.equal(cadenas(['lock', '--password-stdin', 'm1.txt', 'm2.txt'], 'pwd').code, 0);
+    assert.ok(existsSync(file(`cadenas-${today()}.zip.cadenas`)));
+
+    assert.equal(cadenas(['lock', '--password-stdin', '-o', 'lot.zip.cadenas', 'm1.txt', 'm2.txt', 'photos'], 'pwd').code, 0);
+    cadenas(['unlock', '--password-stdin', 'lot.zip.cadenas'], 'pwd');
+    assert.deepEqual(Object.keys(unzipSync(readFileSync(file('lot.zip')))).sort(), [
+      'm1.txt',
+      'm2.txt',
+      'photos/a.jpg',
+      'photos/été/b.jpg',
+    ]);
+  });
+
+  test('dossier vide refusé', () => {
+    mkdirSync(file('rien'), { recursive: true });
+    const result = cadenas(['lock', '--password-stdin', 'rien'], 'pwd');
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /Aucun fichier/);
+  });
+
+  test('un seul fichier à la fois au déchiffrement', () => {
+    assert.equal(cadenas(['unlock', 'a.cadenas', 'b.cadenas']).code, 2);
+  });
+});
+
+describe('entrée et sortie standard', () => {
+  test('stdin → stdout, dans les deux sens, avec --password-file', () => {
+    writeFileSync(file('secret.txt'), 'motdepasse\n');
+    const data = Buffer.alloc(300_000);
+    for (let i = 0; i < data.length; i += 65536) crypto.getRandomValues(data.subarray(i, i + 65536));
+
+    const locked = cadenasRaw(['lock', '-', '--password-file', 'secret.txt'], data);
+    assert.equal(locked.code, 0, locked.stderr);
+    assert.equal(locked.stdout.subarray(0, 7).toString(), 'CADENAS');
+
+    const unlocked = cadenasRaw(['unlock', '-', '--password-file', 'secret.txt'], locked.stdout);
+    assert.equal(unlocked.code, 0, unlocked.stderr);
+    assert.deepEqual(unlocked.stdout, data);
+  });
+
+  test('-o - : un fichier vers la sortie standard', () => {
+    writeFileSync(file('o.txt'), 'vers stdout');
+    cadenas(['lock', '--password-stdin', 'o.txt'], 'pwd');
+    const result = cadenasRaw(['unlock', '--password-file', 'secret.txt', '-o', '-', 'o.txt.cadenas'], undefined);
+    assert.equal(result.code, 1); // mauvais mot de passe dans secret.txt
+    writeFileSync(file('pwd.txt'), 'pwd');
+    const ok = cadenasRaw(['unlock', '--password-file', 'pwd.txt', '-o', '-', 'o.txt.cadenas'], undefined);
+    assert.equal(ok.code, 0, ok.stderr);
+    assert.equal(ok.stdout.toString(), 'vers stdout');
+  });
+
+  test('stdin chiffré mais altéré : code d’erreur non nul', () => {
+    const locked = cadenasRaw(['lock', '-', '--password-file', 'secret.txt'], Buffer.alloc(200_000, 1));
+    locked.stdout[locked.stdout.length - 5] ^= 1;
+    const result = cadenasRaw(['unlock', '-', '--password-file', 'secret.txt'], locked.stdout);
+    assert.equal(result.code, 1);
+    assert.match(result.stderr, /endommagé|modifié/);
+  });
+
+  test('combinaisons interdites : code 2', () => {
+    assert.equal(cadenas(['lock', '-', '--password-stdin']).code, 2);
+    assert.equal(cadenas(['lock', '-', 'a.txt']).code, 2);
+    assert.equal(cadenas(['lock', '--password-stdin', '--password-file', 'secret.txt', 'a.txt']).code, 2);
+  });
+});
+
 describe('passphrase', () => {
   test('5 mots français par défaut, sur stdout', () => {
     const result = cadenas(['passphrase']);
@@ -119,7 +220,7 @@ describe('erreurs et aide', () => {
   test('fichier introuvable', () => {
     const result = cadenas(['unlock', '--password-stdin', 'absent.cadenas'], 'pwd');
     assert.equal(result.code, 1);
-    assert.match(result.stderr, /introuvable/);
+    assert.match(result.stderr, /introuvable/i);
   });
 
   test('fichier non chiffré passé à unlock', () => {
@@ -147,7 +248,6 @@ describe('erreurs et aide', () => {
   test('erreurs d’utilisation : code 2', () => {
     assert.equal(cadenas(['inconnue', 'x']).code, 2);
     assert.equal(cadenas(['lock']).code, 2);
-    assert.equal(cadenas(['lock', 'a', 'b']).code, 2);
     assert.equal(cadenas(['unlock', '--age', 'x.age']).code, 2);
     assert.equal(cadenas(['lock', '--option-inconnue', 'x']).code, 2);
   });
@@ -155,7 +255,7 @@ describe('erreurs et aide', () => {
   test('--help et --version', () => {
     const help = cadenas(['--help']);
     assert.equal(help.code, 0);
-    assert.match(help.stdout, /cadenas lock <fichier>/);
+    assert.match(help.stdout, /cadenas lock <fichier/);
     const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
     assert.equal(cadenas(['--version']).stdout.trim(), version);
   });

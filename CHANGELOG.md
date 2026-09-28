@@ -5,6 +5,40 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [1.3.0] - 2026-09-27
+
+Site installable et utilisable hors ligne, exécutables autonomes de la CLI.
+Aucun changement du format de fichier.
+
+### Ajouté
+
+- Site installable et utilisable hors ligne (application web progressive) : manifeste, icônes, et service worker qui met en cache tous les fichiers du site. Une nouvelle version s'installe en arrière-plan et ne s'applique qu'après un clic sur « Mettre à jour », jamais au milieu d'un chiffrement.
+- Image Docker : le service worker reçoit sa propre politique de sécurité (`connect-src 'self'`, pour mettre le site en cache) ; la page garde `connect-src 'none'`. Manifeste servi avec le bon type MIME.
+- Exécutables autonomes de la CLI, sans Node.js à installer : Windows x64, macOS arm64, Linux x64 et arm64. Construits par la CI (Node.js « Single Executable Application »), testés sur chaque plateforme avant publication, joints à chaque release avec empreintes et attestation de provenance. `npm run build:exe` construit celui de la plateforme courante.
+- Le workflow de release peut être lancé à la main pour tout construire et tester sans rien publier.
+
+### Modifié
+
+- README : captures d'écran à jour (générateur de phrase de passe, sélecteur de langue), installation hors ligne.
+
+## [1.2.0] - 2026-09-27
+
+Plusieurs fichiers et dossiers, fichiers de toute taille sur le site, et CLI
+prête pour les scripts de sauvegarde. Aucun changement du format de fichier.
+
+### Ajouté
+
+- Archives : plusieurs fichiers ou un dossier sont regroupés en une archive `.zip` produite en flux (`src/archive.js`, bibliothèque client-zip), puis chiffrés en un seul fichier. Arborescence et noms Unicode préservés, chemins nettoyés (ni chemin absolu ni `..`), doublons renommés, Zip64 au-delà de 4 Go, fichiers ouverts un par un.
+- Site : plusieurs fichiers ou un dossier entier, par glisser-déposer ou par sélection (bouton « Choisir un dossier entier »). Ils sont réunis dans `dossier.zip` (ou `cadenas-AAAA-MM-JJ.zip`) puis chiffrés ; au déchiffrement, le site rappelle qu'il suffit d'ouvrir l'archive.
+- Site : au-delà de 256 Mio, le résultat est écrit directement sur le disque (Chrome, Edge : le site demande où l'enregistrer avant de commencer), en mémoire constante quelle que soit la taille. Sur les autres navigateurs, un message conseille Chrome, Edge ou la ligne de commande pour plusieurs Go.
+- CLI : `cadenas lock` accepte plusieurs fichiers et des dossiers (parcourus récursivement, liens symboliques ignorés) → `dossier.zip.cadenas` ou `cadenas-AAAA-MM-JJ.zip.cadenas`.
+- CLI : `-` pour l'entrée standard (`cadenas lock -`, `cadenas unlock -`) et `-o -` pour la sortie standard ; refus d'écrire du binaire dans un terminal.
+- CLI : option `--password-file <fichier>` ; quand l'entrée standard porte les données, le mot de passe est demandé directement au terminal.
+
+### Modifié
+
+- CLI : les messages de réussite (« ✔ Fichier chiffré… ») passent sur la sortie d'erreur, pour que la sortie standard ne contienne que des données.
+
 ## [1.1.0] - 2026-09-27
 
 Générateur de phrases de passe, site en anglais, et chaîne de publication
@@ -160,6 +194,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
+[1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/PierreEbele/cadenas/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PierreEbele/cadenas/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/PierreEbele/cadenas/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/PierreEbele/cadenas/compare/v1.0.0...v1.0.1

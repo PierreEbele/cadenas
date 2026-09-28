@@ -77,6 +77,9 @@ jobs:
           echo "$headers" | grep -qi "content-security-policy: .*connect-src 'none'"
           echo "$headers" | grep -qi "x-content-type-options: nosniff"
           curl -fsS http://localhost:8080/ | grep -q "<title>cadenas"
+          # Service worker : sa propre CSP (connect-src 'self'), jamais celle de la page.
+          curl -fsSI http://localhost:8080/sw.js | grep -qi "content-security-policy: default-src 'none'; connect-src 'self'"
+          curl -fsSI http://localhost:8080/manifest.webmanifest | grep -qi "content-type: application/manifest+json"
           test "$(docker exec cadenas id -u)" != "0"
       - if: always()
         run: docker logs cadenas || true

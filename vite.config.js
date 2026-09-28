@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
 // Politique de sécurité injectée dans le HTML construit, pour les hébergeurs
@@ -10,6 +12,7 @@ const CSP = [
   "worker-src 'self'",
   "style-src 'self'",
   "img-src 'self'",
+  "manifest-src 'self'",
   "connect-src 'none'",
   "form-action 'none'",
   "base-uri 'none'",
@@ -23,12 +26,40 @@ const cspMeta = {
   ],
 };
 
+// Service worker (fonctionnement hors ligne) : web/sw-template.js complété de
+// la liste exacte des fichiers du build et d'une version dérivée de leur contenu.
+const serviceWorker = {
+  name: 'cadenas-service-worker',
+  apply: 'build',
+  generateBundle(_options, bundle) {
+    const publicDir = new URL('./web/public/', import.meta.url);
+    const publicFiles = readdirSync(publicDir);
+    const files = [...Object.keys(bundle), ...publicFiles]
+      .filter((name) => name !== 'index.html' && !name.endsWith('.map'))
+      .sort();
+    const precache = ['./', ...files];
+
+    const hash = createHash('sha256');
+    for (const name of Object.keys(bundle).sort()) {
+      const chunk = bundle[name];
+      hash.update(name).update(chunk.type === 'chunk' ? chunk.code : chunk.source);
+    }
+    for (const name of publicFiles.sort()) hash.update(name).update(readFileSync(new URL(name, publicDir)));
+    const version = hash.digest('hex').slice(0, 16);
+
+    const source = readFileSync(new URL('./web/sw-template.js', import.meta.url), 'utf8')
+      .replace('__CACHE_VERSION__', version)
+      .replace('__PRECACHE__', JSON.stringify(precache, null, 2));
+    this.emitFile({ type: 'asset', fileName: 'sw.js', source });
+  },
+};
+
 export default defineConfig({
   root: 'web',
   // Chemins relatifs : le même build fonctionne à la racine d'un domaine
   // (Docker) comme dans un sous-dossier (GitHub Pages).
   base: './',
-  plugins: [cspMeta],
+  plugins: [cspMeta, serviceWorker],
   build: {
     outDir: '../dist',
     emptyOutDir: true,

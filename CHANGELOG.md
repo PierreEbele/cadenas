@@ -7,6 +7,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
+
 ## [1.4.1] - 2026-09-30
 
 Durcissement du service worker du site. Aucun changement du format de

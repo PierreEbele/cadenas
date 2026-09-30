@@ -34,7 +34,9 @@ priorités peuvent changer : les discussions ont lieu dans les
   mot de passe est bon, sans rien écrire.
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
-- Installation par les gestionnaires de paquets courants (Homebrew, winget).
+- Installation par les gestionnaires de paquets courants : publier la formule
+  Homebrew (dépôt `homebrew-cadenas`) et le manifeste winget, préparés dans
+  [`packaging/`](packaging/README.md).
 
 ## Pas prévu
 

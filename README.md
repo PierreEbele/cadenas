@@ -90,6 +90,12 @@ To build it yourself: `docker build -t cadenas .`
 
 ## Command line
 
+**With Homebrew** (macOS, Linux):
+
+```bash
+brew install pierreebele/cadenas/cadenas
+```
+
 **With Node.js** (22 or newer):
 
 ```bash

@@ -22,9 +22,8 @@ may change: discussions take place in the
 
 ### Features
 
-- Installation through common package managers: publish the Homebrew
-  formula (`homebrew-cadenas` repository) and the winget manifest,
-  prepared in [`packaging/`](packaging/README.md).
+- Installation with winget: the manifest is submitted to
+  [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs/pull/444448).
 
 ## Not planned
 

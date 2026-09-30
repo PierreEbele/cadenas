@@ -21,9 +21,8 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 ### Fonctionnalités
 
-- Installation par les gestionnaires de paquets courants : publier la formule
-  Homebrew (dépôt `homebrew-cadenas`) et le manifeste winget, préparés dans
-  [`packaging/`](packaging/README.fr.md).
+- Installation avec winget : le manifeste est soumis à
+  [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs/pull/444448).
 
 ## Pas prévu
 

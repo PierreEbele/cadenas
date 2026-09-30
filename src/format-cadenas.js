@@ -42,10 +42,14 @@ export const HEADER_SIZE = FIELDS_SIZE + MAC_SIZE;
 /** Paramètres Argon2id par défaut (m en Kio). */
 export const DEFAULT_PARAMS = Object.freeze({ m: 64 * 1024, t: 3, p: 1 });
 
-/** Bornes acceptées, au chiffrement comme au déchiffrement (anti-DoS). */
+/**
+ * Bornes acceptées, au chiffrement comme au déchiffrement (anti-DoS). Un
+ * fichier forgé impose son coût Argon2id avant toute authentification : au
+ * pire 256 Mio × 16 passes, soit une vingtaine de fois le coût par défaut.
+ */
 export const PARAM_LIMITS = Object.freeze({
-  m: { min: 8, max: 1024 * 1024 }, // 8 Kio .. 1 Gio
-  t: { min: 1, max: 64 },
+  m: { min: 8, max: 256 * 1024 }, // 8 Kio .. 256 Mio
+  t: { min: 1, max: 16 },
   p: { min: 1, max: 16 },
 });
 
@@ -158,6 +162,7 @@ export async function encrypt(input, password, options = {}) {
   const header = new Uint8Array(HEADER_SIZE);
   header.set(fields, 0);
   header.set(hmac(sha256, macKey, fields), FIELDS_SIZE);
+  macKey.fill(0);
 
   const reader = input.getReader();
   const queue = new ByteQueue();
@@ -259,7 +264,9 @@ export async function decrypt(input, password) {
   }
 
   const { macKey, encKey } = await deriveKeys(password, salt, params);
-  if (!equalBytes(hmac(sha256, macKey, fields), mac)) {
+  const expected = hmac(sha256, macKey, fields);
+  macKey.fill(0);
+  if (!equalBytes(expected, mac)) {
     encKey.fill(0);
     await reader.cancel().catch(() => {});
     throw new CadenasError('WRONG_PASSWORD', 'Mot de passe incorrect.');

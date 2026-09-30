@@ -55,8 +55,8 @@ fall outside these bounds:
 
 | Parameter | Min | Max |
 |---|---:|---:|
-| `m` | `max(8, 8 × p)` | 1,048,576 (1 GiB) |
-| `t` | 1 | 64 |
+| `m` | `max(8, 8 × p)` | 262,144 (256 MiB) |
+| `t` | 1 | 16 |
 | `p` | 1 | 16 |
 
 A reader that encounters an unknown `version` must stop with an explicit

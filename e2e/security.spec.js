@@ -38,6 +38,14 @@ test('la politique de sécurité (CSP) est appliquée', async ({ page }) => {
   expect(blocked.violations).toEqual(expect.arrayContaining(['script-src-elem', 'connect-src', 'frame-src']));
 });
 
+test('intégrée dans une iframe, la page refuse de fonctionner', async ({ page, baseURL }) => {
+  await page.setContent(`<iframe src="${baseURL}" style="width:800px;height:600px"></iframe>`);
+  const frame = page.frameLocator('iframe');
+  await expect(frame.locator('a[target="_blank"]')).toHaveText(/cadenas/);
+  await expect(frame.locator('#form')).toHaveCount(0);
+  await expect(frame.locator('#password')).toHaveCount(0);
+});
+
 test('aucune requête ne quitte le site pendant un chiffrement', async ({ page, baseURL }) => {
   const requests = [];
   page.on('request', (request) => requests.push(request.url()));

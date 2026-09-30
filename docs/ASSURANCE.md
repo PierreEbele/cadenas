@@ -76,11 +76,11 @@ a modified site (hence the published checksums).
 | Predictable randomness (CWE-330, CWE-338) | Salts, nonces and passphrases come from the system's cryptographic generator; unbiased sampling for passphrases. |
 | Nonce reuse (CWE-323) | Random 128-bit prefix per file and a counter per chunk (XChaCha20, 192-bit nonce). |
 | Timing side channel (CWE-208) | The header MAC is compared in constant time. |
-| Uncontrolled resource consumption (CWE-400) | Argon2id parameters read from a file are bounded (at most 1 GiB and 64 passes) before any computation; streaming, in constant memory. |
+| Uncontrolled resource consumption (CWE-400) | Argon2id parameters read from a file are bounded (at most 256 MiB and 16 passes, about twenty times the default cost) before any computation; streaming, in constant memory. |
 | Improper input validation (CWE-20) | Format recognized by allowlist (magic and version), unknown versions rejected, parameters checked, typed errors (`CadenasError`). |
 | Path traversal (CWE-22, "zip slip") | Paths stored in archives are sanitized: no absolute path, no `.`, no `..`. |
 | Exfiltration and script injection (CWE-79) | Strict CSP with no external or inline script; no third-party resource; no `innerHTML` fed by the user. |
-| Exposure of sensitive information (CWE-200, CWE-532) | The password is never logged; input without echo in the terminal; keys wiped from memory after use. |
+| Exposure of sensitive information (CWE-200, CWE-532) | The password is never logged; input without echo in the terminal, escape sequences (arrow keys) ignored, terminal restored even on interruption; derived keys (Argon2id output, header and content keys) wiped from memory after use — the password itself, a JavaScript string, cannot be wiped; output files created readable by their owner only, temporary file deleted on interruption. |
 | Vulnerable dependencies (CWE-1395) | Dependabot (npm, actions, Docker), CodeQL analysis on every push and every week, OpenSSF Scorecard. |
 | Release pipeline compromise | Publication only by GitHub Actions (actions pinned by hash), after checking the SSH signature of the tag and that it points to the commit of its version; npm provenance, image signed with cosign, attestations and `SHA256SUMS` for the releases; reproducible site build. |
 

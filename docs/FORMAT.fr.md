@@ -56,8 +56,8 @@ paramètres sortent de ces bornes :
 
 | Paramètre | Min | Max |
 |---|---:|---:|
-| `m` | `max(8, 8 × p)` | 1 048 576 (1 Gio) |
-| `t` | 1 | 64 |
+| `m` | `max(8, 8 × p)` | 262 144 (256 Mio) |
+| `t` | 1 | 16 |
 | `p` | 1 | 16 |
 
 Un lecteur qui rencontre une `version` inconnue doit s'arrêter avec une erreur

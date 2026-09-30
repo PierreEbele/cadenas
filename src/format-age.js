@@ -6,7 +6,7 @@
  */
 import { Decrypter, Encrypter, armor } from 'age-encryption';
 import { readAll, streamFromBytes } from './bytes.js';
-import { isAgeArmored } from './detect.js';
+import { DETECT_SIZE, isAgeArmored } from './detect.js';
 import { CadenasError } from './errors.js';
 
 /** L'en-tête age contient-il une recette scrypt (chiffrement par mot de passe) ? */
@@ -55,7 +55,9 @@ export async function decrypt(input, password, head) {
     } catch (cause) {
       throw new CadenasError('CORRUPTED', 'Le fichier age (texte) est endommagé.', { cause });
     }
-    return decryptBinary(bytes, password, bytes);
+    // Seul le début sert à reconnaître la recette scrypt : décoder tout le
+    // fichier en texte doublerait la mémoire, et échouerait au-delà de 512 Mo.
+    return decryptBinary(bytes, password, bytes.subarray(0, DETECT_SIZE));
   }
   return decryptBinary(input, password, head);
 }
@@ -73,6 +75,9 @@ async function decryptBinary(input, password, head) {
   try {
     output = await decrypter.decrypt(input);
   } catch (cause) {
+    // age-encryption ne donne pas de code d'erreur : seul son message
+    // distingue un mauvais mot de passe. test/core.test.js (« mauvais mot de
+    // passe ») échoue si une mise à jour de la bibliothèque le change.
     if (/no identity matched/.test(cause?.message)) {
       throw new CadenasError('WRONG_PASSWORD', 'Mot de passe incorrect.', { cause });
     }

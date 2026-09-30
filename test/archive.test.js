@@ -19,6 +19,14 @@ describe('chemins', () => {
     assert.throws(() => normalizeEntryPath('../..'), TypeError);
   });
 
+  test('ni lecteur Windows ni « : » (flux de données alternatif NTFS)', () => {
+    assert.equal(normalizeEntryPath('C:\\Users\\a.txt'), 'Users/a.txt');
+    assert.equal(normalizeEntryPath('c:/a.txt'), 'a.txt');
+    assert.equal(normalizeEntryPath('notes.txt:cache'), 'notes.txt_cache');
+    assert.equal(normalizeEntryPath('dossier/12:30.txt'), 'dossier/12_30.txt');
+    assert.throws(() => normalizeEntryPath('C:'), TypeError);
+  });
+
   test('doublons renommés, sans tenir compte de la casse', () => {
     assert.deepEqual(uniquePaths(['a.txt', 'A.txt', 'a.txt', 'd/a.txt', 'sans-ext', 'sans-ext']), [
       'a.txt',

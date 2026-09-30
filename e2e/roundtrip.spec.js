@@ -56,6 +56,12 @@ test('mauvais mot de passe : message d’erreur, rien à télécharger', async (
   await expect(page.locator('#password')).toHaveAttribute('aria-invalid', 'true');
 });
 
+test('un fichier .cadenas endommagé n’est pas chiffré une seconde fois', async ({ page }) => {
+  await chooseFiles(page, [{ name: 'rapport.pdf.cadenas', content: 'pas un fichier chiffré' }]);
+  await expect(page.locator('#error')).toContainText('.cadenas');
+  await expect(page.locator('#password')).toBeDisabled();
+});
+
 test('les deux mots de passe doivent correspondre', async ({ page }) => {
   await chooseFiles(page, [{ name: 'a.txt', content: 'a' }]);
   await page.locator('#password').fill('un');

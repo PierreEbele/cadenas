@@ -81,11 +81,11 @@ les empreintes publiées).
 | Aléa prévisible (CWE-330, CWE-338) | Sels, nonces et phrases de passe issus du générateur cryptographique du système ; tirage sans biais pour les phrases de passe. |
 | Réutilisation de nonce (CWE-323) | Préfixe aléatoire de 128 bits par fichier et compteur par bloc (XChaCha20, nonce de 192 bits). |
 | Canal auxiliaire temporel (CWE-208) | Le MAC de l'en-tête est comparé en temps constant. |
-| Consommation de ressources non contrôlée (CWE-400) | Les paramètres Argon2id lus dans un fichier sont bornés (1 Gio et 64 passes au maximum) avant tout calcul ; traitement en flux, en mémoire constante. |
+| Consommation de ressources non contrôlée (CWE-400) | Les paramètres Argon2id lus dans un fichier sont bornés (256 Mio et 16 passes au maximum, soit une vingtaine de fois le coût par défaut) avant tout calcul ; traitement en flux, en mémoire constante. |
 | Validation d'entrée insuffisante (CWE-20) | Format reconnu par liste blanche (magic et version), version inconnue refusée, paramètres vérifiés, erreurs typées (`CadenasError`). |
 | Traversée de chemin (CWE-22, « zip slip ») | Les chemins placés dans les archives sont nettoyés : ni chemin absolu, ni `.`, ni `..`. |
 | Exfiltration et injection de script (CWE-79) | CSP stricte sans script externe ni en ligne ; aucune ressource tierce ; aucun `innerHTML` alimenté par l'utilisateur. |
-| Exposition d'informations sensibles (CWE-200, CWE-532) | Le mot de passe n'est jamais journalisé ; saisie sans écho dans le terminal ; clés effacées de la mémoire après usage. |
+| Exposition d'informations sensibles (CWE-200, CWE-532) | Le mot de passe n'est jamais journalisé ; saisie sans écho dans le terminal, séquences d'échappement (flèches) ignorées, terminal rétabli même en cas d'interruption ; clés dérivées (sortie d'Argon2id, clés d'en-tête et de contenu) effacées de la mémoire après usage — le mot de passe lui-même, chaîne JavaScript, ne peut pas l'être ; fichiers produits lisibles par leur seul propriétaire, fichier temporaire supprimé en cas d'interruption. |
 | Dépendances vulnérables (CWE-1395) | Dependabot (npm, actions, Docker), analyse CodeQL à chaque push et chaque semaine, OpenSSF Scorecard. |
 | Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte), après vérification de la signature SSH du tag et du commit de sa version ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. |
 

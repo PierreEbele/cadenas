@@ -82,7 +82,7 @@ describe('propriétés du format .cadenas', () => {
         const sealed = await sealWith(plain, 'pwd');
         const index = Math.floor(where * sealed.length);
         // Octets 9-12 (mémoire Argon2id) exclus : une valeur modifiée mais encore
-        // admise (jusqu'à 1 Gio) rendrait le test lent ; ce cas a son test dédié.
+        // admise (jusqu'à 256 Mio) rendrait le test lent ; ce cas a son test dédié.
         fc.pre(index < 9 || index > 12);
         sealed[index] ^= mask;
         assert.ok(await rejectsCleanly(() => open(sealed, 'pwd')), `octet ${index} modifié non détecté`);
@@ -161,7 +161,7 @@ describe('robustesse face à des entrées arbitraires', () => {
         input.set(rest, 7);
         const start = performance.now();
         assert.ok(await rejectsCleanly(() => open(input, 'pwd')));
-        // Bornes des paramètres Argon2id : jamais plus de 1 Gio ni 64 passes.
+        // Bornes des paramètres Argon2id : jamais plus de 256 Mio ni 16 passes.
         assert.ok(performance.now() - start < 20_000);
       }),
       { numRuns: 30 },

@@ -121,6 +121,20 @@ describe('erreurs avant tout déchiffrement', () => {
     assert.ok(performance.now() - start < 500);
   });
 
+  test('coût Argon2id borné : 256 Mio et 16 passes au plus', async () => {
+    for (const [offset, value] of [
+      [9, 256 * 1024 + 1], // m
+      [13, 17], // t
+    ]) {
+      const sealed = await enc(random(10));
+      new DataView(sealed.buffer).setUint32(offset, value);
+      const start = performance.now();
+      await assert.rejects(dec(sealed), hasCode('INVALID_PARAMS'));
+      assert.ok(performance.now() - start < 500);
+    }
+    await assert.rejects(enc(random(10), 'pwd', { params: { m: 256 * 1024 + 1, t: 1, p: 1 } }), hasCode('INVALID_PARAMS'));
+  });
+
   test('paramètres invalides au chiffrement', async () => {
     await assert.rejects(enc(random(10), 'pwd', { params: { t: 0 } }), hasCode('INVALID_PARAMS'));
   });

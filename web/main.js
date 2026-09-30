@@ -7,6 +7,20 @@ import { assess } from './strength.js';
 
 const $ = (id) => document.getElementById(id);
 
+// Dans une iframe, la page refuse de fonctionner : un autre site pourrait
+// l'habiller ou pousser l'utilisateur à y saisir un mot de passe. Sur
+// GitHub Pages, la CSP n'arrive que par <meta>, où frame-ancestors est ignoré
+// (l'image Docker, elle, l'envoie en en-tête).
+if (window.top !== window.self) {
+  const link = document.createElement('a');
+  link.href = location.href;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = t('framed');
+  document.body.replaceChildren(link);
+  throw new Error('cadenas ne fonctionne pas dans une iframe.');
+}
+
 // Au-delà de cette taille, le résultat est écrit directement sur le disque
 // quand le navigateur le permet (File System Access), plutôt qu'en mémoire.
 const LARGE_FILE = 256 * 1024 * 1024;
@@ -178,13 +192,16 @@ async function selectItems({ items, folder }) {
     return showError('error.multipleEncrypted');
   }
 
-  Object.assign(state, { items, folder, archive, file: archive ? null : items[0].file });
-  if (archive) {
-    state.sourceFormat = null;
-  } else {
-    const head = new Uint8Array(await state.file.slice(0, DETECT_SIZE).arrayBuffer());
-    state.sourceFormat = detectFormat(head);
+  let sourceFormat = null;
+  if (!archive) {
+    const { file } = items[0];
+    sourceFormat = detectFormat(new Uint8Array(await file.slice(0, DETECT_SIZE).arrayBuffer()));
+    // Extension de fichier chiffré, contenu non reconnu : sans doute un
+    // fichier endommagé, qu'il ne faut pas chiffrer une seconde fois.
+    const ext = encryptedExts.find((e) => file.name.toLowerCase().endsWith(e));
+    if (!sourceFormat && ext) return showError('error.damagedEncrypted', { ext });
   }
+  Object.assign(state, { items, folder, archive, file: archive ? null : items[0].file, sourceFormat });
   state.mode = state.sourceFormat ? 'decrypt' : 'encrypt';
   ui.password.value = '';
   ui.confirm.value = '';
@@ -350,12 +367,15 @@ const canStream = () => !canSaveDirectly && Boolean(navigator.serviceWorker?.con
 async function openStream(name) {
   const id = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
   const { port1, port2 } = new MessageChannel();
+  let timeout;
   const ready = new Promise((resolve) => {
     port1.onmessage = ({ data }) => resolve(data === 'ready');
-    setTimeout(() => resolve(false), 3000);
+    timeout = setTimeout(() => resolve(false), 3000);
   });
   navigator.serviceWorker.controller.postMessage({ type: 'download', id, name }, [port2]);
-  if (!(await ready)) {
+  const ok = await ready;
+  clearTimeout(timeout);
+  if (!ok) {
     port1.close();
     return null;
   }

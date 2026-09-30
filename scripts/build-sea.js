@@ -9,10 +9,12 @@ import { execFileSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import * as ResEdit from 'resedit';
 
-const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+// fileURLToPath : chemin décodé (espaces, accents) et au format du système.
+const root = fileURLToPath(new URL('..', import.meta.url));
 const out = join(root, 'build');
 const isWindows = process.platform === 'win32';
 const isMac = process.platform === 'darwin';

@@ -26,6 +26,36 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      # bash : PowerShell réécrirait la sortie avec des fins de ligne CRLF.
+      - run: node scripts/site-hashes.js > site-files.sha256
+        shell: bash
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-hashes-${{ matrix.os }}-node${{ matrix.node }}
+          path: site-files.sha256
+
+  # Le build du site est reproductible : sur chaque système et chaque version
+  # de Node.js, les fichiers construits doivent être identiques au bit près.
+  reproducible:
+    name: Build reproductible
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: site-hashes-*
+      - name: Les six builds sont identiques
+        run: |
+          reference=site-hashes-ubuntu-latest-node24/site-files.sha256
+          cat "$reference"
+          status=0
+          for file in site-hashes-*/site-files.sha256; do
+            if ! diff -u "$reference" "$file"; then
+              echo "::error::$(dirname "$file") diffère du build de référence (ubuntu-latest, Node 24)"
+              status=1
+            fi
+          done
+          exit $status
 
   quality:
     name: Lint et couverture des tests

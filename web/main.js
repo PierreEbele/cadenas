@@ -67,6 +67,7 @@ const state = {
   mode: 'encrypt', // 'encrypt' | 'decrypt'
   sourceFormat: null, // format détecté si le fichier est déjà chiffré
   worker: null,
+  stream: null, // téléchargement en flux en cours : { id, port, keepAlive, frame }
   downloadUrl: null,
   downloaded: false,
   result: null, // { encrypting, name, size } du dernier résultat affiché
@@ -198,7 +199,7 @@ function renderFile() {
   const encrypting = mode === 'encrypt';
   const total = totalSize();
   const size = formatSize(total);
-  ui.largeHint.hidden = canSaveDirectly || total < LARGE_FILE;
+  ui.largeHint.hidden = canSaveDirectly || canStream() || total < LARGE_FILE;
 
   ui.dropzone.classList.add('has-file');
   ui.emptyView.hidden = true;
@@ -327,12 +328,70 @@ ui.form.addEventListener('submit', async (event) => {
     }
   }
 
-  run({ files: state.items, archive, password, mode: state.mode, format, handle }, outputName);
+  // Firefox, Safari : un gros résultat est servi en flux par le service
+  // worker, au lieu d'être gardé entier en mémoire.
+  const stream = !handle && canStream() && totalSize() >= LARGE_FILE ? await openStream(outputName) : null;
+
+  run({ files: state.items, archive, password, mode: state.mode, format, handle, port: stream?.port }, outputName, stream);
 });
 
 const totalSize = () => state.items.reduce((sum, item) => sum + item.file.size, 0);
 
-function run(job, outputName) {
+// ---------------------------------------------------------------------------
+// Téléchargement en flux (voir sw-template.js)
+
+const canStream = () => !canSaveDirectly && Boolean(navigator.serviceWorker?.controller);
+
+/**
+ * Demande au service worker de préparer un téléchargement : il répond sur un
+ * port dédié, qui sera confié au worker de chiffrement. null si le service
+ * worker ne répond pas (le résultat est alors gardé en mémoire, comme avant).
+ */
+async function openStream(name) {
+  const id = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const { port1, port2 } = new MessageChannel();
+  const ready = new Promise((resolve) => {
+    port1.onmessage = ({ data }) => resolve(data === 'ready');
+    setTimeout(() => resolve(false), 3000);
+  });
+  navigator.serviceWorker.controller.postMessage({ type: 'download', id, name }, [port2]);
+  if (!(await ready)) {
+    port1.close();
+    return null;
+  }
+  // Plus rien n'arrive sur ce port avant que le navigateur ne lise le
+  // téléchargement, donc avant que le worker ne l'ait reçu.
+  port1.onmessage = null;
+  return { id, port: port1, keepAlive: null };
+}
+
+/**
+ * Lance le téléchargement : le service worker le sert au fil du chiffrement.
+ * Par une iframe cachée, qui navigue vers le téléchargement :
+ * - pas un lien « download » : Safari ne le fait pas passer par le service
+ *   worker ;
+ * - pas une navigation de la page : WebKit interromprait alors ses lectures
+ *   en cours, dont celle du fichier à chiffrer.
+ */
+function startStream(stream) {
+  stream.frame = document.createElement('iframe');
+  stream.frame.hidden = true;
+  stream.frame.src = `./__download__/${stream.id}`;
+  document.body.append(stream.frame);
+  // Un service worker inactif peut être arrêté par le navigateur : un message
+  // régulier le garde actif pendant tout le téléchargement.
+  stream.keepAlive = setInterval(() => navigator.serviceWorker.controller?.postMessage({ type: 'keepalive' }), 10_000);
+}
+
+function endStream(stream, { abort }) {
+  clearInterval(stream.keepAlive);
+  if (abort) navigator.serviceWorker.controller?.postMessage({ type: 'abort', id: stream.id });
+  // Laissée en place un instant : le navigateur finit d'écrire le fichier.
+  const { frame } = stream;
+  if (frame) setTimeout(() => frame.remove(), 60_000);
+}
+
+function run(job, outputName, stream = null) {
   hideError();
   ui.form.hidden = true;
   ui.progress.hidden = false;
@@ -340,12 +399,16 @@ function run(job, outputName) {
 
   const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
   state.worker = worker;
+  state.stream = stream;
   const verb = t(job.mode === 'encrypt' ? 'progress.encrypting' : 'progress.decrypting');
 
   worker.onmessage = ({ data }) => {
     switch (data.type) {
       case 'phase':
         if (data.phase === 'process') setProgress(0, verb, '');
+        break;
+      case 'stream':
+        startStream(stream);
         break;
       case 'progress':
         if (!ui.progressBar.classList.contains('is-indeterminate')) {
@@ -358,6 +421,8 @@ function run(job, outputName) {
         }
         break;
       case 'done':
+        if (state.stream) endStream(state.stream, { abort: false });
+        state.stream = null;
         stopWorker();
         showResult(job, outputName, data);
         break;
@@ -372,7 +437,7 @@ function run(job, outputName) {
     stopWorker();
     showFailure('INTERNAL');
   };
-  worker.postMessage(job);
+  worker.postMessage(job, job.port ? [job.port] : []);
 }
 
 function setProgress(ratio, label, detail) {
@@ -487,9 +552,12 @@ function reset() {
   ui.fileInput.focus();
 }
 
+/** Arrête le worker ; un téléchargement en flux inachevé est interrompu. */
 function stopWorker() {
   state.worker?.terminate();
   state.worker = null;
+  if (state.stream) endStream(state.stream, { abort: true });
+  state.stream = null;
 }
 
 const isBusy = () => state.worker !== null;

@@ -18,8 +18,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 ### Fonctionnalités
 
-- Fichiers volumineux sur Firefox et Safari : téléchargement en flux via le
-  service worker, sans limite de mémoire.
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants (Homebrew, winget).

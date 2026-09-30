@@ -80,6 +80,7 @@ export const MESSAGES = {
     'error.WRONG_PASSWORD': 'Mot de passe incorrect.',
     'error.CORRUPTED': 'Le fichier chiffré est endommagé ou a été modifié.',
     'error.TRUNCATED': 'Le fichier chiffré est incomplet.',
+    'error.DOWNLOAD_CANCELLED': 'Le téléchargement a été annulé : le fichier n’a pas été enregistré.',
     'error.UNKNOWN_FORMAT': 'Ce fichier n’est ni un fichier .cadenas ni un fichier .age.',
     'error.UNSUPPORTED_VERSION': 'Ce fichier a été créé par une version plus récente de cadenas. Rechargez la page.',
     'error.UNSUPPORTED_AGE':
@@ -163,6 +164,7 @@ export const MESSAGES = {
     'error.WRONG_PASSWORD': 'Wrong password.',
     'error.CORRUPTED': 'The encrypted file is damaged or has been modified.',
     'error.TRUNCATED': 'The encrypted file is incomplete.',
+    'error.DOWNLOAD_CANCELLED': 'The download was cancelled: the file was not saved.',
     'error.UNKNOWN_FORMAT': 'This file is neither a .cadenas nor an .age file.',
     'error.UNSUPPORTED_VERSION': 'This file was created by a newer version of cadenas. Reload the page.',
     'error.UNSUPPORTED_AGE':

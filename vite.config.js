@@ -10,6 +10,8 @@ const CSP = [
   "default-src 'none'",
   "script-src 'self' 'wasm-unsafe-eval'",
   "worker-src 'self'",
+  // Iframe cachée des téléchargements en flux (servis par le service worker).
+  "frame-src 'self'",
   "style-src 'self'",
   "img-src 'self'",
   "manifest-src 'self'",

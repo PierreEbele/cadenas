@@ -98,4 +98,6 @@ les empreintes publiées).
 ## Limites connues
 
 Le format `.cadenas` n'a pas encore été audité par des spécialistes
-indépendants. Cet audit est prévu dans la [feuille de route](../ROADMAP.md).
+indépendants. Cet audit est prévu dans la [feuille de route](../ROADMAP.md) ;
+son périmètre et les questions posées aux auditeurs sont dans
+[AUDIT.md](AUDIT.md) (en anglais).

@@ -9,7 +9,8 @@ priorités peuvent changer : les discussions ont lieu dans les
 ### Confiance et sécurité
 
 - Faire relire le format `.cadenas` et son implémentation par des
-  spécialistes indépendants, et publier le rapport.
+  spécialistes indépendants, et publier le rapport. Périmètre et questions :
+  [docs/AUDIT.md](docs/AUDIT.md).
 - Vérifier dans la CI que le build du site est reproductible (deux builds
   successifs doivent donner des fichiers identiques au bit près).
 

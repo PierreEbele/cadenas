@@ -19,11 +19,13 @@ const REPO = 'PierreEbele/cadenas';
 const ROOT = new URL('../', import.meta.url);
 
 const pkg = JSON.parse(await readFile(new URL('package.json', ROOT), 'utf8'));
-const version = (process.argv[2] ?? pkg.version).replace(/^v/, '');
-if (!/^\d+\.\d+\.\d+$/.test(version)) {
-  console.error(`Version invalide : ${version}`);
+// La version entre dans des URL : seuls trois nombres en sont retenus.
+const parts = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(process.argv[2] ?? pkg.version);
+if (!parts) {
+  console.error('Version invalide : attendu X.Y.Z.');
   process.exit(2);
 }
+const version = parts.slice(1).map(Number).join('.');
 
 async function download(url) {
   const response = await fetch(url);

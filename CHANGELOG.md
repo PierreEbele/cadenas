@@ -9,6 +9,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
 - Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).
 - Tests de bout en bout du site dans Chromium, Firefox et WebKit (Playwright), imposés par la CI : chiffrer puis déchiffrer, interopérabilité avec la bibliothèque et le format age, archive de plusieurs fichiers, mauvais mot de passe, fonctionnement hors ligne, CSP effectivement appliquée, aucune requête hors du site, audit d'accessibilité axe (WCAG 2.1 AA, thèmes clair et sombre) et parcours complet au clavier. `npm run test:e2e`.
 - Site installé (Chrome, Edge) : cadenas apparaît dans « Ouvrir avec » pour les fichiers `.cadenas` et `.age`, qui s'ouvrent prêts à déchiffrer.

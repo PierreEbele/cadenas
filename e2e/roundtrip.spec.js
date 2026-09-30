@@ -81,6 +81,23 @@ test('plusieurs fichiers sont chiffrés dans une archive .zip', async ({ page })
   expect(new TextDecoder().decode(files['b.txt'])).toBe('second');
 });
 
+test('nom masqué : nom neutre, nom d’origine rangé dans l’archive', async ({ page }) => {
+  await chooseFiles(page, [{ name: 'bilan-confidentiel.pdf', content: 'chiffres' }]);
+  await page.locator('#hide-name').check();
+  await submit(page, 'discret');
+
+  const encrypted = await download(page);
+  expect(encrypted.name).toMatch(/^cadenas-\d{4}-\d{2}-\d{2}\.zip\.cadenas$/);
+  const { bytes } = await decryptInNode(encrypted.bytes, 'discret');
+  const files = unzipSync(new Uint8Array(bytes));
+  expect(Object.keys(files)).toEqual(['bilan-confidentiel.pdf']);
+
+  // Au déchiffrement, l'option n'apparaît pas.
+  await page.locator('#restart').click();
+  await chooseFiles(page, [{ name: encrypted.name, content: encrypted.bytes }]);
+  await expect(page.locator('#hide-name-field')).toBeHidden();
+});
+
 test('la langue bascule en anglais et reste choisie', async ({ page }) => {
   await page.locator('#lang').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');

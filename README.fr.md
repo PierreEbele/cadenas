@@ -56,7 +56,9 @@ Après une première visite, **le site fonctionne hors ligne** et peut s'install
 comme une application (menu du navigateur → « Installer cadenas » ou « Ajouter à
 l'écran d'accueil »). Les résultats de plus de 256 Mio ne sont jamais gardés en
 mémoire : Chrome et Edge les écrivent directement sur le disque, Firefox et
-Safari les téléchargent au fur et à mesure.
+Safari les téléchargent au fur et à mesure. Une fois installé sur Chrome ou Edge,
+cadenas apparaît aussi dans « Ouvrir avec » pour les fichiers `.cadenas` et
+`.age`.
 
 ## Héberger soi-même avec Docker
 
@@ -109,9 +111,11 @@ vérifier qu'un exécutable a bien été construit par ce dépôt :
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
 cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
+cadenas verify rapport.pdf.cadenas    # vérifie le fichier et le mot de passe, sans rien écrire
 cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
 cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
+cadenas lock --hide-name rapport.pdf  # → cadenas-AAAA-MM-JJ.zip.cadenas (nom gardé à l'intérieur)
 cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 

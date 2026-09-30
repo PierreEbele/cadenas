@@ -56,7 +56,9 @@ language.
 After a first visit, **the website works offline** and can be installed as an
 app (browser menu → “Install cadenas” or “Add to Home Screen”). Results larger
 than 256 MiB are never held in memory: Chrome and Edge write them straight to
-disk, Firefox and Safari download them as they are produced.
+disk, Firefox and Safari download them as they are produced. Once installed on
+Chrome or Edge, cadenas also shows up in “Open with” for `.cadenas` and `.age`
+files.
 
 ## Self-host with Docker
 
@@ -109,9 +111,11 @@ built by this repository:
 ```bash
 cadenas lock report.pdf               # → report.pdf.cadenas
 cadenas unlock report.pdf.cadenas     # → report.pdf
+cadenas verify report.pdf.cadenas     # checks the file and password, writes nothing
 cadenas lock photos/                  # → photos.zip.cadenas (the whole folder)
 cadenas lock a.pdf b.pdf              # → cadenas-YYYY-MM-DD.zip.cadenas
 cadenas lock --age report.pdf         # → report.pdf.age, readable by age / rage
+cadenas lock --hide-name report.pdf   # → cadenas-YYYY-MM-DD.zip.cadenas (name kept inside)
 cadenas passphrase --lang en          # → random 5-word passphrase
 ```
 

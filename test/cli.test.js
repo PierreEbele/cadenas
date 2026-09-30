@@ -142,6 +142,31 @@ describe('plusieurs fichiers et dossiers', () => {
     ]);
   });
 
+  test('--hide-name : fichier seul ou dossier dans une archive au nom neutre', () => {
+    mkdirSync(file('cache'), { recursive: true });
+    writeFileSync(file('cache/bilan-confidentiel.pdf'), 'secret');
+    const neutral = `cadenas-${today()}.zip.cadenas`;
+
+    const locked = cadenas(['lock', '--hide-name', '--password-stdin', 'cache/bilan-confidentiel.pdf'], 'pwd');
+    assert.equal(locked.code, 0, locked.stderr);
+    assert.deepEqual(readdirSync(file('cache')).sort(), ['bilan-confidentiel.pdf', neutral]);
+
+    const unlocked = cadenas(['unlock', '--password-stdin', `cache/${neutral}`], 'pwd');
+    assert.equal(unlocked.code, 0, unlocked.stderr);
+    const files = unzipSync(readFileSync(file(`cache/cadenas-${today()}.zip`)));
+    assert.deepEqual(Object.keys(files), ['bilan-confidentiel.pdf']);
+
+    rmSync(file(`cache/${neutral}`));
+    rmSync(file(neutral), { force: true }); // laissé par un test précédent
+    assert.equal(cadenas(['lock', '--hide-name', '--password-stdin', 'cache'], 'pwd').code, 0);
+    assert.ok(existsSync(file(neutral)));
+  });
+
+  test('--hide-name refusé hors de lock ou avec l’entrée standard', () => {
+    assert.equal(cadenas(['unlock', '--hide-name', 'a.cadenas']).code, 2);
+    assert.equal(cadenas(['lock', '--hide-name', '-', '--password-file', 'x']).code, 2);
+  });
+
   test('dossier vide refusé', () => {
     mkdirSync(file('rien'), { recursive: true });
     const result = cadenas(['lock', '--password-stdin', 'rien'], 'pwd');
@@ -192,6 +217,49 @@ describe('entrée et sortie standard', () => {
     assert.equal(cadenas(['lock', '-', '--password-stdin']).code, 2);
     assert.equal(cadenas(['lock', '-', 'a.txt']).code, 2);
     assert.equal(cadenas(['lock', '--password-stdin', '--password-file', 'secret.txt', 'a.txt']).code, 2);
+  });
+});
+
+describe('verify', () => {
+  test('bon mot de passe : code 0, taille déchiffrée, aucun fichier écrit', () => {
+    writeFileSync(file('v.txt'), Buffer.alloc(150_000, 3));
+    cadenas(['lock', '--password-stdin', 'v.txt'], 'pwd');
+    rmSync(file('v.txt'));
+    const before = readdirSync(dir).sort();
+
+    const result = cadenas(['verify', '--password-stdin', 'v.txt.cadenas'], 'pwd');
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stderr, /intact.*format cadenas, 150,0 ko/);
+    assert.deepEqual(readdirSync(dir).sort(), before);
+  });
+
+  test('fichier age et entrée standard', () => {
+    writeFileSync(file('va.txt'), 'age');
+    cadenas(['lock', '--age', '--password-stdin', 'va.txt'], 'pwd');
+    writeFileSync(file('pwd.txt'), 'pwd');
+    const result = cadenasRaw(['verify', '-', '--password-file', 'pwd.txt'], readFileSync(file('va.txt.age')));
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stderr, /format age, 3 octets/);
+  });
+
+  test('mauvais mot de passe ou fichier altéré : code 1', () => {
+    const wrong = cadenas(['verify', '--password-stdin', 'v.txt.cadenas'], 'mauvais');
+    assert.equal(wrong.code, 1);
+    assert.match(wrong.stderr, /Mot de passe incorrect/);
+
+    const sealed = readFileSync(file('v.txt.cadenas'));
+    sealed[sealed.length - 10] ^= 1;
+    writeFileSync(file('v-altere.cadenas'), sealed);
+    const altered = cadenas(['verify', '--password-stdin', 'v-altere.cadenas'], 'pwd');
+    assert.equal(altered.code, 1);
+    assert.match(altered.stderr, /endommagé|modifié/);
+  });
+
+  test('options qui écrivent un fichier refusées : code 2', () => {
+    assert.equal(cadenas(['verify', '-o', 'x.txt', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', '-f', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', '--age', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', 'a.cadenas', 'b.cadenas']).code, 2);
   });
 });
 

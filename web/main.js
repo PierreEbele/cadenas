@@ -36,6 +36,8 @@ const ui = {
   confirmField: $('confirm-field'),
   confirm: $('confirm'),
   formatField: $('format-field'),
+  hideName: $('hide-name'),
+  hideNameField: $('hide-name-field'),
   hint: $('password-hint'),
   largeHint: $('large-hint'),
   submit: $('submit'),
@@ -219,6 +221,7 @@ function renderFile() {
   ui.options.disabled = false;
   ui.confirmField.hidden = !encrypting;
   ui.formatField.hidden = !encrypting;
+  ui.hideNameField.hidden = !encrypting;
   ui.hint.hidden = !encrypting;
   ui.strength.hidden = !encrypting;
   ui.generate.hidden = !encrypting;
@@ -307,7 +310,11 @@ ui.form.addEventListener('submit', async (event) => {
   }
 
   const format = encrypting ? ui.form.elements.format.value : null;
-  const sourceName = state.archive ? archiveName(state.folder) : state.file.name;
+  // Nom masqué : même un fichier seul est rangé dans une archive, qui garde
+  // son nom à l'intérieur ; le résultat reçoit un nom neutre, daté.
+  const hideName = encrypting && ui.hideName.checked;
+  const archive = state.archive || hideName;
+  const sourceName = archive ? archiveName(hideName ? null : state.folder) : state.file.name;
   const outputName = encrypting ? encryptedName(sourceName, format) : decryptedName(sourceName);
 
   // Gros volume : on demande où enregistrer avant de commencer (le dialogue
@@ -326,7 +333,7 @@ ui.form.addEventListener('submit', async (event) => {
   // worker, au lieu d'être gardé entier en mémoire.
   const stream = !handle && canStream() && totalSize() >= LARGE_FILE ? await openStream(outputName) : null;
 
-  run({ files: state.items, archive: state.archive, password, mode: state.mode, format, handle, port: stream?.port }, outputName, stream);
+  run({ files: state.items, archive, password, mode: state.mode, format, handle, port: stream?.port }, outputName, stream);
 });
 
 const totalSize = () => state.items.reduce((sum, item) => sum + item.file.size, 0);
@@ -552,6 +559,20 @@ function stopWorker() {
 }
 
 const isBusy = () => state.worker !== null;
+
+// ---------------------------------------------------------------------------
+// Fichiers ouverts depuis le système : site installé, puis « Ouvrir avec
+// cadenas » sur un fichier .cadenas ou .age (Chrome et Edge sur ordinateur).
+// Après les déclarations ci-dessus : le navigateur peut appeler la fonction
+// dès setConsumer().
+
+if ('launchQueue' in window) {
+  window.launchQueue.setConsumer(async ({ files }) => {
+    if (!files?.length || isBusy() || !ui.result.hidden) return;
+    const opened = await Promise.all(files.map((handle) => handle.getFile()));
+    selectItems({ items: opened.map((file) => ({ file, path: file.name })), folder: null });
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Utilitaires

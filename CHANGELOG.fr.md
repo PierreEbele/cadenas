@@ -15,6 +15,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Releases : la formule Homebrew est testée et publiée, et une pull request winget est ouverte, automatiquement après chaque release GitHub (jobs `homebrew` et `winget` de `release.yml`). `scripts/packaging.js` accepte `--homebrew` ou `--winget` pour ne générer que l'un des deux.
 - Installation avec Homebrew (macOS, Linux) : `brew install pierreebele/cadenas/cadenas`, depuis le dépôt [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas), testé sur macOS et Linux.
 
+### Modifié
+
+- Phrases de passe : les mots sont désormais séparés par des tirets (`navaux-tapageur-faucher-gazier-girafon`) plutôt que par des espaces : pas d'espace doublé ou final invisible, pas de guillemets à mettre dans un terminal, acceptées par les sites qui refusent les espaces. La liste anglaise perd ses 4 mots à tiret (7 772 mots au lieu de 7 776, toujours plus de 64 bits pour 5 mots). Les phrases déjà générées ne sont pas concernées.
+
 ### Corrigé
 
 - Fichiers age armurés : seul le début du fichier est lu pour reconnaître un fichier à mot de passe, au lieu de convertir tout le fichier en texte (mémoire doublée, et plantage au-delà de 512 Mo).

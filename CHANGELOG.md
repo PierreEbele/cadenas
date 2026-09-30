@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Releases: the Homebrew formula is tested and published, and a winget pull request is opened, automatically after each GitHub release (`homebrew` and `winget` jobs of `release.yml`). `scripts/packaging.js` accepts `--homebrew` or `--winget` to generate only one of them.
 - Installation with Homebrew (macOS, Linux): `brew install pierreebele/cadenas/cadenas`, from the [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas) tap, tested on macOS and Linux.
 
+### Changed
+
+- Passphrases: words are now separated by hyphens (`navaux-tapageur-faucher-gazier-girafon`) instead of spaces: no invisible double or trailing space, no quotes needed in a terminal, accepted by sites that refuse spaces. The English list loses its 4 hyphenated words (7,772 words instead of 7,776, still more than 64 bits for 5 words). Existing passphrases are not affected.
+
 ### Fixed
 
 - Armored age files: only the start of the file is read to recognize a passphrase file, instead of converting the whole file to text (twice the memory, and a crash above 512 MB).

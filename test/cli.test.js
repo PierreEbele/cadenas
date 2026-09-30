@@ -307,13 +307,13 @@ describe('passphrase', () => {
   test('5 mots français par défaut, sur stdout', () => {
     const result = cadenas(['passphrase']);
     assert.equal(result.code, 0, result.stderr);
-    assert.equal(result.stdout.trim().split(' ').length, 5);
+    assert.equal(result.stdout.trim().split('-').length, 5);
   });
 
   test('--words et --lang', () => {
     const result = cadenas(['passphrase', '--words', '7', '--lang', 'en']);
     assert.equal(result.code, 0, result.stderr);
-    assert.equal(result.stdout.trim().split(' ').length, 7);
+    assert.equal(result.stdout.trim().split('-').length, 7);
   });
 
   test('valeurs invalides : code 2', () => {
@@ -347,7 +347,7 @@ describe('messages en anglais', () => {
 
   test('la phrase de passe suit la langue de l’interface, sauf --lang', async () => {
     const lists = { en: new Set(await loadWordlist('en')), fr: new Set(await loadWordlist('fr')) };
-    const words = (env, args = []) => cadenas(['passphrase', '--words', '8', ...args], undefined, env).stdout.trim().split(' ');
+    const words = (env, args = []) => cadenas(['passphrase', '--words', '8', ...args], undefined, env).stdout.trim().split('-');
     assert.ok(words(ENGLISH).every((word) => lists.en.has(word)));
     assert.ok(words(FRENCH).every((word) => lists.fr.has(word)));
     assert.ok(words(ENGLISH, ['--lang', 'fr']).every((word) => lists.fr.has(word)));

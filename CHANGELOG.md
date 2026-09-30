@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Installation with Homebrew (macOS, Linux): `brew install pierreebele/cadenas/cadenas`, from the [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas) tap, tested on macOS and Linux.
+
 ## [1.5.0] - 2026-09-30
 
 Hide file names, verify a file without decrypting it to disk, open encrypted

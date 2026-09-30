@@ -9,6 +9,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- Installation avec Homebrew (macOS, Linux) : `brew install pierreebele/cadenas/cadenas`, depuis le dépôt [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas), testé sur macOS et Linux.
+
 ## [1.5.0] - 2026-09-30
 
 Masquer le nom des fichiers, vérifier un fichier sans l'écrire déchiffré,

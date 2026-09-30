@@ -5,7 +5,7 @@
  *
  * Listes :
  * - fr : 8191 mots, Tango pour Tails OS (CC0) → 13 bits par mot
- * - en : 7776 mots, EFF Large Wordlist (CC BY 3.0 US) → 12,9 bits par mot
+ * - en : 7772 mots, EFF Large Wordlist sans ses 4 mots à tiret (CC BY 3.0 US) → 12,9 bits par mot
  *
  * Avec 5 mots par défaut, on dépasse 64 bits d'entropie : combiné au coût
  * d'Argon2id, c'est hors de portée d'une attaque par force brute.
@@ -61,5 +61,7 @@ export async function generatePassphrase({ lang = 'fr', words = DEFAULT_WORDS } 
   }
   const list = await loadWordlist(lang);
   const chosen = Array.from({ length: words }, () => list[randomIndex(list.length)]);
-  return { passphrase: chosen.join(' '), bits: entropyBits(list.length, words) };
+  // Mots séparés par des tirets : ni espace doublé ou final invisible, ni
+  // guillemets à mettre dans un terminal. Aucun mot des listes n'en contient.
+  return { passphrase: chosen.join('-'), bits: entropyBits(list.length, words) };
 }

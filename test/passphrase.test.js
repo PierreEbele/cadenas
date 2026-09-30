@@ -9,12 +9,12 @@ import {
 } from '../src/passphrase.js';
 
 describe('listes de mots', () => {
-  for (const [lang, size] of [['fr', 8191], ['en', 7776]]) {
-    test(`${lang} : ${size} mots uniques, sans espace ni majuscule`, async () => {
+  for (const [lang, size] of [['fr', 8191], ['en', 7772]]) {
+    test(`${lang} : ${size} mots uniques, sans espace, tiret ni majuscule`, async () => {
       const words = await loadWordlist(lang);
       assert.equal(words.length, size);
       assert.equal(new Set(words).size, size);
-      assert.ok(words.every((w) => /^[a-z]+(-[a-z]+)*$/.test(w)));
+      assert.ok(words.every((w) => /^[a-z]+$/.test(w)));
     });
   }
 
@@ -27,7 +27,7 @@ describe('génération', () => {
   test('5 mots par défaut, plus de 64 bits', async () => {
     for (const lang of ['fr', 'en']) {
       const { passphrase, bits } = await generatePassphrase({ lang });
-      const words = passphrase.split(' ');
+      const words = passphrase.split('-');
       assert.equal(words.length, DEFAULT_WORDS);
       assert.ok(bits > 64, `${lang} : ${bits} bits`);
       const list = await loadWordlist(lang);
@@ -36,7 +36,7 @@ describe('génération', () => {
   });
 
   test('nombre de mots paramétrable et borné', async () => {
-    assert.equal((await generatePassphrase({ words: 8 })).passphrase.split(' ').length, 8);
+    assert.equal((await generatePassphrase({ words: 8 })).passphrase.split('-').length, 8);
     await assert.rejects(generatePassphrase({ words: 2 }), RangeError);
     await assert.rejects(generatePassphrase({ words: 21 }), RangeError);
     await assert.rejects(generatePassphrase({ words: 4.5 }), RangeError);

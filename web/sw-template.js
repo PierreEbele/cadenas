@@ -25,8 +25,10 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Seules les pages de ce site peuvent déjà écrire au service worker ; la
+// vérification de l'origine est une ceinture de plus.
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  if (event.origin === self.location.origin && event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 // Cache d'abord, réseau ensuite ; une navigation hors ligne renvoie la page.

@@ -7,6 +7,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- CI : le site est construit sur Linux, Windows et macOS, avec Node.js 22 et 24, et les six builds doivent être identiques au bit près (build reproductible). `scripts/site-hashes.js` produit la liste des empreintes (`site-files.sha256` des releases) ; `SECURITY.md` explique comment vérifier soi-même que le site publié correspond au code source.
+
 ### Sécurité
 
 - Publication : `scripts/verify-tag.js` vérifie aussi que le tag désigne le commit de sa version (`package.json`) ; les workflows release, npm et Docker refusent donc un tag posé sur le mauvais commit, avant toute publication.

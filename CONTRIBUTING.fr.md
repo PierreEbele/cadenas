@@ -36,8 +36,10 @@ npm run dev
 - Mise en forme : [`.editorconfig`](.editorconfig) (UTF-8, fins de ligne LF,
   indentation de 2 espaces), guillemets simples, points-virgules, et le
   style du code existant.
-- Commentaires et messages d'erreur en français ; fonctions publiques
-  documentées en JSDoc.
+- Commentaires du code en français ; fonctions publiques documentées en JSDoc.
+- Textes affichés à l'utilisateur en français et en anglais : `web/i18n.js`
+  pour le site, `bin/messages.js` pour la ligne de commande (les tests
+  vérifient que les deux langues ont les mêmes clés).
 
 ## Modifier le format `.cadenas`
 

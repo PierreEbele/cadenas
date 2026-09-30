@@ -21,7 +21,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 ### Fonctionnalités
 
-- Messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants : publier la formule
   Homebrew (dépôt `homebrew-cadenas`) et le manifeste winget, préparés dans
   [`packaging/`](packaging/README.fr.md).

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- CLI: messages in English or French, following the system language (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, or the regional settings on Windows). `cadenas passphrase` uses the word list of that language unless `--lang` is given.
 - Documentation in English by default, with a French version of each document (`*.fr.md`) and a language switch at the top. The website footer links to the documents in the displayed language, and release notes are in English.
 - `packaging/`: Homebrew formula (macOS, Linux) and winget manifests (Windows), generated for a released version by `scripts/packaging.js` from the release checksums and the npm package. Publishing procedure in `packaging/README.md`.
 - Website, Firefox and Safari: above 256 MiB, the result is downloaded as encryption proceeds, served by the service worker, instead of being kept entirely in memory. No more memory-related size limit on these browsers (after a first visit to the site).

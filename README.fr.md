@@ -145,7 +145,8 @@ le terminal même quand les données arrivent par l'entrée standard. Vers un
 fichier, une erreur (mauvais mot de passe, fichier altéré) ne laisse jamais de
 fichier partiel ; vers la sortie standard, le code de sortie non nul signale que
 les données sont incomplètes. Les messages vont sur la sortie d'erreur, jamais
-dans les données.
+dans les données. Ils sont en français ou en anglais, selon la langue du système
+(`LANG=en_US.UTF-8` pour l'anglais).
 
 Codes de sortie : `0` succès, `1` erreur, `2` mauvaise utilisation, `130` annulation.
 

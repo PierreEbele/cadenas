@@ -11,6 +11,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- CLI : messages en français ou en anglais, selon la langue du système (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, ou les paramètres régionaux sous Windows). `cadenas passphrase` utilise la liste de mots de cette langue, sauf avec `--lang`.
 - Documentation en anglais par défaut, avec une version française de chaque document (`*.fr.md`) et un lien pour changer de langue en haut. Les liens du pied de page du site mènent aux documents dans la langue affichée, et les notes de release sont en anglais.
 - `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
 - Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).

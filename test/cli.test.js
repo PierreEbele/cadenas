@@ -6,14 +6,20 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { unzipSync } from 'fflate';
+import { loadWordlist } from '../src/passphrase.js';
 
 const BIN = fileURLToPath(new URL('../bin/cadenas.js', import.meta.url));
 let dir;
 
+// Messages en français, quelle que soit la langue de la machine de test.
+const FRENCH = { ...process.env, LC_ALL: 'fr_FR.UTF-8' };
+const ENGLISH = { ...process.env, LC_ALL: 'en_US.UTF-8' };
+
 /** Lance la CLI dans le dossier de test, mot de passe éventuel sur stdin. */
-function cadenas(args, password) {
+function cadenas(args, password, env = FRENCH) {
   const result = spawnSync(process.execPath, [BIN, ...args], {
     cwd: dir,
+    env,
     input: password === undefined ? undefined : `${password}\n`,
     encoding: 'utf8',
   });
@@ -22,7 +28,7 @@ function cadenas(args, password) {
 
 /** Variante binaire : `input` envoyé tel quel sur stdin, stdout récupéré en octets. */
 function cadenasRaw(args, input) {
-  const result = spawnSync(process.execPath, [BIN, ...args], { cwd: dir, input, maxBuffer: 64 * 1024 * 1024 });
+  const result = spawnSync(process.execPath, [BIN, ...args], { cwd: dir, env: FRENCH, input, maxBuffer: 64 * 1024 * 1024 });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr.toString() };
 }
 
@@ -281,6 +287,36 @@ describe('passphrase', () => {
     assert.equal(cadenas(['passphrase', '--words', 'dix']).code, 2);
     assert.equal(cadenas(['passphrase', '--lang', 'de']).code, 2);
     assert.equal(cadenas(['passphrase', 'fichier.txt']).code, 2);
+  });
+});
+
+describe('messages en anglais', () => {
+  test('aide, erreurs et résultats suivent la langue du système', () => {
+    assert.match(cadenas(['--help'], undefined, ENGLISH).stdout, /^cadenas .* — encrypt a file with a password\n\nUsage:/);
+
+    const usage = cadenas(['inconnue', 'x'], undefined, ENGLISH);
+    assert.equal(usage.code, 2);
+    assert.match(usage.stderr, /^Error: Unknown command: inconnue\.[\s\S]*Help: cadenas --help/);
+
+    writeFileSync(file('en.txt'), 'english');
+    const locked = cadenas(['lock', '--password-stdin', 'en.txt'], 'pwd', ENGLISH);
+    assert.equal(locked.code, 0, locked.stderr);
+    assert.match(locked.stderr, /✔ File encrypted: en\.txt\.cadenas/);
+
+    const wrong = cadenas(['unlock', '--password-stdin', '-o', 'en-out.txt', 'en.txt.cadenas'], 'wrong', ENGLISH);
+    assert.equal(wrong.code, 1);
+    assert.equal(wrong.stderr, 'Error: Wrong password.\n');
+
+    const verified = cadenas(['verify', '--password-stdin', 'en.txt.cadenas'], 'pwd', ENGLISH);
+    assert.match(verified.stderr, /intact and password correct \(cadenas format, 7 bytes once decrypted\)/);
+  });
+
+  test('la phrase de passe suit la langue de l’interface, sauf --lang', async () => {
+    const lists = { en: new Set(await loadWordlist('en')), fr: new Set(await loadWordlist('fr')) };
+    const words = (env, args = []) => cadenas(['passphrase', '--words', '8', ...args], undefined, env).stdout.trim().split(' ');
+    assert.ok(words(ENGLISH).every((word) => lists.en.has(word)));
+    assert.ok(words(FRENCH).every((word) => lists.fr.has(word)));
+    assert.ok(words(ENGLISH, ['--lang', 'fr']).every((word) => lists.fr.has(word)));
   });
 });
 

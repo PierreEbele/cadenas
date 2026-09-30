@@ -47,14 +47,19 @@ auditées), `hash-wasm` (Argon2id en WebAssembly), `age-encryption` et
 - `index.html`, `style.css` et `main.js` gèrent l'interface : choix des
   fichiers, mot de passe, progression, téléchargement.
 - `worker.js` exécute la dérivation de clé et le chiffrement dans un Web
-  Worker, pour ne jamais figer la page. Il peut écrire directement sur le
-  disque (File System Access) au-delà de 256 Mio.
+  Worker, pour ne jamais figer la page. Au-delà de 256 Mio, il écrit
+  directement sur le disque (File System Access : Chrome, Edge), ou envoie
+  le résultat au service worker bloc par bloc (Firefox, Safari).
 - `files.js` collecte les fichiers d'un glisser-déposer ou d'un sélecteur,
   dossiers compris.
 - `strength.js` estime la solidité du mot de passe, à titre indicatif.
 - `i18n.js` contient les textes en français et en anglais.
 - `sw-template.js` est le modèle du service worker, qui met le site en cache
-  pour le fonctionnement hors ligne.
+  pour le fonctionnement hors ligne. Sur Firefox et Safari, il sert aussi les
+  gros résultats en téléchargement, au fil du chiffrement : le worker lui
+  envoie un bloc à chaque demande, par un `MessagePort` dédié, si bien que
+  rien n'est accumulé en mémoire. Il ne voit jamais le mot de passe, ne garde
+  rien, et sa propre CSP lui interdit tout accès hors du site.
 
 Le build (`vite.config.js`) produit un site statique dans `dist/`. Il
 injecte la politique de sécurité (CSP, `connect-src 'none'`) dans le HTML,

@@ -5,7 +5,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', 'src/wordlists/'] },
+  { ignores: ['build/', 'dist/', 'src/wordlists/'] },
   js.configs.recommended,
   {
     languageOptions: {
@@ -20,6 +20,12 @@ export default [
     languageOptions: {
       globals: { ...globals.browser, ...globals.worker, ...globals.serviceworker },
     },
+  },
+  {
+    // Tests de bout en bout : les fonctions passées à page.evaluate() tournent
+    // dans le navigateur.
+    files: ['e2e/**/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {
     // Constantes injectées au build (exécutables autonomes, service worker).

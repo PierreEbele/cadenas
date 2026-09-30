@@ -71,6 +71,20 @@ node scripts/verify-tag.js vX.Y.Z
 Le script récupère les clés de signature publiées sur le compte GitHub
 [PierreEbele](https://github.com/PierreEbele) et lance `git verify-tag`.
 
+**Le site correspond au code source** — le build du site est reproductible :
+construit depuis le même tag, sur n'importe quel système, il donne des
+fichiers identiques au bit près (la CI le vérifie sur Linux, Windows et
+macOS, avec Node.js 22 et 24). Pour le vérifier soi-même :
+
+```bash
+git checkout vX.Y.Z
+npm ci
+npm run build
+node scripts/site-hashes.js | diff - site-files.sha256
+```
+
+(`site-files.sha256` est celui de la release ; aucune sortie : identique.)
+
 **Un site auto-hébergé** — `site-files.sha256` liste l'empreinte de chaque
 fichier du site : comparez-les avec ceux que sert votre instance.
 

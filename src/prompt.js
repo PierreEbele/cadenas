@@ -5,6 +5,7 @@ import { openSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { platform, stderr, stdin } from 'node:process';
 import { ReadStream } from 'node:tty';
+import { CadenasError } from './errors.js';
 
 export class PromptCancelled extends Error {
   constructor() {
@@ -45,7 +46,10 @@ export function promptPassword(question, { stdinIsData = false } = {}) {
   const input = terminalInput(stdinIsData);
   if (!input) {
     return Promise.reject(
-      new Error('Aucun terminal pour saisir le mot de passe. Utilisez --password-file ou --password-stdin.'),
+      new CadenasError(
+        'NO_TERMINAL',
+        'Aucun terminal pour saisir le mot de passe. Utilisez --password-file ou --password-stdin.',
+      ),
     );
   }
   return new Promise((resolve, reject) => {

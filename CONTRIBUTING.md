@@ -36,8 +36,10 @@ npm run dev
 - Formatting: [`.editorconfig`](.editorconfig) (UTF-8, LF line endings,
   2-space indentation), single quotes, semicolons, and the style of the
   existing code.
-- Comments and error messages in French; public functions documented with
-  JSDoc.
+- Code comments in French; public functions documented with JSDoc.
+- User-facing texts in English and French: `web/i18n.js` for the website,
+  `bin/messages.js` for the command line (tests check that both languages
+  have the same keys).
 
 ## Modifying the `.cadenas` format
 

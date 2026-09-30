@@ -22,7 +22,6 @@ may change: discussions take place in the
 
 ### Features
 
-- Command-line messages in English.
 - Installation through common package managers: publish the Homebrew
   formula (`homebrew-cadenas` repository) and the winget manifest,
   prepared in [`packaging/`](packaging/README.md).

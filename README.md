@@ -144,8 +144,8 @@ The password is asked without echo (twice when encrypting), directly in the
 terminal even when data comes from standard input. When writing to a file, an
 error (wrong password, tampered file) never leaves a partial file behind; when
 writing to standard output, a non-zero exit code means the data is incomplete.
-Messages go to standard error, never into the data. The command line's messages
-are in French for now.
+Messages go to standard error, never into the data. They are in English or
+French, following the system language (`LANG=fr_FR.UTF-8` for French).
 
 Exit codes: `0` success, `1` error, `2` usage error, `130` cancelled.
 

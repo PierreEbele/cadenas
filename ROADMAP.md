@@ -20,8 +20,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 - Fichiers volumineux sur Firefox et Safari : téléchargement en flux via le
   service worker, sans limite de mémoire.
-- Ouverture directe des fichiers `.cadenas` et `.age` depuis le système
-  quand le site est installé (gestion des fichiers des applications web).
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants (Homebrew, winget).

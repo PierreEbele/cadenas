@@ -495,6 +495,20 @@ function stopWorker() {
 const isBusy = () => state.worker !== null;
 
 // ---------------------------------------------------------------------------
+// Fichiers ouverts depuis le système : site installé, puis « Ouvrir avec
+// cadenas » sur un fichier .cadenas ou .age (Chrome et Edge sur ordinateur).
+// Après les déclarations ci-dessus : le navigateur peut appeler la fonction
+// dès setConsumer().
+
+if ('launchQueue' in window) {
+  window.launchQueue.setConsumer(async ({ files }) => {
+    if (!files?.length || isBusy() || !ui.result.hidden) return;
+    const opened = await Promise.all(files.map((handle) => handle.getFile()));
+    selectItems({ items: opened.map((file) => ({ file, path: file.name })), folder: null });
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Utilitaires
 
 function showError(key, params) {

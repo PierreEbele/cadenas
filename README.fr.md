@@ -56,6 +56,8 @@ Après une première visite, **le site fonctionne hors ligne** et peut s'install
 comme une application (menu du navigateur → « Installer cadenas » ou « Ajouter à
 l'écran d'accueil »). Sur Chrome et Edge, les fichiers de plus de 256 Mio sont
 écrits directement sur le disque : pas de limite de taille liée à la mémoire.
+Une fois installé, cadenas y apparaît aussi dans « Ouvrir avec » pour les
+fichiers `.cadenas` et `.age`.
 
 ## Héberger soi-même avec Docker
 

@@ -56,7 +56,8 @@ language.
 After a first visit, **the website works offline** and can be installed as an
 app (browser menu → “Install cadenas” or “Add to Home Screen”). On Chrome and
 Edge, files larger than 256 MiB are written straight to disk: no size limit
-due to memory.
+due to memory. Once installed there, cadenas also shows up in “Open with” for
+`.cadenas` and `.age` files.
 
 ## Self-host with Docker
 

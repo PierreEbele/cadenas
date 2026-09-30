@@ -51,6 +51,11 @@ Le format v1 est figé : des fichiers existent déjà.
 
 - `npm run lint`, `npm test` et `npm run build` passent.
 - La couverture des tests reste au-dessus de 80 % (`npm run test:coverage`).
+- Pour une modification du site : `npm run test:e2e` passe. Ces tests
+  construisent le site et le testent dans Chromium, Firefox et WebKit
+  (chiffrement, hors ligne, CSP, accessibilité avec axe, parcours au
+  clavier) ; la première fois, installez les navigateurs avec
+  `npx playwright install chromium firefox webkit`.
 - Les nouveaux comportements sont testés.
 - Le [CHANGELOG](CHANGELOG.md) est complété dans une section `[Non publié]`.
 - Les messages de commit suivent [Conventional Commits](https://www.conventionalcommits.org/fr/)

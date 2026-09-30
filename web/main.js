@@ -67,8 +67,7 @@ const state = {
   mode: 'encrypt', // 'encrypt' | 'decrypt'
   sourceFormat: null, // format détecté si le fichier est déjà chiffré
   worker: null,
-  stream: null, // téléchargement en flux en cours : { id, port, keepAlive }
-  leavingForDownload: false, // navigation vers ce téléchargement, sans avertissement
+  stream: null, // téléchargement en flux en cours : { id, port, keepAlive, frame }
   downloadUrl: null,
   downloaded: false,
   result: null, // { encrypting, name, size } du dernier résultat affiché
@@ -368,16 +367,17 @@ async function openStream(name) {
 
 /**
  * Lance le téléchargement : le service worker le sert au fil du chiffrement.
- * Une navigation plutôt qu'un lien « download » : Safari ne fait pas passer
- * ces derniers par le service worker. La réponse est une pièce jointe, donc
- * la page reste affichée (et une réponse 204 la laisse aussi en place).
+ * Par une iframe cachée, qui navigue vers le téléchargement :
+ * - pas un lien « download » : Safari ne le fait pas passer par le service
+ *   worker ;
+ * - pas une navigation de la page : WebKit interromprait alors ses lectures
+ *   en cours, dont celle du fichier à chiffrer.
  */
 function startStream(stream) {
-  state.leavingForDownload = true;
-  setTimeout(() => {
-    state.leavingForDownload = false;
-  }, 2000);
-  location.assign(`./__download__/${stream.id}`);
+  stream.frame = document.createElement('iframe');
+  stream.frame.hidden = true;
+  stream.frame.src = `./__download__/${stream.id}`;
+  document.body.append(stream.frame);
   // Un service worker inactif peut être arrêté par le navigateur : un message
   // régulier le garde actif pendant tout le téléchargement.
   stream.keepAlive = setInterval(() => navigator.serviceWorker.controller?.postMessage({ type: 'keepalive' }), 10_000);
@@ -386,6 +386,9 @@ function startStream(stream) {
 function endStream(stream, { abort }) {
   clearInterval(stream.keepAlive);
   if (abort) navigator.serviceWorker.controller?.postMessage({ type: 'abort', id: stream.id });
+  // Laissée en place un instant : le navigateur finit d'écrire le fichier.
+  const { frame } = stream;
+  if (frame) setTimeout(() => frame.remove(), 60_000);
 }
 
 function run(job, outputName, stream = null) {
@@ -509,7 +512,6 @@ ui.download.addEventListener('click', () => {
 // Prévient avant de quitter la page pendant un traitement, ou si le résultat
 // n'a pas encore été téléchargé : il serait perdu.
 window.addEventListener('beforeunload', (event) => {
-  if (state.leavingForDownload) return; // téléchargement en flux : la page reste
   if (isBusy() || (state.downloadUrl && !state.downloaded)) {
     event.preventDefault();
     event.returnValue = '';

@@ -113,7 +113,7 @@ function serveDownload(url) {
   const id = url.pathname.slice(DOWNLOAD_PATH.length);
   const download = downloads.get(id);
   downloads.delete(id); // à usage unique
-  // Introuvable ou déjà servi : 204, pour que la page reste affichée.
+  // Introuvable ou déjà servi : réponse vide, rien n'est téléchargé.
   if (!download) return new Response(null, { status: 204 });
   return new Response(download.stream, {
     headers: {

@@ -22,13 +22,20 @@ test('la politique de sécurité (CSP) est appliquée', async ({ page }) => {
       () => true,
       () => false,
     );
-    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Iframe vers un autre site : refusée (frame-src 'self', réservé aux
+    // téléchargements en flux).
+    const frame = document.createElement('iframe');
+    frame.src = 'https://example.com/';
+    document.body.append(frame);
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
     return { injected: window.__injected === true, fetched, violations };
   });
 
   expect(blocked.injected).toBe(false);
   expect(blocked.fetched).toBe(false);
-  expect(blocked.violations).toEqual(expect.arrayContaining(['script-src-elem', 'connect-src']));
+  expect(blocked.violations).toEqual(expect.arrayContaining(['script-src-elem', 'connect-src', 'frame-src']));
 });
 
 test('aucune requête ne quitte le site pendant un chiffrement', async ({ page, baseURL }) => {

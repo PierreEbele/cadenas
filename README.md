@@ -54,9 +54,9 @@ The website is available in English and French, following your browser's
 language.
 
 After a first visit, **the website works offline** and can be installed as an
-app (browser menu → “Install cadenas” or “Add to Home Screen”). On Chrome and
-Edge, files larger than 256 MiB are written straight to disk: no size limit
-due to memory.
+app (browser menu → “Install cadenas” or “Add to Home Screen”). Results larger
+than 256 MiB are never held in memory: Chrome and Edge write them straight to
+disk, Firefox and Safari download them as they are produced.
 
 ## Self-host with Docker
 

@@ -23,8 +23,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 - Option « masquer le nom du fichier » : le fichier est placé dans une
   archive avant chiffrement et le résultat reçoit un nom neutre, sans
   changer le format.
-- Fichiers volumineux sur Firefox et Safari : téléchargement en flux via le
-  service worker, sans limite de mémoire.
 - Ouverture directe des fichiers `.cadenas` et `.age` depuis le système
   quand le site est installé (gestion des fichiers des applications web).
 - Commande `cadenas verify` : vérifier qu'un fichier est intact et que le

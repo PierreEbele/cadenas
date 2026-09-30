@@ -1,42 +1,42 @@
-# Sécurité
+# Security
 
-## Ce que garantit cadenas
+**English** · [Français](SECURITY.fr.md)
 
-- Sans le mot de passe, le contenu d'un fichier chiffré est illisible.
-- Toute modification, troncature ou réorganisation du fichier chiffré est
-  détectée au déchiffrement : cadenas ne rend jamais un contenu altéré.
+## What cadenas guarantees
 
-## Limites
+- Without the password, the contents of an encrypted file are unreadable.
+- Any modification, truncation, or reordering of the encrypted file is
+  detected during decryption: cadenas never returns altered content.
 
-- **Le format `.cadenas` n'a pas été audité** par des spécialistes
-  indépendants. Il n'assemble que des primitives éprouvées (Argon2id,
-  HKDF-SHA256, HMAC-SHA256, XChaCha20-Poly1305) issues de bibliothèques
-  auditées, selon une construction documentée dans
-  [docs/FORMAT.md](docs/FORMAT.md). Si vous avez besoin d'un format audité,
-  utilisez le format [age](https://age-encryption.org), que cadenas sait
-  produire et lire.
-- **La sécurité dépend du mot de passe.** Argon2id ralentit fortement les
-  attaques par force brute, mais ne protège pas un mot de passe court ou
-  courant. Préférez une phrase de passe de 4 à 5 mots aléatoires ou au moins
-  12 caractères aléatoires.
-- Le nom du fichier et sa taille approximative ne sont pas cachés.
-- Un mot de passe oublié est définitivement perdu : il n'existe aucun moyen de
-  récupérer le contenu.
+## Limitations
 
-## Vérifier ce que vous téléchargez
+- **The `.cadenas` format has not been audited** by independent specialists.
+  It only assembles proven primitives (Argon2id, HKDF-SHA256, HMAC-SHA256,
+  XChaCha20-Poly1305) from audited libraries, following a construction
+  documented in [docs/FORMAT.md](docs/FORMAT.md). If you need an audited
+  format, use the [age](https://age-encryption.org) format, which cadenas
+  can produce and read.
+- **Security depends on the password.** Argon2id strongly slows down
+  brute-force attacks, but does not protect a short or common password.
+  Prefer a passphrase of 4 to 5 random words, or at least 12 random
+  characters.
+- The file name and its approximate size are not hidden.
+- A forgotten password is permanently lost: there is no way to recover the
+  contents.
 
-Toutes les versions sont construites et publiées par GitHub Actions depuis ce
-dépôt, jamais depuis un poste personnel, et sont accompagnées de preuves
-vérifiables (Sigstore).
+## Verify what you download
 
-**Paquet npm** — provenance attachée à chaque version :
+All versions are built and published by GitHub Actions from this repository,
+never from a personal machine, and come with verifiable proof (Sigstore).
+
+**npm package** — provenance attached to every release:
 
 ```bash
 npm install cadenas
 npm audit signatures
 ```
 
-**Image Docker** — signée sans clé par le workflow de publication :
+**Docker image** — keylessly signed by the publication workflow:
 
 ```bash
 cosign verify ghcr.io/pierreebele/cadenas:latest \
@@ -44,37 +44,37 @@ cosign verify ghcr.io/pierreebele/cadenas:latest \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-L'image embarque aussi un SBOM (liste de ses composants) et une attestation de
-provenance : `docker buildx imagetools inspect ghcr.io/pierreebele/cadenas:latest --format '{{ json .SBOM }}'`.
+The image also embeds an SBOM (a list of its components) and a provenance
+attestation: `docker buildx imagetools inspect ghcr.io/pierreebele/cadenas:latest --format '{{ json .SBOM }}'`.
 
-**Fichiers des releases GitHub** (archive du site, exécutables autonomes) —
-empreintes dans `SHA256SUMS` et attestation de provenance :
+**GitHub release files** (site archive, standalone executables) —
+checksums in `SHA256SUMS` and provenance attestation:
 
 ```bash
 sha256sum -c SHA256SUMS --ignore-missing
 gh attestation verify cadenas-site-vX.Y.Z.zip --repo PierreEbele/cadenas
 ```
 
-À partir de la version 1.4.0, la provenance signée est aussi jointe à chaque
-release (`cadenas-vX.Y.Z.sigstore.json`, et `cadenas-vX.Y.Z.intoto.jsonl` au
-format SLSA) : `gh attestation verify <fichier> --repo PierreEbele/cadenas
---bundle cadenas-vX.Y.Z.sigstore.json` la vérifie sans interroger GitHub.
+Starting with version 1.4.0, signed provenance is also attached to every
+release (`cadenas-vX.Y.Z.sigstore.json`, and `cadenas-vX.Y.Z.intoto.jsonl`
+in SLSA format): `gh attestation verify <file> --repo PierreEbele/cadenas
+--bundle cadenas-vX.Y.Z.sigstore.json` verifies it without querying GitHub.
 
-**Tags de version** — à partir de la version 1.4.0, chaque tag est signé
-avec une clé SSH du mainteneur (badge « Verified » sur GitHub). Pour le
-vérifier soi-même dans un clone du dépôt :
+**Version tags** — starting with version 1.4.0, each tag is signed
+with a maintainer SSH key ("Verified" badge on GitHub). To verify it
+yourself in a clone of the repository:
 
 ```bash
 node scripts/verify-tag.js vX.Y.Z
 ```
 
-Le script récupère les clés de signature publiées sur le compte GitHub
-[PierreEbele](https://github.com/PierreEbele) et lance `git verify-tag`.
+The script fetches the signing keys published on the GitHub account
+[PierreEbele](https://github.com/PierreEbele) and runs `git verify-tag`.
 
-**Le site correspond au code source** — le build du site est reproductible :
-construit depuis le même tag, sur n'importe quel système, il donne des
-fichiers identiques au bit près (la CI le vérifie sur Linux, Windows et
-macOS, avec Node.js 22 et 24). Pour le vérifier soi-même :
+**The site matches the source code** — the site build is reproducible:
+built from the same tag, on any system, it produces bit-for-bit identical
+files (CI verifies this on Linux, Windows, and macOS, with Node.js 22 and
+24). To verify it yourself:
 
 ```bash
 git checkout vX.Y.Z
@@ -83,33 +83,32 @@ npm run build
 node scripts/site-hashes.js | diff - site-files.sha256
 ```
 
-(`site-files.sha256` est celui de la release ; aucune sortie : identique.)
+(`site-files.sha256` is the one from the release; no output: identical.)
 
-**Un site auto-hébergé** — `site-files.sha256` liste l'empreinte de chaque
-fichier du site : comparez-les avec ceux que sert votre instance.
+**A self-hosted site** — `site-files.sha256` lists the checksum of every
+site file: compare them with the files served by your instance.
 
-## Signaler une vulnérabilité
+## Reporting a vulnerability
 
-Merci de ne **pas** ouvrir d'issue publique. Utilisez le
-[signalement privé de vulnérabilité GitHub](https://github.com/PierreEbele/cadenas/security/advisories/new).
+Please do **not** open a public issue. Use
+[GitHub's private vulnerability reporting](https://github.com/PierreEbele/cadenas/security/advisories/new).
 
-## Traitement des signalements
+## Handling of reports
 
-1. **Accusé de réception** sous 7 jours, dans l'avis de sécurité privé ouvert
-   par votre signalement.
-2. **Analyse** : le mainteneur reproduit le problème, évalue sa gravité
-   (CVSS) et vous tient informé·e au moins toutes les deux semaines.
-3. **Correction** préparée en privé dans l'avis de sécurité GitHub, avec un
-   test qui reproduit le problème. Objectif : moins de 60 jours après le
-   signalement, et au plus vite pour une faille critique.
-4. **Publication** : nouvelle version, avis de sécurité public avec
-   identifiant CVE demandé via GitHub, et mention dans le
-   [CHANGELOG](CHANGELOG.md) (section « Sécurité »).
-5. **Crédit** : la personne qui a signalé la faille est remerciée
-   nommément dans l'avis et le CHANGELOG, sauf si elle préfère rester
-   anonyme.
+1. **Acknowledgment** within 7 days, in the private security advisory opened
+   by your report.
+2. **Analysis**: the maintainer reproduces the issue, assesses its severity
+   (CVSS), and keeps you informed at least every two weeks.
+3. **Fix** prepared privately in the GitHub security advisory, with a test
+   that reproduces the issue. Target: less than 60 days after the report,
+   and as soon as possible for a critical vulnerability.
+4. **Publication**: new version, public security advisory with a CVE
+   identifier requested via GitHub, and a mention in the
+   [CHANGELOG](CHANGELOG.md) ("Security" section).
+5. **Credit**: the person who reported the vulnerability is thanked by name
+   in the advisory and the CHANGELOG, unless they prefer to remain anonymous.
 
-Seule la dernière version reçoit des correctifs de sécurité.
+Only the latest version receives security fixes.
 
-Pourquoi cadenas respecte ses exigences de sécurité (modèle de menace,
-frontières de confiance, contre-mesures) : [docs/ASSURANCE.md](docs/ASSURANCE.md).
+Why cadenas meets its security requirements (threat model, trust boundaries,
+countermeasures): [docs/ASSURANCE.md](docs/ASSURANCE.md).

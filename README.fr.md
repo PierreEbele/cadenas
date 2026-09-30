@@ -1,6 +1,6 @@
 # cadenas
 
-[English](README.md) · **Français**
+[English](README.fr.md) · **Français**
 
 > Chiffrez un fichier avec un mot de passe, simplement.
 
@@ -27,7 +27,7 @@ existe en ligne de commande.
 - **Local** : tout se passe sur votre appareil. La page n'a techniquement pas le droit
   d'ouvrir une connexion réseau (Content Security Policy `connect-src 'none'`).
 - **Solide** : Argon2id et XChaCha20-Poly1305 ; toute modification du fichier chiffré est détectée.
-- **Ouvert** : code libre, [format documenté](docs/FORMAT.md), compatible avec
+- **Ouvert** : code libre, [format documenté](docs/FORMAT.fr.md), compatible avec
   [age](https://age-encryption.org).
 
 ## Sommaire
@@ -162,7 +162,7 @@ Au déchiffrement, le format est détecté automatiquement. cadenas lit aussi le
 fichiers age « armurés » (`age -a`). Les fichiers age chiffrés pour une clé publique
 (et non un mot de passe) ne sont pas pris en charge.
 
-Spécification complète du format `.cadenas` : [docs/FORMAT.md](docs/FORMAT.md).
+Spécification complète du format `.cadenas` : [docs/FORMAT.fr.md](docs/FORMAT.fr.md).
 
 ## Sécurité
 
@@ -173,7 +173,7 @@ Spécification complète du format `.cadenas` : [docs/FORMAT.md](docs/FORMAT.md)
 - Le nom du fichier et sa taille approximative restent visibles.
 - Le format `.cadenas` n'a pas encore été audité par des spécialistes indépendants.
 
-Détails et signalement de vulnérabilités : [SECURITY.md](SECURITY.md).
+Détails et signalement de vulnérabilités : [SECURITY.fr.md](SECURITY.fr.md).
 
 ## Utiliser cadenas comme bibliothèque
 
@@ -213,13 +213,15 @@ docs/       format, architecture, argumentaire de sécurité
 test/       tests, vecteur de test, implémentation de référence
 ```
 
-Les contributions sont les bienvenues : voir [CONTRIBUTING.md](CONTRIBUTING.md).
+Les contributions sont les bienvenues, en français ou en anglais : voir
+[CONTRIBUTING.fr.md](CONTRIBUTING.fr.md). Chaque document existe en anglais (par défaut) et en
+français (fichiers `.fr.md`).
 
-- Architecture : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- Feuille de route : [ROADMAP.md](ROADMAP.md)
-- Gouvernance : [GOVERNANCE.md](GOVERNANCE.md)
-- Code de conduite : [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- Historique des versions : [CHANGELOG.md](CHANGELOG.md)
+- Architecture : [docs/ARCHITECTURE.fr.md](docs/ARCHITECTURE.fr.md)
+- Feuille de route : [ROADMAP.fr.md](ROADMAP.fr.md)
+- Gouvernance : [GOVERNANCE.fr.md](GOVERNANCE.fr.md)
+- Code de conduite : [CODE_OF_CONDUCT.fr.md](CODE_OF_CONDUCT.fr.md)
+- Historique des versions : [CHANGELOG.fr.md](CHANGELOG.fr.md)
 
 ## Licence
 

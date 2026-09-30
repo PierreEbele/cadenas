@@ -38,7 +38,8 @@
   "files": [
     "bin/",
     "src/",
-    "docs/FORMAT.md"
+    "docs/FORMAT.md",
+    "docs/FORMAT.fr.md"
   ],
   "engines": {
     "node": ">=22"

@@ -1,251 +1,252 @@
 # Changelog
 
-Toutes les modifications notables de ce projet sont documentées dans ce fichier.
+**English** · [Français](CHANGELOG.fr.md)
 
-Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
-et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
+All notable changes to this project are documented in this file.
 
-## [Non publié]
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
 
-### Ajouté
+## [Unreleased]
 
-- `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
-- Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).
-- Tests de bout en bout du site dans Chromium, Firefox et WebKit (Playwright), imposés par la CI : chiffrer puis déchiffrer, interopérabilité avec la bibliothèque et le format age, archive de plusieurs fichiers, mauvais mot de passe, fonctionnement hors ligne, CSP effectivement appliquée, aucune requête hors du site, audit d'accessibilité axe (WCAG 2.1 AA, thèmes clair et sombre) et parcours complet au clavier. `npm run test:e2e`.
-- Site installé (Chrome, Edge) : cadenas apparaît dans « Ouvrir avec » pour les fichiers `.cadenas` et `.age`, qui s'ouvrent prêts à déchiffrer.
-- Option « Masquer le nom du fichier » (site) et `--hide-name` (CLI) : le fichier est rangé dans une archive `.zip` avant chiffrement, et le résultat reçoit un nom neutre (`cadenas-AAAA-MM-JJ.zip.cadenas`). Le nom d'origine n'est visible qu'après déchiffrement. Aucun changement du format.
-- CLI : commande `cadenas verify <fichier>`, qui vérifie qu'un fichier `.cadenas` ou `.age` est intact et que le mot de passe est bon, sans rien écrire (code de sortie 0 ou 1, pratique pour contrôler des sauvegardes).
-- CI : le site est construit sur Linux, Windows et macOS, avec Node.js 22 et 24, et les six builds doivent être identiques au bit près (build reproductible). `scripts/site-hashes.js` produit la liste des empreintes (`site-files.sha256` des releases) ; `SECURITY.md` explique comment vérifier soi-même que le site publié correspond au code source.
+### Added
 
-### Sécurité
+- Documentation in English by default, with a French version of each document (`*.fr.md`) and a language switch at the top. The website footer links to the documents in the displayed language, and release notes are in English.
+- `packaging/`: Homebrew formula (macOS, Linux) and winget manifests (Windows), generated for a released version by `scripts/packaging.js` from the release checksums and the npm package. Publishing procedure in `packaging/README.md`.
+- Website, Firefox and Safari: above 256 MiB, the result is downloaded as encryption proceeds, served by the service worker, instead of being kept entirely in memory. No more memory-related size limit on these browsers (after a first visit to the site).
+- End-to-end tests of the website in Chromium, Firefox and WebKit (Playwright), enforced by CI: encrypt then decrypt, interoperability with the library and the age format, multi-file archive, wrong password, offline operation, CSP actually applied, no requests outside the site, axe accessibility audit (WCAG 2.1 AA, light and dark themes) and full keyboard navigation. `npm run test:e2e`.
+- Installed website (Chrome, Edge): cadenas appears in "Open with" for `.cadenas` and `.age` files, which open ready to decrypt.
+- "Hide file name" option (website) and `--hide-name` (CLI): the file is placed in a `.zip` archive before encryption, and the result is given a neutral name (`cadenas-YYYY-MM-DD.zip.cadenas`). The original name is only visible after decryption. No change to the format.
+- CLI: `cadenas verify <file>` command, which checks that a `.cadenas` or `.age` file is intact and the password is correct, without writing anything (exit code 0 or 1, handy for verifying backups).
+- CI: the website is built on Linux, Windows and macOS, with Node.js 22 and 24, and the six builds must be bit-for-bit identical (reproducible build). `scripts/site-hashes.js` produces the list of hashes (`site-files.sha256` in releases); `SECURITY.md` explains how to verify for yourself that the published site matches the source code.
 
-- Publication : `scripts/verify-tag.js` vérifie aussi que le tag désigne le commit de sa version (`package.json`) ; les workflows release, npm et Docker refusent donc un tag posé sur le mauvais commit, avant toute publication.
-- Nouveau script `npm run release:tag` : pose le tag signé seulement depuis un main propre et à jour, pour une version présente au CHANGELOG, puis le vérifie.
+### Security
+
+- Publishing: `scripts/verify-tag.js` also checks that the tag points to the commit carrying its version (`package.json`); the release, npm and Docker workflows therefore reject a tag placed on the wrong commit, before any publication.
+- New `npm run release:tag` script: creates the signed tag only from a clean, up-to-date main, for a version listed in the CHANGELOG, then verifies it.
 
 ## [1.4.1] - 2026-09-30
 
-Durcissement du service worker du site. Aucun changement du format de
-fichier ni du chiffrement.
+Hardening of the website's service worker. No change to the file format or
+the encryption.
 
-### Sécurité
+### Security
 
-- Site : le service worker vérifie l'origine des messages qu'il reçoit avant d'installer une nouvelle version (alerte CodeQL « Missing origin verification in `postMessage` handler »).
+- Website: the service worker verifies the origin of the messages it receives before installing a new version (CodeQL alert "Missing origin verification in `postMessage` handler").
 
 ## [1.4.0] - 2026-09-28
 
-README en anglais, projet documenté (badge OpenSSF Best Practices, niveau
-silver) et publication renforcée : tags de version signés, provenance jointe
-aux releases. Aucun changement du format de fichier ni du chiffrement.
+English README, documented project (OpenSSF Best Practices badge, silver
+level) and hardened publishing: signed version tags, provenance attached to
+releases. No change to the file format or the encryption.
 
-### Ajouté
+### Added
 
-- README en anglais (`README.md`, affiché par défaut sur GitHub et npm) ; la version française devient `README.fr.md`, avec un lien de l'un à l'autre.
-- Badge OpenSSF Best Practices (niveau silver) dans le README.
-- Documentation du projet : gouvernance et rôles (`GOVERNANCE.md`), code de conduite (Contributor Covenant 2.1), feuille de route (`ROADMAP.md`), architecture (`docs/ARCHITECTURE.md`), argumentaire de sécurité avec modèle de menace (`docs/ASSURANCE.md`).
-- ESLint (configuration recommandée) : `npm run lint`, imposé par la CI, et style de code décrit dans `CONTRIBUTING.md`.
-- CI : couverture des tests de `src/` et `bin/` mesurée à chaque push, avec un minimum de 80 % (`npm run test:coverage`).
+- English README (`README.md`, displayed by default on GitHub and npm); the French version becomes `README.fr.md`, with a link between the two.
+- OpenSSF Best Practices badge (silver level) in the README.
+- Project documentation: governance and roles (`GOVERNANCE.md`), code of conduct (Contributor Covenant 2.1), roadmap (`ROADMAP.md`), architecture (`docs/ARCHITECTURE.md`), security rationale with threat model (`docs/ASSURANCE.md`).
+- ESLint (recommended configuration): `npm run lint`, enforced by CI, and code style described in `CONTRIBUTING.md`.
+- CI: test coverage of `src/` and `bin/` measured on every push, with a minimum of 80% (`npm run test:coverage`).
 
-### Modifié
+### Changed
 
-- Paquet npm : description en anglais, mots-clés plus complets, page d'accueil pointant vers le site.
-- Publication npm : le npm fourni avec Node.js 24 est utilisé (et sa version vérifiée) au lieu d'installer une autre version non épinglée.
+- npm package: English description, more complete keywords, homepage pointing to the website.
+- npm publishing: the npm bundled with Node.js 24 is used (and its version checked) instead of installing another unpinned version.
 
-### Sécurité
+### Security
 
-- Tags de version signés (SSH) : les workflows de publication (release, npm, Docker) vérifient la signature du tag avec `scripts/verify-tag.js` et refusent de publier une version non signée. Procédure dans `CONTRIBUTING.md`, vérification dans `SECURITY.md`.
-- Releases GitHub : la provenance signée est jointe à chaque release (`.sigstore.json` et `.intoto.jsonl` au format SLSA), pour une vérification hors ligne.
-- `SECURITY.md` : processus de traitement des signalements de vulnérabilité (délais, publication, crédit).
+- Signed (SSH) version tags: the publishing workflows (release, npm, Docker) verify the tag signature with `scripts/verify-tag.js` and refuse to publish an unsigned version. Procedure in `CONTRIBUTING.md`, verification in `SECURITY.md`.
+- GitHub releases: signed provenance is attached to every release (`.sigstore.json` and `.intoto.jsonl` in SLSA format), for offline verification.
+- `SECURITY.md`: process for handling vulnerability reports (timeframes, disclosure, credit).
 
 ## [1.3.0] - 2026-09-27
 
-Site installable et utilisable hors ligne, exécutables autonomes de la CLI.
-Aucun changement du format de fichier.
+Installable, offline-capable website, standalone CLI executables.
+No change to the file format.
 
-### Ajouté
+### Added
 
-- Site installable et utilisable hors ligne (application web progressive) : manifeste, icônes, et service worker qui met en cache tous les fichiers du site. Une nouvelle version s'installe en arrière-plan et ne s'applique qu'après un clic sur « Mettre à jour », jamais au milieu d'un chiffrement.
-- Image Docker : le service worker reçoit sa propre politique de sécurité (`connect-src 'self'`, pour mettre le site en cache) ; la page garde `connect-src 'none'`. Manifeste servi avec le bon type MIME.
-- Exécutables autonomes de la CLI, sans Node.js à installer : Windows x64, macOS arm64, Linux x64 et arm64. Construits par la CI (Node.js « Single Executable Application »), testés sur chaque plateforme avant publication, joints à chaque release avec empreintes et attestation de provenance. `npm run build:exe` construit celui de la plateforme courante.
-- Le workflow de release peut être lancé à la main pour tout construire et tester sans rien publier.
+- Website installable and usable offline (progressive web app): manifest, icons, and a service worker that caches all site files. A new version installs in the background and only takes effect after clicking "Update", never in the middle of an encryption.
+- Docker image: the service worker gets its own content security policy (`connect-src 'self'`, to cache the site); the page keeps `connect-src 'none'`. The manifest is served with the correct MIME type.
+- Standalone CLI executables, no Node.js to install: Windows x64, macOS arm64, Linux x64 and arm64. Built by CI (Node.js "Single Executable Application"), tested on each platform before release, attached to every release with checksums and a provenance attestation. `npm run build:exe` builds the one for the current platform.
+- The release workflow can be triggered manually to build and test everything without publishing anything.
 
-### Modifié
+### Changed
 
-- README : captures d'écran à jour (générateur de phrase de passe, sélecteur de langue), installation hors ligne.
+- README: updated screenshots (passphrase generator, language selector), offline installation.
 
 ## [1.2.0] - 2026-09-27
 
-Plusieurs fichiers et dossiers, fichiers de toute taille sur le site, et CLI
-prête pour les scripts de sauvegarde. Aucun changement du format de fichier.
+Multiple files and folders, files of any size on the website, and a CLI
+ready for backup scripts. No change to the file format.
 
-### Ajouté
+### Added
 
-- Archives : plusieurs fichiers ou un dossier sont regroupés en une archive `.zip` produite en flux (`src/archive.js`, bibliothèque client-zip), puis chiffrés en un seul fichier. Arborescence et noms Unicode préservés, chemins nettoyés (ni chemin absolu ni `..`), doublons renommés, Zip64 au-delà de 4 Go, fichiers ouverts un par un.
-- Site : plusieurs fichiers ou un dossier entier, par glisser-déposer ou par sélection (bouton « Choisir un dossier entier »). Ils sont réunis dans `dossier.zip` (ou `cadenas-AAAA-MM-JJ.zip`) puis chiffrés ; au déchiffrement, le site rappelle qu'il suffit d'ouvrir l'archive.
-- Site : au-delà de 256 Mio, le résultat est écrit directement sur le disque (Chrome, Edge : le site demande où l'enregistrer avant de commencer), en mémoire constante quelle que soit la taille. Sur les autres navigateurs, un message conseille Chrome, Edge ou la ligne de commande pour plusieurs Go.
-- CLI : `cadenas lock` accepte plusieurs fichiers et des dossiers (parcourus récursivement, liens symboliques ignorés) → `dossier.zip.cadenas` ou `cadenas-AAAA-MM-JJ.zip.cadenas`.
-- CLI : `-` pour l'entrée standard (`cadenas lock -`, `cadenas unlock -`) et `-o -` pour la sortie standard ; refus d'écrire du binaire dans un terminal.
-- CLI : option `--password-file <fichier>` ; quand l'entrée standard porte les données, le mot de passe est demandé directement au terminal.
+- Archives: multiple files or a folder are bundled into a `.zip` archive produced as a stream (`src/archive.js`, client-zip library), then encrypted into a single file. Directory structure and Unicode names preserved, paths sanitized (no absolute paths or `..`), duplicates renamed, Zip64 beyond 4 GB, files opened one at a time.
+- Website: multiple files or an entire folder, by drag-and-drop or selection ("Choose an entire folder" button). They are combined into `folder.zip` (or `cadenas-YYYY-MM-DD.zip`) and then encrypted; on decryption, the site reminds you that the archive simply needs to be opened.
+- Website: beyond 256 MiB, the result is written directly to disk (Chrome, Edge: the site asks where to save it before starting), with constant memory usage regardless of size. On other browsers, a message recommends Chrome, Edge, or the command line for several GB.
+- CLI: `cadenas lock` accepts multiple files and folders (traversed recursively, symbolic links ignored) → `folder.zip.cadenas` or `cadenas-YYYY-MM-DD.zip.cadenas`.
+- CLI: `-` for standard input (`cadenas lock -`, `cadenas unlock -`) and `-o -` for standard output; refuses to write binary to a terminal.
+- CLI: `--password-file <file>` option; when standard input carries the data, the password is prompted directly on the terminal.
 
-### Modifié
+### Changed
 
-- CLI : les messages de réussite (« ✔ Fichier chiffré… ») passent sur la sortie d'erreur, pour que la sortie standard ne contienne que des données.
+- CLI: success messages ("✔ File encrypted…") now go to standard error, so that standard output contains only data.
 
 ## [1.1.0] - 2026-09-27
 
-Générateur de phrases de passe, site en anglais, et chaîne de publication
-entièrement vérifiable. Aucun changement du format de fichier.
+Passphrase generator, English website, and a fully verifiable release pipeline.
+No change to the file format.
 
-### Ajouté
+### Added
 
-- Générateur de phrases de passe : bouton « Générer une phrase de passe » sur le site (avec copie en un clic) et commande `cadenas passphrase [--words n] [--lang fr|en]`. 5 mots tirés sans biais par le générateur aléatoire du système, plus de 64 bits d'entropie. Listes de mots : Tails (français, CC0) et EFF (anglais, CC BY 3.0 US), chargées seulement à la demande sur le site.
-- Site : bouton « Annuler » pendant le chiffrement ou le déchiffrement.
-- Site : le navigateur demande confirmation avant de quitter la page pendant un traitement, ou si le résultat n'a pas encore été téléchargé.
-- Site en anglais : langue choisie d'après le navigateur, bouton « English / Français » en pied de page, choix mémorisé. Le générateur de phrases de passe utilise la liste de mots de la langue affichée.
+- Passphrase generator: "Generate a passphrase" button on the website (with one-click copy) and `cadenas passphrase [--words n] [--lang fr|en]` command. 5 words drawn without bias from the system random generator, more than 64 bits of entropy. Word lists: Tails (French, CC0) and EFF (English, CC BY 3.0 US), loaded on demand only on the website.
+- Website: "Cancel" button during encryption or decryption.
+- Website: the browser asks for confirmation before leaving the page during processing, or if the result has not been downloaded yet.
+- English website: language chosen based on the browser, "English / Français" button in the footer, choice remembered. The passphrase generator uses the word list of the displayed language.
 
-### Sécurité
+### Security
 
-- Dependabot : mises à jour hebdomadaires des dépendances npm, des actions GitHub et de l'image de base Docker ; correctifs de sécurité automatiques.
-- Analyse CodeQL du code et des workflows à chaque push et chaque semaine.
-- OpenSSF Scorecard : note publique des bonnes pratiques, badge dans le README.
-- Signalement privé de vulnérabilités activé sur GitHub.
-- Actions GitHub mises à jour vers leurs dernières versions majeures.
-- Image Docker signée avec cosign (sans clé, Sigstore), avec SBOM et attestation de provenance.
-- Releases GitHub créées automatiquement par la CI : notes tirées du CHANGELOG, site archivé (`cadenas-site-vX.Y.Z.zip`), empreintes `SHA256SUMS` et `site-files.sha256`, attestation de provenance vérifiable avec `gh attestation verify`.
-- SECURITY.md : comment vérifier le paquet npm, l'image Docker, les fichiers des releases et un site auto-hébergé.
-- Dépendances de la CI épinglées : actions GitHub par empreinte de commit, images Docker de base par empreinte, version de npm fixée (Dependabot les tient à jour).
-- Branche `main` protégée contre la suppression et la réécriture d'historique.
-- Tests de propriétés (fuzzing avec fast-check) : aller-retour pour tout contenu, mot de passe et découpage ; détection de toute modification, troncature ou ajout d'octets ; refus propre d'entrées arbitraires.
+- Dependabot: weekly updates of npm dependencies, GitHub Actions, and the Docker base image; automatic security fixes.
+- CodeQL analysis of code and workflows on every push and every week.
+- OpenSSF Scorecard: public score of best practices, badge in the README.
+- Private vulnerability reporting enabled on GitHub.
+- GitHub Actions updated to their latest major versions.
+- Docker image signed with cosign (keyless, Sigstore), with SBOM and provenance attestation.
+- GitHub releases created automatically by CI: notes drawn from the CHANGELOG, website archived (`cadenas-site-vX.Y.Z.zip`), `SHA256SUMS` and `site-files.sha256` fingerprints, verifiable provenance attestation with `gh attestation verify`.
+- SECURITY.md: how to verify the npm package, the Docker image, release files, and a self-hosted website.
+- CI dependencies pinned: GitHub Actions by commit hash, base Docker images by digest, npm version fixed (Dependabot keeps them up to date).
+- `main` branch protected against deletion and history rewriting.
+- Property-based tests (fuzzing with fast-check): round-trip for any content, password, and chunking; detection of any modification, truncation, or added bytes; clean rejection of arbitrary inputs.
 
-### Modifié
+### Changed
 
-- README : capture d'écran du site, en version claire et sombre selon le thème du lecteur.
+- README: screenshot of the website, in light and dark versions depending on the reader's theme.
 
 ## [1.0.2] - 2026-09-27
 
-Première version publiée automatiquement par GitHub Actions, avec attestation de
-provenance vérifiable sur npm. Aucun changement de code.
+First release published automatically by GitHub Actions, with verifiable
+provenance attestation on npm. No code changes.
 
-### Ajouté
+### Added
 
-- Publication automatique sur npm à chaque tag de version (`.github/workflows/npm.yml`), par publication de confiance (OIDC) : aucun jeton stocké, attestation de provenance jointe à chaque version, contrôle que le tag correspond à `package.json`.
+- Automatic publication on npm on every version tag (`.github/workflows/npm.yml`), via trusted publishing (OIDC): no stored token, provenance attestation attached to each release, check that the tag matches `package.json`.
 
 ## [1.0.1] - 2026-09-27
 
-Première publication sur npm : `npm install -g cadenas`. Aucun changement de code.
+First publication on npm: `npm install -g cadenas`. No code changes.
 
-### Modifié
+### Changed
 
-- README : installation via npm (`npm install -g cadenas`, `npx cadenas`) et badge de version npm.
-- `package.json` : les tests sont lancés automatiquement avant chaque publication (`prepublishOnly`) ; publication publique par défaut.
+- README: installation via npm (`npm install -g cadenas`, `npx cadenas`) and npm version badge.
+- `package.json`: tests run automatically before each publication (`prepublishOnly`); public publication by default.
 
 ## [1.0.0] - 2026-09-27
 
-Première version stable. Le format `.cadenas` v1 est désormais figé : les fichiers
-chiffrés avec cette version resteront lisibles par toutes les versions futures.
+First stable release. The `.cadenas` v1 format is now frozen: files encrypted with this version will remain readable by all future versions.
 
-En résumé :
+In summary:
 
-- **Site** 100 % navigateur pour chiffrer / déchiffrer un fichier avec un mot de passe,
-  en ligne sur <https://pierreebele.github.io/cadenas/>.
-- **Image Docker** auto-hébergeable : `docker run -p 8080:8080 ghcr.io/pierreebele/cadenas`.
-- **Ligne de commande** : `cadenas lock` / `cadenas unlock`.
-- **Format `.cadenas` v1** (Argon2id + XChaCha20-Poly1305), spécifié dans `docs/FORMAT.md`.
-- **Compatibilité age** en lecture et en écriture.
+- **Website** 100% in the browser for encrypting / decrypting a file with a password, online at <https://pierreebele.github.io/cadenas/>.
+- **Self-hostable Docker image**: `docker run -p 8080:8080 ghcr.io/pierreebele/cadenas`.
+- **Command line**: `cadenas lock` / `cadenas unlock`.
+- **`.cadenas` v1 format** (Argon2id + XChaCha20-Poly1305), specified in `docs/FORMAT.md`.
+- **age compatibility** for both reading and writing.
 
-### Ajouté
+### Added
 
-- README complet : utilisation du site, hébergement Docker, ligne de commande, comparaison des formats, sécurité, API, développement.
-- `CONTRIBUTING.md` : principes du projet, règles d'évolution du format, processus de publication.
+- Full README: website usage, Docker hosting, command line, format comparison, security, API, development.
+- `CONTRIBUTING.md`: project principles, format evolution rules, release process.
 
 ## [0.7.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Intégration continue GitHub Actions (`.github/workflows/ci.yml`) :
-  - tests et build sur Linux, Windows et macOS avec Node.js 22 et 24 ;
-  - interopérabilité réelle avec l'outil `age` officiel, dans les deux sens ;
-  - construction de l'image Docker et vérification des en-têtes de sécurité, du contenu servi et de l'exécution non-root.
-- Déploiement automatique du site sur GitHub Pages à chaque push sur `main` (`pages.yml`).
-- Publication de l'image sur GitHub Container Registry à chaque version, pour `linux/amd64` et `linux/arm64` (`docker.yml`).
+- GitHub Actions continuous integration (`.github/workflows/ci.yml`):
+  - tests and builds on Linux, Windows and macOS with Node.js 22 and 24;
+  - real interoperability with the official `age` tool, in both directions;
+  - Docker image build and verification of security headers, served content, and non-root execution.
+- Automatic deployment of the website to GitHub Pages on every push to `main` (`pages.yml`).
+- Image published to GitHub Container Registry on every release, for `linux/amd64` and `linux/arm64` (`docker.yml`).
 
-### Modifié
+### Changed
 
-- Node.js 22 minimum (Node.js 20 n'est plus maintenu depuis avril 2026).
+- Node.js 22 minimum (Node.js 20 is no longer maintained as of April 2026).
 
 ## [0.6.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Interface en ligne de commande `cadenas` (`bin/cadenas.js`, aucune dépendance supplémentaire) :
-  - `cadenas lock <fichier>` → `<fichier>.cadenas`, ou `<fichier>.age` avec `--age` ;
-  - `cadenas unlock <fichier>` : format détecté automatiquement ;
-  - alias `encrypt` / `decrypt` ;
+- `cadenas` command-line interface (`bin/cadenas.js`, no additional dependencies):
+  - `cadenas lock <file>` → `<file>.cadenas`, or `<file>.age` with `--age`;
+  - `cadenas unlock <file>`: format detected automatically;
+  - `encrypt` / `decrypt` aliases;
   - options `-o/--output`, `-f/--force`, `--password-stdin`, `-h/--help`, `-v/--version`.
-- Saisie masquée du mot de passe avec confirmation (`src/prompt.js`).
-- Écriture atomique : en cas de mauvais mot de passe ou de fichier altéré, aucun fichier partiel n'est laissé.
-- Refus d'écraser un fichier existant sans `-f`.
-- Progression affichée dans le terminal ; codes de sortie 0 (succès), 1 (erreur), 2 (mauvaise utilisation), 130 (annulation).
-- Tests de la CLI de bout en bout (processus réels).
-- `package.json` : champs `bin`, `exports` et `files` pour une future publication npm.
+- Masked password input with confirmation (`src/prompt.js`).
+- Atomic writes: if the password is wrong or the file is corrupted, no partial file is left behind.
+- Refuses to overwrite an existing file without `-f`.
+- Progress displayed in the terminal; exit codes 0 (success), 1 (error), 2 (misuse), 130 (cancellation).
+- End-to-end CLI tests (real processes).
+- `package.json`: `bin`, `exports`, and `files` fields for a future npm release.
 
 ## [0.5.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Image Docker auto-hébergeable (`Dockerfile`) :
-  - construction en deux étapes : Vite dans `node:24-alpine`, puis service par `nginx-unprivileged` (utilisateur non-root, port 8080) ;
-  - le conteneur ne sert que des fichiers statiques : le serveur ne voit jamais ni fichier ni mot de passe ;
-  - vérification de santé intégrée.
-- Configuration nginx (`docker/`) : en-têtes de sécurité stricts, dont une CSP `connect-src 'none'` qui interdit techniquement à la page toute connexion réseau ; cache long pour les fichiers versionnés ; aucun journal d'accès.
-- `compose.yaml` : lancement en une commande, conteneur en lecture seule sans privilèges.
-- La même CSP est injectée dans le HTML au build, pour les hébergeurs sans en-têtes personnalisés (GitHub Pages).
+- Self-hostable Docker image (`Dockerfile`) :
+  - two-stage build: Vite in `node:24-alpine`, then served by `nginx-unprivileged` (non-root user, port 8080) ;
+  - the container serves only static files: the server never sees any file or password ;
+  - built-in health check.
+- nginx configuration (`docker/`) : strict security headers, including a CSP `connect-src 'none'` that technically forbids the page from making any network connection ; long-term caching for versioned files ; no access logs.
+- `compose.yaml` : launch with a single command, read-only, unprivileged container.
+- The same CSP is injected into the HTML at build time, for hosts without custom header support (GitHub Pages).
 
 ## [0.4.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Site web (`web/`), construit avec Vite en pages statiques :
-  - glisser-déposer ou sélection d'un fichier, détection automatique chiffrer / déchiffrer ;
-  - mot de passe avec confirmation, affichage à la demande et indicateur de solidité ;
-  - choix du format `.cadenas` (recommandé) ou `.age` ;
-  - chiffrement dans un Web Worker (la page ne se fige jamais) avec barre de progression ;
-  - thème clair / sombre automatique, mise en page mobile, navigation au clavier ;
-  - aucune ressource externe, aucune requête réseau : tout reste dans le navigateur.
-- `src/detect.js` (détection de format sans dépendance) et `src/names.js` (noms des fichiers produits), partagés avec la future CLI.
-- Scripts `npm run dev`, `npm run build`, `npm run preview`.
+- Website (`web/`), built with Vite as static pages :
+  - drag-and-drop or file selection, automatic encrypt/decrypt detection ;
+  - password with confirmation, on-demand visibility and strength indicator ;
+  - choice of `.cadenas` (recommended) or `.age` format ;
+  - encryption in a Web Worker (the page never freezes) with a progress bar ;
+  - automatic light/dark theme, mobile-friendly layout, keyboard navigation ;
+  - no external resources, no network requests: everything stays in the browser.
+- `src/detect.js` (dependency-free format detection) and `src/names.js` (names of output files), shared with the upcoming CLI.
+- `npm run dev`, `npm run build`, `npm run preview` scripts.
 
 ## [0.3.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Compatibilité avec le format [age](https://age-encryption.org) via la bibliothèque officielle `age-encryption` (`src/format-age.js`) :
-  - chiffrement au format age par mot de passe (scrypt), lisible par `age -d` et `rage` ;
-  - déchiffrement des fichiers age binaires et armurés (`age -a`) ;
-  - message clair pour les fichiers age chiffrés pour une clé publique (non pris en charge).
-- API publique unique `src/core.js` : `encrypt(flux, mot de passe, { format })` et `decrypt(flux, mot de passe)` avec détection automatique du format d'après les premiers octets.
-- Nouveau code d'erreur `UNSUPPORTED_AGE`.
+- Compatibility with the [age](https://age-encryption.org) format via the official `age-encryption` library (`src/format-age.js`) :
+  - password-based (scrypt) age encryption, readable by `age -d` and `rage` ;
+  - decryption of binary and armored (`age -a`) age files ;
+  - clear message for age files encrypted to a public key (not supported).
+- Single public API `src/core.js`: `encrypt(stream, password, { format })` and `decrypt(stream, password)` with automatic format detection based on the first bytes.
+- New error code `UNSUPPORTED_AGE`.
 
 ## [0.2.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Format de fichier `.cadenas` v1 (`src/format-cadenas.js`) :
-  - dérivation du mot de passe par Argon2id (64 Mio, 3 passes par défaut, paramètres stockés dans l'en-tête) ;
-  - clés d'en-tête et de contenu séparées par HKDF-SHA256 ;
-  - en-tête authentifié par HMAC-SHA256 : un mauvais mot de passe est détecté immédiatement ;
-  - contenu chiffré en XChaCha20-Poly1305 par blocs de 64 Kio, en flux (fichiers de toute taille) ;
-  - détection des fichiers tronqués, modifiés ou dont les blocs ont été réordonnés.
-- Spécification du format : `docs/FORMAT.md`, avec vecteur de test `test/fixtures/vector-v1.json`.
-- Tests (`node:test`), dont une implémentation de référence indépendante écrite d'après la spécification.
-- `SECURITY.md` : garanties, limites et signalement de vulnérabilités.
+- `.cadenas` v1 file format (`src/format-cadenas.js`) :
+  - password derivation using Argon2id (64 MiB, 3 passes by default, parameters stored in the header) ;
+  - separate header and content keys derived via HKDF-SHA256 ;
+  - header authenticated with HMAC-SHA256: a wrong password is detected immediately ;
+  - content encrypted with XChaCha20-Poly1305 in 64 KiB blocks, streamed (files of any size) ;
+  - detection of truncated or modified files, or files whose blocks have been reordered.
+- Format specification: `docs/FORMAT.md`, with test vector `test/fixtures/vector-v1.json`.
+- Tests (`node:test`), including an independent reference implementation written from the specification.
+- `SECURITY.md`: guarantees, limitations, and vulnerability reporting.
 
 ## [0.1.0] - 2026-09-27
 
-### Ajouté
+### Added
 
-- Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
+- Project initialization: `package.json`, MIT license, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...HEAD
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0

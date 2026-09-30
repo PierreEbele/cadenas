@@ -1,103 +1,102 @@
-# Argumentaire de sécurité (assurance case)
+# Security assurance case
 
-Ce document explique pourquoi cadenas respecte ses exigences de sécurité,
-décrites dans [SECURITY.md](../SECURITY.md#ce-que-garantit-cadenas) :
+**English** · [Français](ASSURANCE.fr.md)
 
-1. **Confidentialité** : sans le mot de passe, le contenu d'un fichier
-   chiffré est illisible.
-2. **Intégrité** : toute modification, troncature ou réorganisation d'un
-   fichier chiffré est détectée, et cadenas ne rend jamais un contenu
-   altéré.
-3. **Localité** : sur le site, ni les fichiers ni le mot de passe ne
-   quittent l'appareil.
+This document explains why cadenas meets its security requirements,
+described in [SECURITY.md](../SECURITY.md#what-cadenas-guarantees):
 
-Il reprend les éléments demandés par l'OpenSSF : modèle de menace,
-frontières de confiance, principes de conception sûre, faiblesses courantes
-contrées.
+1. **Confidentiality**: without the password, the content of an encrypted
+   file cannot be read.
+2. **Integrity**: any modification, truncation or reordering of an encrypted
+   file is detected, and cadenas never returns altered content.
+3. **Locality**: on the website, neither the files nor the password leave
+   the device.
 
-## Modèle de menace
+It covers the elements the OpenSSF asks for: threat model, trust
+boundaries, secure design principles, common weaknesses countered.
 
-**Ce qu'on protège** : le contenu des fichiers et les mots de passe.
+## Threat model
 
-**Attaquants considérés** :
+**What we protect**: the content of the files and the passwords.
 
-- une personne qui obtient le fichier chiffré (vol, fuite d'un stockage en
-  ligne, interception) et tente de le lire, éventuellement avec beaucoup de
-  puissance de calcul (force brute sur le mot de passe) ;
-- une personne qui modifie le fichier chiffré pour altérer le contenu
-  déchiffré ou exploiter le programme (fichier malformé, paramètres
-  extrêmes) ;
-- un script ou un service tiers qui tenterait d'exfiltrer des données
-  depuis la page ;
-- une attaque sur la chaîne de publication (paquet, image ou exécutable
-  modifié).
+**Attackers considered**:
 
-**Hors du périmètre** : un appareil déjà compromis (logiciel espion, clavier
-enregistreur), un navigateur malveillant, un mot de passe faible choisi
-malgré les avertissements, le nom et la taille approximative du fichier
-(visibles), et un hébergeur auto-géré qui servirait un site modifié (d'où
-les empreintes publiées).
+- someone who obtains the encrypted file (theft, leak from an online
+  storage, interception) and tries to read it, possibly with a lot of
+  computing power (brute force on the password);
+- someone who modifies the encrypted file to alter the decrypted content or
+  to exploit the program (malformed file, extreme parameters);
+- a third-party script or service trying to exfiltrate data from the page;
+- an attack on the release pipeline (modified package, image or
+  executable).
 
-## Frontières de confiance
+**Out of scope**: an already compromised device (spyware, keylogger), a
+malicious browser, a weak password chosen despite the warnings, the name
+and approximate size of the file (visible), and a self-managed host serving
+a modified site (hence the published checksums).
+
+## Trust boundaries
 
 ```
- [ utilisateur ] ──mot de passe──▶ ┌───────────── appareil ─────────────┐
-                                   │ page (CSP connect-src 'none')       │
- [ fichier chiffré, non fiable ] ─▶│   └─ worker : src/ (vérifie tout)   │─▶ [ fichier produit ]
-                                   └─────────────────────────────────────┘
- [ hébergeur / npm / ghcr.io ] ──code signé et attesté──▶ (installé une fois)
+ [ user ] ──password──▶ ┌────────────── device ──────────────┐
+                        │ page (CSP connect-src 'none')       │
+ [ encrypted file,    ─▶│   └─ worker: src/ (checks all)      │─▶ [ output file ]
+   untrusted ]          └─────────────────────────────────────┘
+ [ host / npm / ghcr.io ] ──signed, attested code──▶ (installed once)
 ```
 
-- **Fichier à déchiffrer** : non fiable. Chaque octet est validé avant usage
-  (voir plus bas).
-- **Hébergeur du site** : fiable seulement pour livrer le bon code. Une fois
-  la page chargée, la CSP l'empêche d'envoyer quoi que ce soit.
-  L'intégrité du code livré se vérifie avec les empreintes et attestations
-  des releases.
-- **Dépendances** : fiables par choix (bibliothèques auditées, versions
-  verrouillées dans `package-lock.json`, surveillées par Dependabot).
-- **Mot de passe** : fourni par l'utilisateur, jamais stocké ni transmis.
+- **File to decrypt**: untrusted. Every byte is validated before use (see
+  below).
+- **Website host**: trusted only to deliver the right code. Once the page is
+  loaded, the CSP prevents it from sending anything. The integrity of the
+  delivered code can be checked with the checksums and attestations of the
+  releases, and the site build is reproducible.
+- **Dependencies**: trusted by choice (audited libraries, versions locked in
+  `package-lock.json`, watched by Dependabot).
+- **Password**: provided by the user, never stored or sent.
 
-## Principes de conception sûre appliqués
+## Secure design principles applied
 
-| Principe | Application dans cadenas |
+| Principle | How cadenas applies it |
 |---|---|
-| Économie de mécanisme | Une seule fonction (chiffrer avec un mot de passe), environ 2 300 lignes de code, 5 dépendances d'exécution. |
-| Pas de crypto maison | Uniquement des primitives publiées (Argon2id, HKDF, HMAC-SHA256, XChaCha20-Poly1305), fournies par des bibliothèques auditées ([FORMAT.md](FORMAT.md)). Le format age, largement relu, est proposé en alternative. |
-| Valeurs par défaut sûres | Argon2id à 64 Mio et 3 passes, sel et nonces aléatoires de 128 bits, phrases de passe de 5 mots (plus de 64 bits d'entropie). |
-| Moindre privilège | CSP `default-src 'none'` et `connect-src 'none'` ; image Docker non root, en lecture seule, sans capacités ; workflows GitHub en `contents: read` par défaut. |
-| Échec sûr | En cas d'erreur, la CLI ne laisse aucun fichier partiel (écriture dans un fichier temporaire renommé seulement en cas de succès) ; aucun bloc n'est déchiffré si l'en-tête n'est pas authentifié. |
-| Médiation complète | Chaque bloc est authentifié avant d'être rendu, et le dernier bloc est marqué : troncature et réorganisation sont détectées. |
-| Conception ouverte | Code, format et tests publics ; vecteur de test figé et implémentation de référence indépendante (`test/reference.test.js`). |
-| Séparation des clés | Clés distinctes pour l'en-tête et le contenu, dérivées par HKDF avec des étiquettes différentes. |
+| Economy of mechanism | A single function (encrypt with a password), about 2,300 lines of code, 5 runtime dependencies. |
+| No home-made crypto | Only published primitives (Argon2id, HKDF, HMAC-SHA256, XChaCha20-Poly1305), provided by audited libraries ([FORMAT.md](FORMAT.md)). The widely reviewed age format is offered as an alternative. |
+| Secure defaults | Argon2id with 64 MiB and 3 passes, random 128-bit salts and nonces, 5-word passphrases (more than 64 bits of entropy). |
+| Least privilege | CSP `default-src 'none'` and `connect-src 'none'` (frames only from the site itself, for streamed downloads); non-root, read-only Docker image without capabilities; GitHub workflows with `contents: read` by default. |
+| Fail-safe defaults | On error, the CLI leaves no partial file (it writes to a temporary file renamed only on success); no chunk is decrypted if the header is not authenticated. |
+| Complete mediation | Every chunk is authenticated before it is returned, and the last chunk is marked: truncation and reordering are detected. |
+| Open design | Public code, format and tests; a frozen test vector and an independent reference implementation (`test/reference.test.js`). |
+| Key separation | Separate keys for the header and the content, derived with HKDF using different labels. |
 
-## Faiblesses courantes contrées
+## Common weaknesses countered
 
-| Faiblesse (CWE) | Contre-mesure |
+| Weakness (CWE) | Countermeasure |
 |---|---|
-| Crypto faible ou cassée (CWE-327, CWE-328) | Aucun SHA-1, MD5, CBC ou ECB ; clés de 256 bits. |
-| Aléa prévisible (CWE-330, CWE-338) | Sels, nonces et phrases de passe issus du générateur cryptographique du système ; tirage sans biais pour les phrases de passe. |
-| Réutilisation de nonce (CWE-323) | Préfixe aléatoire de 128 bits par fichier et compteur par bloc (XChaCha20, nonce de 192 bits). |
-| Canal auxiliaire temporel (CWE-208) | Le MAC de l'en-tête est comparé en temps constant. |
-| Consommation de ressources non contrôlée (CWE-400) | Les paramètres Argon2id lus dans un fichier sont bornés (1 Gio et 64 passes au maximum) avant tout calcul ; traitement en flux, en mémoire constante. |
-| Validation d'entrée insuffisante (CWE-20) | Format reconnu par liste blanche (magic et version), version inconnue refusée, paramètres vérifiés, erreurs typées (`CadenasError`). |
-| Traversée de chemin (CWE-22, « zip slip ») | Les chemins placés dans les archives sont nettoyés : ni chemin absolu, ni `.`, ni `..`. |
-| Exfiltration et injection de script (CWE-79) | CSP stricte sans script externe ni en ligne ; aucune ressource tierce ; aucun `innerHTML` alimenté par l'utilisateur. |
-| Exposition d'informations sensibles (CWE-200, CWE-532) | Le mot de passe n'est jamais journalisé ; saisie sans écho dans le terminal ; clés effacées de la mémoire après usage. |
-| Dépendances vulnérables (CWE-1395) | Dependabot (npm, actions, Docker), analyse CodeQL à chaque push et chaque semaine, OpenSSF Scorecard. |
-| Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte), après vérification de la signature SSH du tag ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. |
+| Weak or broken crypto (CWE-327, CWE-328) | No SHA-1, MD5, CBC or ECB; 256-bit keys. |
+| Predictable randomness (CWE-330, CWE-338) | Salts, nonces and passphrases come from the system's cryptographic generator; unbiased sampling for passphrases. |
+| Nonce reuse (CWE-323) | Random 128-bit prefix per file and a counter per chunk (XChaCha20, 192-bit nonce). |
+| Timing side channel (CWE-208) | The header MAC is compared in constant time. |
+| Uncontrolled resource consumption (CWE-400) | Argon2id parameters read from a file are bounded (at most 1 GiB and 64 passes) before any computation; streaming, in constant memory. |
+| Improper input validation (CWE-20) | Format recognized by allowlist (magic and version), unknown versions rejected, parameters checked, typed errors (`CadenasError`). |
+| Path traversal (CWE-22, "zip slip") | Paths stored in archives are sanitized: no absolute path, no `.`, no `..`. |
+| Exfiltration and script injection (CWE-79) | Strict CSP with no external or inline script; no third-party resource; no `innerHTML` fed by the user. |
+| Exposure of sensitive information (CWE-200, CWE-532) | The password is never logged; input without echo in the terminal; keys wiped from memory after use. |
+| Vulnerable dependencies (CWE-1395) | Dependabot (npm, actions, Docker), CodeQL analysis on every push and every week, OpenSSF Scorecard. |
+| Release pipeline compromise | Publication only by GitHub Actions (actions pinned by hash), after checking the SSH signature of the tag and that it points to the commit of its version; npm provenance, image signed with cosign, attestations and `SHA256SUMS` for the releases; reproducible site build. |
 
-## Vérification continue
+## Continuous verification
 
-- Tests automatisés à chaque push (Linux, Windows et macOS), dont des tests
-  de propriétés avec fast-check sur des entrées aléatoires ou altérées, et
-  un test d'interopérabilité avec l'outil `age` officiel.
-- Couverture des tests d'au moins 80 %, imposée par la CI.
-- ESLint et CodeQL (requêtes `security-extended`) à chaque push.
+- Automated tests on every push (Linux, Windows and macOS), including
+  property-based tests with fast-check on random or tampered inputs, and an
+  interoperability test with the official `age` tool.
+- End-to-end tests of the website in Chromium, Firefox and WebKit:
+  encryption, offline mode, CSP actually enforced, no request leaving the
+  site, accessibility audit.
+- Test coverage of at least 80 %, enforced by CI.
+- ESLint and CodeQL (`security-extended` queries) on every push.
 
-## Limites connues
+## Known limitations
 
-Le format `.cadenas` n'a pas encore été audité par des spécialistes
-indépendants. Cet audit est prévu dans la [feuille de route](../ROADMAP.md) ;
-son périmètre et les questions posées aux auditeurs sont dans
-[AUDIT.md](AUDIT.md) (en anglais).
+The `.cadenas` format has not been audited by independent specialists yet.
+This audit is planned in the [roadmap](../ROADMAP.md); its scope and the
+questions for the auditors are in [AUDIT.md](AUDIT.md).

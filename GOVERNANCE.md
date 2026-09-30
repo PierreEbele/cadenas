@@ -1,51 +1,51 @@
-# Gouvernance
+# Governance
 
-cadenas est un petit projet libre (licence MIT) mené par un mainteneur
-principal. Ce document décrit qui décide, comment, et ce qui se passe si ce
-mainteneur n'est plus disponible.
+**English** · [Français](GOVERNANCE.fr.md)
 
-## Rôles
+cadenas is a small free software project (MIT license) led by a main
+maintainer. This document describes who decides, how, and what happens if
+that maintainer is no longer available.
 
-| Rôle | Qui | Responsabilités |
+## Roles
+
+| Role | Who | Responsibilities |
 |---|---|---|
-| Mainteneur principal | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Relit et fusionne les pull requests ; trie les issues ; publie les versions ; traite les signalements de vulnérabilité ([SECURITY.md](SECURITY.md)) ; administre le dépôt GitHub, le paquet npm, l'image `ghcr.io` et le site GitHub Pages ; tient à jour la [feuille de route](ROADMAP.md) ; fait respecter le [code de conduite](CODE_OF_CONDUCT.md). |
-| Contributeur ou contributrice | Toute personne qui ouvre une issue ou une pull request | Respecte le [guide de contribution](CONTRIBUTING.md) et le code de conduite ; teste ses changements. |
-| Utilisateur ou utilisatrice | Tout le monde | Signale les bugs par une issue et les vulnérabilités en privé. |
+| Main maintainer | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Reviews and merges pull requests; triages issues; publishes releases; handles vulnerability reports ([SECURITY.md](SECURITY.md)); administers the GitHub repository, the npm package, the `ghcr.io` image, and the GitHub Pages site; maintains the [roadmap](ROADMAP.md); enforces the [code of conduct](CODE_OF_CONDUCT.md). |
+| Contributor | Anyone who opens an issue or pull request | Follows the [contribution guide](CONTRIBUTING.md) and the code of conduct; tests their changes. |
+| User | Everyone | Reports bugs via an issue and vulnerabilities privately. |
 
-La liste des personnes ayant un rôle est tenue à jour dans ce fichier.
+The list of people with a role is kept up to date in this file.
 
-## Prise de décision
+## Decision making
 
-- Les décisions courantes (corrections, petites fonctionnalités, dépendances)
-  se prennent dans la pull request concernée : le mainteneur principal
-  fusionne une fois la CI verte et la relecture terminée.
-- Les décisions importantes (nouvelle fonctionnalité visible, changement du
-  format `.cadenas`, nouvelle dépendance d'exécution, changement de
-  licence) commencent par une issue ouverte à la discussion publique. Le
-  mainteneur principal tranche en expliquant sa décision dans l'issue.
-- Les [principes du projet](CONTRIBUTING.md#principes-du-projet) servent de
-  critères : simplicité, rien ne quitte le navigateur, peu de dépendances,
-  pas de crypto maison.
-- Le format `.cadenas` v1 est figé : toute évolution suit les règles de
-  [CONTRIBUTING.md](CONTRIBUTING.md#modifier-le-format-cadenas).
+- Routine decisions (fixes, small features, dependencies) are made in the
+  relevant pull request: the main maintainer merges once CI is green and
+  the review is complete.
+- Important decisions (a new visible feature, a change to the `.cadenas`
+  format, a new runtime dependency, a license change) start with an issue
+  opened for public discussion. The main maintainer makes the final
+  decision and explains it in the issue.
+- The [project principles](CONTRIBUTING.md#project-principles) serve as
+  criteria: simplicity, nothing leaves the browser, few dependencies,
+  no homegrown crypto.
+- The `.cadenas` v1 format is frozen: any evolution follows the rules in
+  [CONTRIBUTING.md](CONTRIBUTING.md#modifying-the-cadenas-format).
 
-## Continuité du projet
+## Project continuity
 
-Le projet doit pouvoir continuer, en moins d'une semaine, si le mainteneur
-principal disparaît ou ne peut plus s'en occuper :
+The project must be able to continue, in less than a week, if the main
+maintainer disappears or can no longer take care of it:
 
-- **Dépôt GitHub** : un successeur est désigné dans les paramètres du compte
-  GitHub du mainteneur ([Successor](https://docs.github.com/fr/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-access-to-your-personal-repositories/maintaining-ownership-continuity-of-your-personal-accounts-repositories)).
-  Il peut alors administrer le dépôt : gérer les issues, fusionner des
-  pull requests et publier des versions.
-- **Publication** : les versions sont produites par GitHub Actions à partir
-  d'un tag, sans clé ni jeton personnel (publication de confiance npm,
-  signature sans clé Sigstore). Quiconque administre le dépôt peut donc
-  publier.
-- **Code** : la licence MIT permet à quiconque de reprendre le projet sous
-  forme de fork si nécessaire.
+- **GitHub repository**: a successor is designated in the maintainer's
+  GitHub account settings ([Successor](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-access-to-your-personal-repositories/maintaining-ownership-continuity-of-your-personal-accounts-repositories)).
+  They can then administer the repository: manage issues, merge pull
+  requests, and publish releases.
+- **Publishing**: releases are produced by GitHub Actions from a tag,
+  with no key or personal token (npm trusted publishing, keyless Sigstore
+  signing). Anyone who administers the repository can therefore publish.
+- **Code**: the MIT license allows anyone to take over the project as a
+  fork if necessary.
 
-## Modifier ce document
+## Modifying this document
 
-Toute modification de la gouvernance passe par une pull request visible
-publiquement.
+Any change to the governance goes through a publicly visible pull request.

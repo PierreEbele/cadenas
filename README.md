@@ -162,7 +162,7 @@ When decrypting, the format is detected automatically. cadenas also reads
 “armored” age files (`age -a`). age files encrypted to a public key (rather
 than a password) are not supported.
 
-Full specification of the `.cadenas` format (in French): [docs/FORMAT.md](docs/FORMAT.md).
+Full specification of the `.cadenas` format: [docs/FORMAT.md](docs/FORMAT.md).
 
 ## Security
 
@@ -215,7 +215,7 @@ test/       tests, test vector, reference implementation
 ```
 
 Contributions are welcome, in English or French: see [CONTRIBUTING.md](CONTRIBUTING.md).
-The project's other documents are written in French.
+Every document is available in English and in French (`.fr.md` files).
 
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)

@@ -25,11 +25,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Noms de fichiers : « / » (branche lancée à la main) devient « - ».
       - name: Archive et empreintes
         run: |
           mkdir -p release
           node scripts/site-hashes.js > release/site-files.sha256
-          (cd dist && zip -qrX "../release/cadenas-site-${GITHUB_REF_NAME}.zip" .)
+          (cd dist && zip -qrX "../release/cadenas-site-${GITHUB_REF_NAME////-}.zip" .)
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site
@@ -60,7 +61,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p release
-          node scripts/build-sea.js "release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+          node scripts/build-sea.js "release/cadenas-${GITHUB_REF_NAME////-}-${{ matrix.name }}${{ matrix.ext }}"
       # Windows : signature de code par SignPath, avec le certificat de la
       # SignPath Foundation (docs/CODE_SIGNING.md). Seulement pour un tag, et
       # une fois la variable SIGNPATH_ORGANIZATION_ID définie.
@@ -92,7 +93,7 @@ jobs:
       - name: Test de l'exécutable
         shell: bash
         run: |
-          exe="release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+          exe="release/cadenas-${GITHUB_REF_NAME////-}-${{ matrix.name }}${{ matrix.ext }}"
           test "$("$exe" --version)" = "$(node -p "require('./package.json').version")"
           echo "mot de passe" > pwd.txt
           head -c 300000 /dev/urandom > data.bin

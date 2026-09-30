@@ -11,6 +11,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- Releases : la formule Homebrew est testée et publiée, et une pull request winget est ouverte, automatiquement après chaque release GitHub (jobs `homebrew` et `winget` de `release.yml`). `scripts/packaging.js` accepte `--homebrew` ou `--winget` pour ne générer que l'un des deux.
 - Installation avec Homebrew (macOS, Linux) : `brew install pierreebele/cadenas/cadenas`, depuis le dépôt [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas), testé sur macOS et Linux.
 
 ## [1.5.0] - 2026-09-30

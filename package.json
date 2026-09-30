@@ -50,6 +50,7 @@
     "preview": "vite preview",
     "test": "node --test",
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-include=\"bin/**\" --test-coverage-exclude=\"src/wordlists/**\" --test-coverage-lines=80",
+    "test:e2e": "playwright test",
     "lint": "eslint .",
     "prepublishOnly": "npm test"
   },
@@ -64,7 +65,9 @@
     "hash-wasm": "^4.12.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.11.0",
     "fast-check": "^4.10.2",

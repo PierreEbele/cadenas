@@ -15,11 +15,8 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 ### Qualité
 
-- Tests de bout en bout du site dans de vrais navigateurs (Chromium,
-  Firefox, WebKit) : chiffrer puis déchiffrer, fonctionnement hors ligne,
-  politique de sécurité (CSP) effectivement appliquée.
-- Audit d'accessibilité automatisé (axe) dans ces tests, et navigation
-  complète au clavier et au lecteur d'écran.
+- Parcours complet au lecteur d'écran (NVDA, VoiceOver), vérifié à la main :
+  l'audit axe et le parcours au clavier sont déjà testés automatiquement.
 
 ### Fonctionnalités
 

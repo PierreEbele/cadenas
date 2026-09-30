@@ -22,6 +22,12 @@ export default [
     },
   },
   {
+    // Tests de bout en bout : les fonctions passées à page.evaluate() tournent
+    // dans le navigateur.
+    files: ['e2e/**/*.js'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
     // Constantes injectées au build (exécutables autonomes, service worker).
     files: ['bin/cadenas.js'],
     languageOptions: { globals: { __CADENAS_VERSION__: 'readonly' } },

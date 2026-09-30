@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-01
+
+Security hardening after two external reviews (Argon2id cost limits, key
+wiping, safer password input and temporary files, anti-framing), Homebrew
+and winget published at each release, and passphrases separated by hyphens.
+The Argon2id limits of the `.cadenas` format are lowered: files written by
+cadenas are not affected.
+
 ### Added
 
 - Windows executable: file properties of cadenas (product name, version, publisher) instead of those of Node.js, and code signing through SignPath ready in the release workflow, enabled once the project is accepted by the SignPath Foundation ([docs/CODE_SIGNING.md](docs/CODE_SIGNING.md)).
@@ -285,7 +293,8 @@ In summary:
 
 - Project initialization: `package.json`, MIT license, README, `.editorconfig`, `.gitignore`.
 
-[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0

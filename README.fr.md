@@ -110,9 +110,11 @@ vérifier qu'un exécutable a bien été construit par ce dépôt :
 ```bash
 cadenas lock rapport.pdf              # → rapport.pdf.cadenas
 cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
+cadenas verify rapport.pdf.cadenas    # vérifie le fichier et le mot de passe, sans rien écrire
 cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
 cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
+cadenas lock --hide-name rapport.pdf  # → cadenas-AAAA-MM-JJ.zip.cadenas (nom gardé à l'intérieur)
 cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 

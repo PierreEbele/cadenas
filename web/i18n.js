@@ -31,6 +31,8 @@ export const MESSAGES = {
     'format.label': 'Format',
     'format.recommended': 'Recommandé',
     'format.compatible': 'Compatible age',
+    'hideName.label': 'Masquer le nom du fichier',
+    'hideName.hint': 'Le nom d’origine est rangé à l’intérieur du fichier chiffré, qui reçoit un nom neutre.',
     hint:
       'Astuce : une phrase de 4 ou 5 mots est facile à retenir et très solide. Un mot de passe oublié ne peut pas être récupéré.',
     'action.encrypt': 'Chiffrer',
@@ -113,6 +115,8 @@ export const MESSAGES = {
     'format.label': 'Format',
     'format.recommended': 'Recommended',
     'format.compatible': 'age compatible',
+    'hideName.label': 'Hide the file name',
+    'hideName.hint': 'The original name is stored inside the encrypted file, which gets a neutral name.',
     hint: 'Tip: a phrase of 4 or 5 words is easy to remember and very strong. A forgotten password cannot be recovered.',
     'action.encrypt': 'Encrypt',
     'action.decrypt': 'Decrypt',

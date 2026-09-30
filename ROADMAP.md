@@ -10,8 +10,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 - Faire relire le format `.cadenas` et son implémentation par des
   spécialistes indépendants, et publier le rapport.
-- Vérifier dans la CI que le build du site est reproductible (deux builds
-  successifs doivent donner des fichiers identiques au bit près).
 
 ### Qualité
 
@@ -20,13 +18,8 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 ### Fonctionnalités
 
-- Option « masquer le nom du fichier » : le fichier est placé dans une
-  archive avant chiffrement et le résultat reçoit un nom neutre, sans
-  changer le format.
 - Fichiers volumineux sur Firefox et Safari : téléchargement en flux via le
   service worker, sans limite de mémoire.
-- Commande `cadenas verify` : vérifier qu'un fichier est intact et que le
-  mot de passe est bon, sans rien écrire.
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants (Homebrew, winget).

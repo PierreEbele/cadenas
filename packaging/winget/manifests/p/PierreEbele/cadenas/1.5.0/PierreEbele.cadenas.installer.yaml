@@ -2,13 +2,13 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
 
 PackageIdentifier: PierreEbele.cadenas
-PackageVersion: 1.4.1
+PackageVersion: 1.5.0
 InstallerType: portable
 Commands:
   - cadenas
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/PierreEbele/cadenas/releases/download/v1.4.1/cadenas-v1.4.1-windows-x64.exe
-    InstallerSha256: 7F41198653B2F24B9ADF2C3C5A6A98EBC12212F8480B12042AC388BB4D8D44E3
+    InstallerUrl: https://github.com/PierreEbele/cadenas/releases/download/v1.5.0/cadenas-v1.5.0-windows-x64.exe
+    InstallerSha256: A46132F71C62631DD1F18EE6D95065B5A64D65D350019A526675FE0A6905F904
 ManifestType: installer
 ManifestVersion: 1.9.0

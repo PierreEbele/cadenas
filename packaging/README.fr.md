@@ -7,7 +7,7 @@ d'une version **déjà publiée** : empreintes lues dans le `SHA256SUMS` de la
 release GitHub et dans le paquet npm.
 
 ```bash
-node scripts/packaging.js 1.4.1
+node scripts/packaging.js 1.5.0
 ```
 
 ## Homebrew (macOS, Linux)
@@ -44,9 +44,9 @@ pull request depuis un fork, ou avec
 [wingetcreate](https://github.com/microsoft/winget-create) :
 
 ```powershell
-winget validate --manifest packaging\winget\manifests\p\PierreEbele\cadenas\1.4.1
-winget install --manifest packaging\winget\manifests\p\PierreEbele\cadenas\1.4.1
-wingetcreate submit packaging\winget\manifests\p\PierreEbele\cadenas\1.4.1
+winget validate --manifest packaging\winget\manifests\p\PierreEbele\cadenas\1.5.0
+winget install --manifest packaging\winget\manifests\p\PierreEbele\cadenas\1.5.0
+wingetcreate submit packaging\winget\manifests\p\PierreEbele\cadenas\1.5.0
 ```
 
 Installation pour les utilisateurs, une fois la PR acceptée :

@@ -142,6 +142,31 @@ describe('plusieurs fichiers et dossiers', () => {
     ]);
   });
 
+  test('--hide-name : fichier seul ou dossier dans une archive au nom neutre', () => {
+    mkdirSync(file('cache'), { recursive: true });
+    writeFileSync(file('cache/bilan-confidentiel.pdf'), 'secret');
+    const neutral = `cadenas-${today()}.zip.cadenas`;
+
+    const locked = cadenas(['lock', '--hide-name', '--password-stdin', 'cache/bilan-confidentiel.pdf'], 'pwd');
+    assert.equal(locked.code, 0, locked.stderr);
+    assert.deepEqual(readdirSync(file('cache')).sort(), ['bilan-confidentiel.pdf', neutral]);
+
+    const unlocked = cadenas(['unlock', '--password-stdin', `cache/${neutral}`], 'pwd');
+    assert.equal(unlocked.code, 0, unlocked.stderr);
+    const files = unzipSync(readFileSync(file(`cache/cadenas-${today()}.zip`)));
+    assert.deepEqual(Object.keys(files), ['bilan-confidentiel.pdf']);
+
+    rmSync(file(`cache/${neutral}`));
+    rmSync(file(neutral), { force: true }); // laissé par un test précédent
+    assert.equal(cadenas(['lock', '--hide-name', '--password-stdin', 'cache'], 'pwd').code, 0);
+    assert.ok(existsSync(file(neutral)));
+  });
+
+  test('--hide-name refusé hors de lock ou avec l’entrée standard', () => {
+    assert.equal(cadenas(['unlock', '--hide-name', 'a.cadenas']).code, 2);
+    assert.equal(cadenas(['lock', '--hide-name', '-', '--password-file', 'x']).code, 2);
+  });
+
   test('dossier vide refusé', () => {
     mkdirSync(file('rien'), { recursive: true });
     const result = cadenas(['lock', '--password-stdin', 'rien'], 'pwd');

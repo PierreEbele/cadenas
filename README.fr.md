@@ -111,6 +111,7 @@ cadenas unlock rapport.pdf.cadenas    # → rapport.pdf
 cadenas lock photos/                  # → photos.zip.cadenas (tout le dossier)
 cadenas lock a.pdf b.pdf              # → cadenas-AAAA-MM-JJ.zip.cadenas
 cadenas lock --age rapport.pdf        # → rapport.pdf.age, lisible par age / rage
+cadenas lock --hide-name rapport.pdf  # → cadenas-AAAA-MM-JJ.zip.cadenas (nom gardé à l'intérieur)
 cadenas passphrase                    # → phrase de passe aléatoire de 5 mots
 ```
 

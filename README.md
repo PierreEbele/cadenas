@@ -112,6 +112,7 @@ cadenas unlock report.pdf.cadenas     # → report.pdf
 cadenas lock photos/                  # → photos.zip.cadenas (the whole folder)
 cadenas lock a.pdf b.pdf              # → cadenas-YYYY-MM-DD.zip.cadenas
 cadenas lock --age report.pdf         # → report.pdf.age, readable by age / rage
+cadenas lock --hide-name report.pdf   # → cadenas-YYYY-MM-DD.zip.cadenas (name kept inside)
 cadenas passphrase --lang en          # → random 5-word passphrase
 ```
 

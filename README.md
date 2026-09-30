@@ -226,6 +226,7 @@ Every document is available in English and in French (`.fr.md` files).
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 - Governance: [GOVERNANCE.md](GOVERNANCE.md)
+- Code signing policy: [docs/CODE_SIGNING.md](docs/CODE_SIGNING.md)
 - Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 - Release history: [CHANGELOG.md](CHANGELOG.md)
 

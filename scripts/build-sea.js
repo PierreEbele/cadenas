@@ -10,6 +10,7 @@ import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'no
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { build } from 'esbuild';
+import * as ResEdit from 'resedit';
 
 const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const out = join(root, 'build');
@@ -53,6 +54,7 @@ run(process.execPath, ['--experimental-sea-config', join(out, 'sea-config.json')
 // 3. Copie de node + injection du blob.
 copyFileSync(process.execPath, target);
 if (isMac) run('codesign', ['--remove-signature', target]);
+if (isWindows) setWindowsVersionInfo(target);
 const postject = createRequire(import.meta.url).resolve('postject/dist/cli.js');
 run(process.execPath, [
   postject,
@@ -67,3 +69,37 @@ run(process.execPath, [
 if (isMac) run('codesign', ['--sign', '-', target]);
 
 console.log(`Exécutable prêt : ${target}`);
+
+/**
+ * Windows : les propriétés du fichier (nom du produit, version, éditeur)
+ * sont celles de cadenas, plus celles de Node.js. Exigé pour la signature
+ * de code, et affiché par l'Explorateur et SmartScreen. La signature de
+ * Node.js, que la modification rendrait invalide, est retirée.
+ */
+function setWindowsVersionInfo(file) {
+  const exe = ResEdit.NtExecutable.from(readFileSync(file), { ignoreCert: true });
+  const res = ResEdit.NtExecutableResource.from(exe);
+  const [info] = ResEdit.Resource.VersionInfo.fromEntries(res.entries);
+  const [major, minor, patch] = version.split('.').map(Number);
+  info.setFileVersion(major, minor, patch, 0);
+  info.setProductVersion(major, minor, patch, 0);
+  for (const { lang, codepage } of info.getAllLanguagesForStringValues()) {
+    info.removeAllStringValues({ lang, codepage });
+  }
+  info.setStringValues(
+    { lang: 1033, codepage: 1200 },
+    {
+      CompanyName: 'Pierre Ebele',
+      FileDescription: 'cadenas — encrypt a file with a password',
+      FileVersion: version,
+      InternalName: 'cadenas',
+      LegalCopyright: 'MIT License — https://github.com/PierreEbele/cadenas',
+      OriginalFilename: 'cadenas.exe',
+      ProductName: 'cadenas',
+      ProductVersion: version,
+    },
+  );
+  info.outputToResourceEntries(res.entries);
+  res.outputResource(exe);
+  writeFileSync(file, Buffer.from(exe.generate()));
+}

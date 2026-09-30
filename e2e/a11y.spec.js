@@ -9,6 +9,9 @@ async function audit(page) {
 }
 
 test.beforeEach(async ({ page }) => {
+  // Sans animations : l'audit des contrastes porte sur l'état final, jamais
+  // sur une couleur de fond en pleine transition.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('./');
 });
 
@@ -28,7 +31,7 @@ test('accessibilité : chaque étape passe l’audit axe', async ({ page }) => {
 });
 
 test('accessibilité : mode sombre', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await chooseFiles(page, [{ name: 'a.txt', content: 'a' }]);
   expect(await audit(page)).toEqual([]);
 });

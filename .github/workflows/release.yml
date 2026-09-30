@@ -25,11 +25,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Noms de fichiers : « / » (branche lancée à la main) devient « - ».
       - name: Archive et empreintes
         run: |
           mkdir -p release
           node scripts/site-hashes.js > release/site-files.sha256
-          (cd dist && zip -qrX "../release/cadenas-site-${GITHUB_REF_NAME}.zip" .)
+          (cd dist && zip -qrX "../release/cadenas-site-${GITHUB_REF_NAME////-}.zip" .)
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site
@@ -38,6 +39,9 @@ jobs:
   binaries:
     name: Exécutable ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      actions: read # SignPath lit l'artefact à signer
     strategy:
       fail-fast: true
       matrix:
@@ -57,11 +61,39 @@ jobs:
         shell: bash
         run: |
           mkdir -p release
-          node scripts/build-sea.js "release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+          node scripts/build-sea.js "release/cadenas-${GITHUB_REF_NAME////-}-${{ matrix.name }}${{ matrix.ext }}"
+      # Windows : signature de code par SignPath, avec le certificat de la
+      # SignPath Foundation (docs/CODE_SIGNING.md). Seulement pour un tag, et
+      # une fois la variable SIGNPATH_ORGANIZATION_ID définie.
+      - id: unsigned
+        if: matrix.name == 'windows-x64' && startsWith(github.ref, 'refs/tags/v') && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unsigned-windows-x64
+          path: release/*.exe
+          retention-days: 1
+      - if: steps.unsigned.outcome == 'success'
+        uses: signpath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2
+        with:
+          connector-url: https://githubactions.connectors.signpath.io
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: cadenas
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: release
+      - name: Signature Authenticode valide
+        if: steps.unsigned.outcome == 'success'
+        shell: pwsh
+        run: |
+          $signature = Get-AuthenticodeSignature (Get-Item release/*.exe)
+          $signature | Format-List Status, SignerCertificate
+          if ($signature.Status -ne 'Valid') { throw "Signature invalide : $($signature.Status)" }
       - name: Test de l'exécutable
         shell: bash
         run: |
-          exe="release/cadenas-${GITHUB_REF_NAME}-${{ matrix.name }}${{ matrix.ext }}"
+          exe="release/cadenas-${GITHUB_REF_NAME////-}-${{ matrix.name }}${{ matrix.ext }}"
           test "$("$exe" --version)" = "$(node -p "require('./package.json').version")"
           echo "mot de passe" > pwd.txt
           head -c 300000 /dev/urandom > data.bin

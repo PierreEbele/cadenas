@@ -227,6 +227,7 @@ français (fichiers `.fr.md`).
 - Architecture : [docs/ARCHITECTURE.fr.md](docs/ARCHITECTURE.fr.md)
 - Feuille de route : [ROADMAP.fr.md](ROADMAP.fr.md)
 - Gouvernance : [GOVERNANCE.fr.md](GOVERNANCE.fr.md)
+- Politique de signature de code : [docs/CODE_SIGNING.fr.md](docs/CODE_SIGNING.fr.md)
 - Code de conduite : [CODE_OF_CONDUCT.fr.md](CODE_OF_CONDUCT.fr.md)
 - Historique des versions : [CHANGELOG.fr.md](CHANGELOG.fr.md)
 

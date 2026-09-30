@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Windows executable: file properties of cadenas (product name, version, publisher) instead of those of Node.js, and code signing through SignPath ready in the release workflow, enabled once the project is accepted by the SignPath Foundation ([docs/CODE_SIGNING.md](docs/CODE_SIGNING.md)).
 - Releases: the Homebrew formula is tested and published, and a winget pull request is opened, automatically after each GitHub release (`homebrew` and `winget` jobs of `release.yml`). `scripts/packaging.js` accepts `--homebrew` or `--winget` to generate only one of them.
 - Installation with Homebrew (macOS, Linux): `brew install pierreebele/cadenas/cadenas`, from the [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas) tap, tested on macOS and Linux.
 

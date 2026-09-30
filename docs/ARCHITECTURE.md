@@ -1,85 +1,87 @@
 # Architecture
 
-cadenas se compose d'un **cœur** commun (`src/`) et de deux interfaces qui
-l'utilisent : le **site** (`web/`) et la **ligne de commande** (`bin/`). Le
-même code chiffre et déchiffre dans le navigateur et dans Node.js.
+**English** · [Français](ARCHITECTURE.fr.md)
+
+cadenas is made of a shared **core** (`src/`) and two interfaces that use
+it: the **website** (`web/`) and the **command line** (`bin/`). The same code
+encrypts and decrypts in the browser and in Node.js.
 
 ```
                 ┌──────────────────────────┐   ┌───────────────────────┐
-  navigateur    │ web/main.js (page)       │   │ bin/cadenas.js (CLI)  │  Node.js
-                │   ↕ postMessage          │   │  fichiers, stdin/out, │
+  browser       │ web/main.js (page)       │   │ bin/cadenas.js (CLI)  │  Node.js
+                │   ↕ postMessage          │   │  files, stdin/out,    │
                 │ web/worker.js (Worker)   │   │  src/prompt.js        │
                 └────────────┬─────────────┘   └───────────┬───────────┘
                              └──────────────┬──────────────┘
-                                   src/core.js (API publique)
+                                   src/core.js (public API)
                ┌──────────────┬─────────────┼──────────────┬──────────────┐
       format-cadenas.js  format-age.js   detect.js     archive.js     names.js
-      (Argon2id, HKDF,   (bibliothèque   (reconnaît    (zip en flux,  (noms des
-       XChaCha20-        age-encryption)  le format)    client-zip)    fichiers)
+      (Argon2id, HKDF,   (age-encryption (recognizes   (streamed zip, (output
+       XChaCha20-         library)        the format)   client-zip)    file names)
        Poly1305)
 ```
 
-## Cœur (`src/`)
+## Core (`src/`)
 
-Tout passe par des flux (`ReadableStream<Uint8Array>`, API Web Streams),
-disponibles à l'identique dans les navigateurs et dans Node.js. Aucun
-fichier n'est chargé entièrement en mémoire.
+Everything goes through streams (`ReadableStream<Uint8Array>`, the Web
+Streams API), available identically in browsers and in Node.js. No file is
+ever loaded entirely into memory.
 
-| Module | Rôle |
+| Module | Role |
 |---|---|
-| `core.js` | API publique : `encrypt()` et `decrypt()` (détection automatique du format), réexporte le reste. |
-| `format-cadenas.js` | Format `.cadenas` v1, spécifié dans [FORMAT.md](FORMAT.md) : Argon2id → HKDF-SHA256 → en-tête authentifié par HMAC-SHA256, contenu en blocs de 64 Kio chiffrés par XChaCha20-Poly1305 (construction STREAM). |
-| `format-age.js` | Adaptateur vers la bibliothèque officielle `age-encryption` (mode mot de passe, scrypt). |
-| `detect.js` | Reconnaît `.cadenas`, `.age` et age « armuré » d'après les premiers octets. |
-| `archive.js` | Réunit plusieurs fichiers ou un dossier en une archive `.zip` produite en flux, avec des chemins nettoyés. |
-| `names.js` | Noms des fichiers produits (`x.pdf` → `x.pdf.cadenas`, et inversement). |
-| `passphrase.js` | Phrases de passe aléatoires (listes Tails et EFF, `crypto.getRandomValues`). |
-| `bytes.js` | Utilitaires de flux (file d'octets, lecture anticipée pour la détection). |
-| `errors.js` | `CadenasError` et ses codes stables (`WRONG_PASSWORD`, `CORRUPTED`…). |
-| `prompt.js` | Saisie du mot de passe au terminal, sans écho (CLI uniquement). |
+| `core.js` | Public API: `encrypt()` and `decrypt()` (automatic format detection), re-exports the rest. |
+| `format-cadenas.js` | The `.cadenas` v1 format, specified in [FORMAT.md](FORMAT.md): Argon2id → HKDF-SHA256 → header authenticated with HMAC-SHA256, content in 64 KiB chunks encrypted with XChaCha20-Poly1305 (STREAM construction). |
+| `format-age.js` | Adapter for the official `age-encryption` library (passphrase mode, scrypt). |
+| `detect.js` | Recognizes `.cadenas`, `.age` and armored age from the first bytes. |
+| `archive.js` | Bundles several files or a folder into a `.zip` archive produced as a stream, with sanitized paths. |
+| `names.js` | Names of the output files (`x.pdf` → `x.pdf.cadenas`, and back). |
+| `passphrase.js` | Random passphrases (Tails and EFF word lists, `crypto.getRandomValues`). |
+| `bytes.js` | Stream helpers (byte queue, read-ahead for format detection). |
+| `errors.js` | `CadenasError` and its stable codes (`WRONG_PASSWORD`, `CORRUPTED`…). |
+| `prompt.js` | Password input in the terminal, without echo (CLI only). |
 
-Dépendances d'exécution : `@noble/ciphers`, `@noble/hashes` (primitives
-auditées), `hash-wasm` (Argon2id en WebAssembly), `age-encryption` et
+Runtime dependencies: `@noble/ciphers`, `@noble/hashes` (audited
+primitives), `hash-wasm` (Argon2id in WebAssembly), `age-encryption` and
 `client-zip`.
 
-## Site (`web/`)
+## Website (`web/`)
 
-- `index.html`, `style.css` et `main.js` gèrent l'interface : choix des
-  fichiers, mot de passe, progression, téléchargement.
-- `worker.js` exécute la dérivation de clé et le chiffrement dans un Web
-  Worker, pour ne jamais figer la page. Au-delà de 256 Mio, il écrit
-  directement sur le disque (File System Access : Chrome, Edge), ou envoie
-  le résultat au service worker bloc par bloc (Firefox, Safari).
-- `files.js` collecte les fichiers d'un glisser-déposer ou d'un sélecteur,
-  dossiers compris.
-- `strength.js` estime la solidité du mot de passe, à titre indicatif.
-- `i18n.js` contient les textes en français et en anglais.
-- `sw-template.js` est le modèle du service worker, qui met le site en cache
-  pour le fonctionnement hors ligne. Sur Firefox et Safari, il sert aussi les
-  gros résultats en téléchargement, au fil du chiffrement : le worker lui
-  envoie un bloc à chaque demande, par un `MessagePort` dédié, si bien que
-  rien n'est accumulé en mémoire. Il ne voit jamais le mot de passe, ne garde
-  rien, et sa propre CSP lui interdit tout accès hors du site.
+- `index.html`, `style.css` and `main.js` handle the interface: choosing
+  files, password, progress, download.
+- `worker.js` runs key derivation and encryption in a Web Worker, so the
+  page never freezes. Above 256 MiB, it writes straight to disk (File System
+  Access: Chrome, Edge), or sends the result to the service worker chunk by
+  chunk (Firefox, Safari).
+- `files.js` collects the files from a drag and drop or a file picker,
+  folders included.
+- `strength.js` estimates password strength, as a guide only.
+- `i18n.js` holds the texts in French and English.
+- `sw-template.js` is the template of the service worker, which caches the
+  site for offline use. On Firefox and Safari, it also serves large results
+  as downloads while they are being encrypted: the worker sends it one chunk
+  per request, over a dedicated `MessagePort`, so nothing piles up in
+  memory. It never sees the password, keeps nothing, and its own CSP forbids
+  any access outside the site.
 
-Le build (`vite.config.js`) produit un site statique dans `dist/`. Il
-injecte la politique de sécurité (CSP, `connect-src 'none'`) dans le HTML,
-et génère `sw.js` avec la liste exacte des fichiers à mettre en cache.
+The build (`vite.config.js`) produces a static site in `dist/`. It injects
+the security policy (CSP, `connect-src 'none'`) into the HTML, and generates
+`sw.js` with the exact list of files to cache.
 
-## Ligne de commande (`bin/cadenas.js`)
+## Command line (`bin/cadenas.js`)
 
-Commandes `lock`, `unlock` et `passphrase`. La CLI lit des fichiers, des
-dossiers ou l'entrée standard, et écrit dans un fichier temporaire renommé
-seulement en cas de succès : une erreur ne laisse jamais de fichier
-partiel. `scripts/build-sea.js` en fait un exécutable autonome (Node.js
+Commands `lock`, `unlock`, `verify` and `passphrase`. The CLI reads files,
+folders or standard input, and writes to a temporary file that is renamed
+only on success: an error never leaves a partial file behind.
+`scripts/build-sea.js` turns it into a standalone executable (Node.js
 Single Executable Application).
 
 ## Distribution
 
-| Canal | Construit par | Contenu |
+| Channel | Built by | Contents |
 |---|---|---|
-| GitHub Pages | `pages.yml`, à chaque push sur `main` | le site statique |
-| npm | `npm.yml`, à chaque tag | `bin/`, `src/`, `docs/FORMAT.md` |
-| `ghcr.io/pierreebele/cadenas` | `docker.yml`, à chaque tag | nginx non root servant le site, avec les en-têtes de sécurité |
-| Releases GitHub | `release.yml`, à chaque tag | archive du site, exécutables autonomes, `SHA256SUMS`, attestations |
+| GitHub Pages | `pages.yml`, on every push to `main` | the static site |
+| npm | `npm.yml`, on every tag | `bin/`, `src/`, `docs/FORMAT.md` |
+| `ghcr.io/pierreebele/cadenas` | `docker.yml`, on every tag | non-root nginx serving the site, with the security headers |
+| GitHub Releases | `release.yml`, on every tag | site archive, standalone executables, `SHA256SUMS`, attestations |
 
-La vérification de ces livrables est décrite dans [SECURITY.md](../SECURITY.md).
+How to verify these deliverables is described in [SECURITY.md](../SECURITY.md).

@@ -1,139 +1,139 @@
-# Format de fichier `.cadenas` — version 1
+# `.cadenas` file format — version 1
 
-Ce document spécifie le format produit par cadenas. Il doit suffire à écrire
-une implémentation compatible sans lire le code source
-(voir [`test/reference.test.js`](../test/reference.test.js) pour un exemple
-d'implémentation minimale).
+**English** · [Français](FORMAT.fr.md)
 
-Le format n'invente aucune primitive cryptographique. Il combine :
+This document specifies the format produced by cadenas. It should be enough to write a
+compatible implementation without reading the source code (see [`test/reference.test.js`](../test/reference.test.js) for a minimal
+example implementation).
 
-| Rôle | Primitive |
+The format invents no cryptographic primitives. It combines:
+
+| Role | Primitive |
 |---|---|
-| Dérivation du mot de passe | Argon2id (RFC 9106) |
-| Séparation des clés | HKDF-SHA256 (RFC 5869) |
-| Authentification de l'en-tête | HMAC-SHA256 (RFC 2104) |
-| Chiffrement authentifié du contenu | XChaCha20-Poly1305 (draft-irtf-cfrg-xchacha) |
+| Password derivation | Argon2id (RFC 9106) |
+| Key separation | HKDF-SHA256 (RFC 5869) |
+| Header authentication | HMAC-SHA256 (RFC 2104) |
+| Authenticated content encryption | XChaCha20-Poly1305 (draft-irtf-cfrg-xchacha) |
 
-La découpe en blocs reprend la construction STREAM
+The block layout follows the STREAM construction
 ([Hoang, Reyhanitabar, Rogaway, Vizár, 2015](https://eprint.iacr.org/2015/189)),
-utilisée aussi par [age](https://age-encryption.org/v1).
+also used by [age](https://age-encryption.org/v1).
 
-> ⚠️ Ce format n'a pas fait l'objet d'un audit de sécurité indépendant.
-> Voir [SECURITY.md](../SECURITY.md).
+> ⚠️ This format has not undergone an independent security audit.
+> See [SECURITY.md](../SECURITY.md).
 
 ## Conventions
 
-- Les entiers sont non signés, en **big-endian**.
-- `‖` désigne la concaténation.
-- Les tailles sont en octets ; « Kio » = 1024 octets.
+- Integers are unsigned and **big-endian**.
+- `‖` denotes concatenation.
+- Sizes are in bytes; "KiB" = 1024 bytes.
 
-## Vue d'ensemble
+## Overview
 
 ```
-fichier = en-tête (82 octets) ‖ bloc₀ ‖ bloc₁ ‖ … ‖ blocₙ
+file = header (82 bytes) ‖ block₀ ‖ block₁ ‖ … ‖ blockₙ
 ```
 
-## En-tête
+## Header
 
-| Offset | Taille | Champ | Valeur |
+| Offset | Size | Field | Value |
 |---:|---:|---|---|
 | 0 | 7 | `magic` | ASCII `CADENAS` (`43 41 44 45 4E 41 53`) |
 | 7 | 1 | `version` | `0x01` |
 | 8 | 1 | `kdf` | `0x01` = Argon2id |
-| 9 | 4 | `m` | mémoire Argon2id, en Kio |
-| 13 | 4 | `t` | nombre de passes Argon2id |
-| 17 | 1 | `p` | parallélisme Argon2id |
-| 18 | 16 | `salt` | aléatoire |
-| 34 | 16 | `nonce_prefix` | aléatoire |
-| 50 | 32 | `header_mac` | HMAC-SHA256(`mac_key`, octets 0 à 49) |
+| 9 | 4 | `m` | Argon2id memory, in KiB |
+| 13 | 4 | `t` | Argon2id number of passes |
+| 17 | 1 | `p` | Argon2id parallelism |
+| 18 | 16 | `salt` | random |
+| 34 | 16 | `nonce_prefix` | random |
+| 50 | 32 | `header_mac` | HMAC-SHA256(`mac_key`, bytes 0 to 49) |
 
-Paramètres par défaut à l'écriture : `m = 65536` (64 Mio), `t = 3`, `p = 1`.
+Default parameters when writing: `m = 65536` (64 MiB), `t = 3`, `p = 1`.
 
-Un lecteur **doit** refuser, avant de lancer Argon2id, un fichier dont les
-paramètres sortent de ces bornes :
+A reader **must** reject, before running Argon2id, a file whose parameters
+fall outside these bounds:
 
-| Paramètre | Min | Max |
+| Parameter | Min | Max |
 |---|---:|---:|
-| `m` | `max(8, 8 × p)` | 1 048 576 (1 Gio) |
+| `m` | `max(8, 8 × p)` | 1,048,576 (1 GiB) |
 | `t` | 1 | 64 |
 | `p` | 1 | 16 |
 
-Un lecteur qui rencontre une `version` inconnue doit s'arrêter avec une erreur
-explicite plutôt que de tenter une lecture.
+A reader that encounters an unknown `version` must stop with an explicit
+error rather than attempt to read the file.
 
-## Dérivation des clés
-
-```
-password_bytes = UTF-8(NFC(mot de passe))
-master   = Argon2id(password_bytes, salt, m, t, p, longueur = 32)   # version 0x13
-mac_key  = HKDF-SHA256(IKM = master, salt = vide, info = "cadenas/v1/header",  L = 32)
-enc_key  = HKDF-SHA256(IKM = master, salt = vide, info = "cadenas/v1/payload", L = 32)
-```
-
-Le mot de passe est normalisé en Unicode NFC afin qu'un même mot de passe
-accentué saisi sur des systèmes différents donne la même clé. Un mot de passe
-vide est interdit.
-
-Le lecteur recalcule `header_mac` et le compare en temps constant. En cas
-d'écart, le mot de passe est faux (ou l'en-tête a été modifié) : aucun bloc ne
-doit être déchiffré.
-
-## Blocs
-
-Le clair est découpé en blocs de **65 536 octets** (64 Kio) ; seul le dernier
-peut être plus court. Chaque bloc chiffré a la forme :
+## Key derivation
 
 ```
-blocᵢ = XChaCha20-Poly1305.Seal(clé = enc_key, nonce = nonceᵢ, aad = en-tête (82 octets), clair = clairᵢ)
-      = chiffré ‖ tag (16 octets)
+password_bytes = UTF-8(NFC(password))
+master   = Argon2id(password_bytes, salt, m, t, p, length = 32)   # version 0x13
+mac_key  = HKDF-SHA256(IKM = master, salt = empty, info = "cadenas/v1/header",  L = 32)
+enc_key  = HKDF-SHA256(IKM = master, salt = empty, info = "cadenas/v1/payload", L = 32)
 ```
 
-Un bloc chiffré complet fait donc 65 552 octets.
+The password is normalized to Unicode NFC so that the same accented password
+entered on different systems yields the same key. An empty password is not
+allowed.
 
-### Nonce (24 octets)
+The reader recomputes `header_mac` and compares it in constant time. On a
+mismatch, the password is wrong (or the header has been modified): no block
+may be decrypted.
 
-```
-nonceᵢ = nonce_prefix (16 octets) ‖ compteur (8 octets)
-compteur = i            pour tous les blocs sauf le dernier
-compteur = i | 2⁶³      pour le dernier bloc
-```
+## Blocks
 
-- Le **compteur** (`i` à partir de 0) empêche de réordonner, dupliquer ou
-  supprimer des blocs intermédiaires.
-- Le **bit de dernier bloc** empêche la troncature : un fichier coupé à une
-  frontière de bloc se termine par un bloc chiffré comme « non final », que le
-  lecteur rejette.
-- L'**en-tête comme AAD** lie chaque bloc à ce fichier précis.
-
-### Règles de découpe
-
-- Un fichier vide produit **un seul** bloc final au clair vide (16 octets).
-- Si la taille du clair est un multiple non nul de 65 536, le dernier bloc
-  plein est le bloc final : il n'y a pas de bloc vide supplémentaire.
-- Un lecteur doit donc rejeter un bloc final vide qui n'est pas le premier
-  bloc, ainsi qu'un corps de moins de 16 octets.
-
-### Tailles
+The plaintext is split into blocks of **65,536 bytes** (64 KiB); only the
+last may be shorter. Each encrypted block has the form:
 
 ```
-taille_chiffrée = 82 + n + 16 × max(1, ⌈n / 65536⌉)
+blockᵢ = XChaCha20-Poly1305.Seal(key = enc_key, nonce = nonceᵢ, aad = header (82 bytes), plaintext = plaintextᵢ)
+       = ciphertext ‖ tag (16 bytes)
 ```
 
-## Détection du format
+A full encrypted block is therefore 65,552 bytes.
 
-Un fichier est un `.cadenas` s'il commence par les 7 octets `CADENAS`.
-Un fichier commençant par `age-encryption.org/v1` est un fichier
-[age](https://age-encryption.org/v1) que cadenas sait aussi lire.
+### Nonce (24 bytes)
 
-## Vecteur de test
+```
+nonceᵢ  = nonce_prefix (16 bytes) ‖ counter (8 bytes)
+counter = i            for every block except the last
+counter = i | 2⁶³      for the last block
+```
 
-[`test/fixtures/vector-v1.json`](../test/fixtures/vector-v1.json) contient un
-fichier produit avec un sel et un préfixe de nonce fixés. Toute implémentation
-doit produire exactement ces octets avec les mêmes entrées, et savoir les
-déchiffrer.
+- The **counter** (`i` starting at 0) prevents intermediate blocks from being
+  reordered, duplicated, or removed.
+- The **last-block bit** prevents truncation: a file cut at a block boundary
+  ends with a block encrypted as "not final", which the reader rejects.
+- The **header as AAD** binds each block to this specific file.
 
-## Évolutions
+### Chunking rules
 
-Toute modification incompatible entraîne une nouvelle valeur de `version`.
-Les paramètres Argon2id, eux, peuvent évoluer librement puisqu'ils sont
-stockés dans chaque fichier.
+- An empty file produces a **single** final block with empty plaintext
+  (16 bytes).
+- If the plaintext size is a nonzero multiple of 65,536, the last full block
+  is the final block: there is no additional empty block.
+- A reader must therefore reject an empty final block that is not the first
+  block, as well as a body shorter than 16 bytes.
+
+### Sizes
+
+```
+encrypted_size = 82 + n + 16 × max(1, ⌈n / 65536⌉)
+```
+
+## Format detection
+
+A file is a `.cadenas` file if it begins with the 7 bytes `CADENAS`.
+A file beginning with `age-encryption.org/v1` is an
+[age](https://age-encryption.org/v1) file, which cadenas can also read.
+
+## Test vector
+
+[`test/fixtures/vector-v1.json`](../test/fixtures/vector-v1.json) contains a
+file produced with a fixed salt and nonce prefix. Any implementation must
+produce exactly these bytes given the same inputs, and must be able to decrypt
+them.
+
+## Evolution
+
+Any incompatible change results in a new `version` value. The Argon2id
+parameters, however, may evolve freely since they are stored in each file.

@@ -1,5 +1,7 @@
 # Security audit scope
 
+**English** · [Français](AUDIT.fr.md)
+
 cadenas has not been audited by independent specialists yet. This document
 is the brief for that audit: what cadenas is, what should be reviewed, and
 the questions we most want answered. It is written for auditors and for the
@@ -19,7 +21,7 @@ dependencies.
 ## Security goals
 
 From [SECURITY.md](../SECURITY.md) and the
-[assurance case](ASSURANCE.md) (both in French):
+[assurance case](ASSURANCE.md):
 
 1. **Confidentiality**: without the password, the content of an encrypted
    file cannot be read.
@@ -76,7 +78,7 @@ The threat model, trust boundaries and known limits are in
 4. **Password handling**: Unicode NFC normalisation, no empty passwords, key
    material zeroed after use where the language allows, no logging.
 5. **Website isolation**: does the CSP (`connect-src 'none'`, no inline
-   script) really prevent the page from sending data? Is the service worker
+   script, frames limited to the site itself) really prevent the page from sending data? Is the service worker
    (which may carry streamed results, never passwords) a new risk?
 6. **Archives**: is zip-slip ruled out in the archives cadenas creates?
 7. **Denial of service**: can a crafted file make cadenas use unbounded

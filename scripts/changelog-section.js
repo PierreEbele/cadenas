@@ -20,5 +20,5 @@ const end = rest.search(/^## \[|^\[[^\]]+\]: /m);
 const body = (end < 0 ? rest : rest.slice(0, end)).trim();
 
 process.stdout.write(
-  `${body}\n\n**Historique complet** : [CHANGELOG.md](https://github.com/PierreEbele/cadenas/blob/v${version}/CHANGELOG.md)\n`,
+  `${body}\n\n**Full changelog**: [CHANGELOG.md](https://github.com/PierreEbele/cadenas/blob/v${version}/CHANGELOG.md)\n`,
 );

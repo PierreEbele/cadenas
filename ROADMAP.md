@@ -1,43 +1,43 @@
-# Feuille de route
+# Roadmap
 
-Ce que cadenas prévoit de faire, et de ne pas faire, d'ici fin 2027. Les
-priorités peuvent changer : les discussions ont lieu dans les
+**English** · [Français](ROADMAP.fr.md)
+
+What cadenas plans to do, and not to do, by the end of 2027. Priorities
+may change: discussions take place in the
 [issues](https://github.com/PierreEbele/cadenas/issues).
 
-## Prévu
+## Planned
 
-### Confiance et sécurité
+### Trust and security
 
-- Faire relire le format `.cadenas` et son implémentation par des
-  spécialistes indépendants, et publier le rapport. Périmètre et questions :
+- Have the `.cadenas` format and its implementation reviewed by
+  independent experts, and publish the report. Scope and questions:
   [docs/AUDIT.md](docs/AUDIT.md).
 
-### Qualité
+### Quality
 
-- Parcours complet au lecteur d'écran (NVDA, VoiceOver), vérifié à la main :
-  l'audit axe et le parcours au clavier sont déjà testés automatiquement.
+- Full screen reader walkthrough (NVDA, VoiceOver), verified by hand:
+  the axe audit and keyboard navigation are already tested
+  automatically.
 
-### Fonctionnalités
+### Features
 
-- Documentation en anglais au-delà du README (guide de contribution,
-  sécurité) et messages de la ligne de commande en anglais.
-- Installation par les gestionnaires de paquets courants : publier la formule
-  Homebrew (dépôt `homebrew-cadenas`) et le manifeste winget, préparés dans
-  [`packaging/`](packaging/README.md).
+- Command-line messages in English.
+- Installation through common package managers: publish the Homebrew
+  formula (`homebrew-cadenas` repository) and the winget manifest,
+  prepared in [`packaging/`](packaging/README.md).
 
-## Pas prévu
+## Not planned
 
-Ces choix découlent des [principes du projet](CONTRIBUTING.md#principes-du-projet) :
+These choices follow from the [project principles](CONTRIBUTING.md#project-principles):
 
-- **Aucun serveur ni compte** : pas de stockage, de partage ni de
-  synchronisation de fichiers en ligne. Le site ne fera jamais de
-  connexion réseau.
-- **Aucune télémétrie**, aucun outil de mesure d'audience.
-- **Pas de chiffrement par clé publique** : pour cela, utilisez
-  [age](https://age-encryption.org) directement. cadenas reste centré sur
-  le mot de passe.
-- **Pas de récupération de mot de passe**, par principe.
-- **Pas de nouvelle primitive cryptographique ni de format maison
-  supplémentaire** : une éventuelle version 2 du format ne ferait
-  qu'assembler des primitives éprouvées, et la lecture de la v1 serait
-  conservée.
+- **No server or account**: no online file storage, sharing, or
+  syncing. The site will never make a network connection.
+- **No telemetry**, no audience measurement tools.
+- **No public-key encryption**: for that, use
+  [age](https://age-encryption.org) directly. cadenas remains focused
+  on passwords.
+- **No password recovery**, as a matter of principle.
+- **No new cryptographic primitive or additional homegrown format**: a
+  possible version 2 of the format would only assemble proven
+  primitives, and reading of v1 files would be preserved.

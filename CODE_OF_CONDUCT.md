@@ -1,34 +1,33 @@
-# Code de conduite
+# Code of Conduct
 
-cadenas adopte le **[Contributor Covenant, version 2.1](https://www.contributor-covenant.org/fr/version/2/1/code_of_conduct/)**
-(traduction française officielle). Il s'applique à tous les espaces du
-projet : issues, pull requests, discussions et tout échange public au nom du
-projet.
+**English** · [Français](CODE_OF_CONDUCT.fr.md)
 
-## En résumé
+cadenas adopts the **[Contributor Covenant, version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/)**.
+It applies to all project spaces: issues, pull requests, discussions, and
+any public exchange on behalf of the project.
 
-Nous nous engageons à faire de la participation à ce projet une expérience
-exempte de harcèlement pour tout le monde, quels que soient l'âge, le corps,
-le handicap visible ou invisible, l'origine ethnique, les caractéristiques
-sexuelles, l'identité ou l'expression de genre, le niveau d'expérience,
-l'éducation, le statut socio-économique, la nationalité, l'apparence, la
-race, la religion ou l'orientation sexuelle.
+## In summary
 
-Sont attendus : la bienveillance, le respect des opinions différentes, les
-critiques constructives, la reconnaissance de ses erreurs.
+We are committed to making participation in this project a harassment-free
+experience for everyone, regardless of age, body size, visible or invisible
+disability, ethnicity, sex characteristics, gender identity and expression,
+level of experience, education, socio-economic status, nationality, personal
+appearance, race, religion, or sexual identity and orientation.
 
-Sont inacceptables : le langage ou les images à caractère sexuel, les
-insultes et attaques personnelles, le harcèlement public ou privé, la
-publication d'informations privées d'autrui sans autorisation, et tout
-comportement raisonnablement considéré comme inapproprié dans un cadre
-professionnel.
+Expected: kindness, respect for differing opinions, constructive criticism,
+and acknowledging one's mistakes.
 
-## Signaler un comportement
+Unacceptable: sexualized language or imagery, insults and personal attacks,
+public or private harassment, publishing others' private information without
+their permission, and any conduct which could reasonably be considered
+inappropriate in a professional setting.
 
-Écrivez au mainteneur principal, Pierre Ebele, à
-**cadenas@pierre.ebele.fr**. Chaque signalement est examiné rapidement et
-équitablement, dans le respect de la vie privée de la personne qui signale.
+## Reporting a behavior
 
-Les mesures possibles (avertissement, exclusion temporaire ou définitive)
-suivent les [lignes directrices d'application](https://www.contributor-covenant.org/fr/version/2/1/code_of_conduct/#lignes-directrices-dapplication)
-du Contributor Covenant.
+Write to the main maintainer, Pierre Ebele, at
+**cadenas@pierre.ebele.fr**. Every report is reviewed promptly and fairly,
+with respect for the privacy of the person making it.
+
+Possible measures (warning, temporary or permanent ban) follow the
+[enforcement guidelines](https://www.contributor-covenant.org/version/2/1/code_of_conduct/#enforcement-guidelines)
+of the Contributor Covenant.

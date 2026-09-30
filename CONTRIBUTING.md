@@ -1,10 +1,12 @@
-# Contribuer à cadenas
+# Contributing to cadenas
 
-Merci de votre intérêt ! Les issues et pull requests sont les bienvenues.
+**English** · [Français](CONTRIBUTING.fr.md)
 
-## Mise en place
+Thank you for your interest! Issues and pull requests are welcome.
 
-Node.js 22 ou plus récent.
+## Setup
+
+Node.js 22 or newer.
 
 ```bash
 git clone https://github.com/PierreEbele/cadenas.git
@@ -14,60 +16,64 @@ npm test
 npm run dev
 ```
 
-## Principes du projet
+## Project principles
 
-- **Simplicité d'abord.** cadenas fait une chose : chiffrer un fichier avec un mot de
-  passe. Toute nouvelle option doit justifier sa place.
-- **Rien ne quitte le navigateur.** Le site ne doit charger aucune ressource externe ni
-  ouvrir de connexion réseau. La CSP (`connect-src 'none'`) le garantit : ne
-  l'assouplissez pas.
-- **Peu de dépendances.** Uniquement des bibliothèques cryptographiques reconnues et
-  auditées. Pas de dépendance pour ce que Node.js ou le navigateur font déjà.
-- **Pas de crypto maison.** On assemble des primitives éprouvées, on n'en invente pas.
+- **Simplicity first.** cadenas does one thing: encrypt a file with a password.
+  Any new option must justify its place.
+- **Nothing leaves the browser.** The site must not load any external resources
+  or open any network connection. The CSP (`connect-src 'none'`) guarantees
+  this: do not loosen it.
+- **Few dependencies.** Only well-known, audited cryptographic libraries. No
+  dependency for what Node.js or the browser already do.
+- **No home-made crypto.** We assemble proven primitives; we don't invent any.
 
-## Style de code
+## Code style
 
-- JavaScript moderne (modules ES), sans étape de compilation ni TypeScript.
-- Règles : la configuration recommandée d'ESLint
-  ([`eslint.config.js`](eslint.config.js)), vérifiée par `npm run lint` et
-  imposée par la CI.
-- Mise en forme : [`.editorconfig`](.editorconfig) (UTF-8, fins de ligne LF,
-  indentation de 2 espaces), guillemets simples, points-virgules, et le
-  style du code existant.
-- Commentaires et messages d'erreur en français ; fonctions publiques
-  documentées en JSDoc.
+- Modern JavaScript (ES modules), with no build step or TypeScript.
+- Rules: ESLint's recommended configuration
+  ([`eslint.config.js`](eslint.config.js)), checked by `npm run lint` and
+  enforced by CI.
+- Formatting: [`.editorconfig`](.editorconfig) (UTF-8, LF line endings,
+  2-space indentation), single quotes, semicolons, and the style of the
+  existing code.
+- Comments and error messages in French; public functions documented with
+  JSDoc.
 
-## Modifier le format `.cadenas`
+## Modifying the `.cadenas` format
 
-Le format v1 est figé : des fichiers existent déjà.
+The v1 format is frozen: files already exist.
 
-- Toute modification incompatible exige une nouvelle `version` de format, la mise à
-  jour de [docs/FORMAT.md](docs/FORMAT.md), un nouveau vecteur de test, et la
-  conservation de la lecture des versions précédentes.
-- Le test `vecteur de test v1` ne doit jamais être modifié pour « passer ».
-- Ouvrez d'abord une issue pour en discuter.
+- Any incompatible change requires a new format `version`, an update to
+  [docs/FORMAT.md](docs/FORMAT.md), a new test vector, and continued support
+  for reading previous versions.
+- The `vecteur de test v1` test (`test/format-cadenas.test.js`) must never be modified just to make it "pass".
+- Open an issue first to discuss it.
 
-## Avant d'ouvrir une pull request
+## Before opening a pull request
 
-- `npm run lint`, `npm test` et `npm run build` passent.
-- La couverture des tests reste au-dessus de 80 % (`npm run test:coverage`).
-- Pour une modification du site : `npm run test:e2e` passe. Ces tests
-  construisent le site et le testent dans Chromium, Firefox et WebKit
-  (chiffrement, hors ligne, CSP, accessibilité avec axe, parcours au
-  clavier) ; la première fois, installez les navigateurs avec
-  `npx playwright install chromium firefox webkit`.
-- Les nouveaux comportements sont testés.
-- Le [CHANGELOG](CHANGELOG.md) est complété dans une section `[Non publié]`.
-- Les messages de commit suivent [Conventional Commits](https://www.conventionalcommits.org/fr/)
-  (`feat:`, `fix:`, `docs:`, `ci:`…), avec un corps qui explique le *pourquoi*.
+- `npm run lint`, `npm test`, and `npm run build` pass.
+- Test coverage stays above 80% (`npm run test:coverage`).
+- For a change to the site: `npm run test:e2e` passes. These tests build the
+  site and test it in Chromium, Firefox, and WebKit (encryption, offline mode,
+  CSP, accessibility with axe, keyboard navigation); the first time, install
+  the browsers with `npx playwright install chromium firefox webkit`.
+- New behaviors are tested.
+- The [CHANGELOG](CHANGELOG.md) is updated in its `[Unreleased]` section, in
+  English; the maintainer updates the French version
+  ([CHANGELOG.fr.md](CHANGELOG.fr.md)) for each release.
+- Documentation exists in English (`*.md`) and French (`*.fr.md`): update
+  both when you can, or say so in the pull request and the maintainer will
+  translate.
+- Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/en/)
+  (`feat:`, `fix:`, `docs:`, `ci:`…), with a body explaining the *why*.
 
-## Publier une version (mainteneurs)
+## Publishing a version (maintainers)
 
-Les tags de version doivent être **signés** : les workflows de publication
-vérifient la signature (`scripts/verify-tag.js`) et refusent de publier une
-version dont le tag n'est pas signé par une clé de signature du mainteneur.
+Version tags must be **signed**: the release workflows verify the signature
+(`scripts/verify-tag.js`) and refuse to publish a version whose tag is not
+signed with a maintainer signing key.
 
-**Une fois, sur votre ordinateur** :
+**Once, on your computer**:
 
 ```bash
 ssh-keygen -t ed25519 -C "cadenas release signing" -f ~/.ssh/cadenas_signing
@@ -76,35 +82,37 @@ git config --global user.signingkey ~/.ssh/cadenas_signing.pub
 git config --global tag.gpgSign true
 ```
 
-Puis ajoutez le contenu de `~/.ssh/cadenas_signing.pub` sur GitHub : Settings →
-SSH and GPG keys → New SSH key, type **Signing Key**. La clé privée ne quitte
-jamais votre ordinateur ; protégez-la par une phrase de passe.
+Then add the contents of `~/.ssh/cadenas_signing.pub` on GitHub: Settings →
+SSH and GPG keys → New SSH key, type **Signing Key**. The private key never
+leaves your computer; protect it with a passphrase.
 
-**À chaque version** :
+**For each version**:
 
-1. Déplacer les entrées `[Non publié]` du CHANGELOG sous le nouveau numéro de version.
-2. `npm version <x.y.z> --no-git-tag-version`, puis commit `chore(release): x.y.z`
-   par une pull request, fusionnée dans main.
-3. Sur main à jour : `npm run release:tag -- "résumé" --push`. Le script refuse
-   de poser le tag hors de main, sur un main pas à jour ou modifié, ou si la
-   version manque au CHANGELOG ; il signe le tag `vx.y.z`, le vérifie avec
-   `scripts/verify-tag.js`, puis l'envoie sur GitHub (sans `--push`, il
-   affiche la commande à lancer).
-4. La CI fait le reste : vérification de la signature du tag et de la version
-   qu'il désigne, paquet npm (avec
-   provenance), image Docker signée, et release GitHub (titre = message du
-   tag, notes = section du CHANGELOG, site archivé avec empreintes et
-   attestation).
+1. Move the `[Unreleased]` entries under the new version number, in
+   `CHANGELOG.md` and `CHANGELOG.fr.md`. The release notes are taken from
+   `CHANGELOG.md`.
+2. `npm version <x.y.z> --no-git-tag-version`, then commit `chore(release): x.y.z`
+   via a pull request, merged into main.
+3. On an up-to-date main: `npm run release:tag -- "summary" --push`. The script
+   refuses to create the tag outside main, on an outdated or modified main, or
+   if the version is missing from the CHANGELOG; it signs the `vx.y.z` tag,
+   verifies it with `scripts/verify-tag.js`, then pushes it to GitHub (without
+   `--push`, it prints the command to run).
+4. CI does the rest: verification of the tag signature and of the version it
+   points to, npm package (with provenance), signed Docker image, and GitHub
+   release (title = tag message, notes = CHANGELOG section, site archived with
+   fingerprints and attestation).
 
-Ne publiez pas sur npm depuis votre poste : le workflow `npm.yml` vérifie que le tag
-correspond à la version de `package.json` et relance les tests avant l'envoi.
+Do not publish to npm from your machine: the `npm.yml` workflow checks that
+the tag matches the version in `package.json` and reruns the tests before
+publishing.
 
-## Gouvernance et code de conduite
+## Governance and code of conduct
 
-Qui décide et comment : [GOVERNANCE.md](GOVERNANCE.md). Toute participation
-suit le [code de conduite](CODE_OF_CONDUCT.md). Architecture du code :
+Who decides and how: [GOVERNANCE.md](GOVERNANCE.md). All participation follows
+the [code of conduct](CODE_OF_CONDUCT.md). Code architecture:
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Signaler une vulnérabilité
+## Reporting a vulnerability
 
-Pas d'issue publique : voir [SECURITY.md](SECURITY.md).
+No public issues: see [SECURITY.md](SECURITY.md).

@@ -103,7 +103,8 @@ leaves your computer; protect it with a passphrase.
 4. CI does the rest: verification of the tag signature and of the version it
    points to, npm package (with provenance), signed Docker image, and GitHub
    release (title = tag message, notes = CHANGELOG section, site archived with
-   fingerprints and attestation).
+   fingerprints and attestation), then the Homebrew formula and a winget pull
+   request ([packaging/README.md](packaging/README.md)).
 
 Do not publish to npm from your machine: the `npm.yml` workflow checks that
 the tag matches the version in `package.json` and reruns the tests before

@@ -105,7 +105,8 @@ jamais votre ordinateur ; protégez-la par une phrase de passe.
    qu'il désigne, paquet npm (avec
    provenance), image Docker signée, et release GitHub (titre = message du
    tag, notes = section du CHANGELOG, site archivé avec empreintes et
-   attestation).
+   attestation), puis la formule Homebrew et une pull request winget
+   ([packaging/README.fr.md](packaging/README.fr.md)).
 
 Ne publiez pas sur npm depuis votre poste : le workflow `npm.yml` vérifie que le tag
 correspond à la version de `package.json` et relance les tests avant l'envoi.

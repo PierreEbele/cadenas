@@ -9,23 +9,35 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.5.0] - 2026-09-30
+
+Masquer le nom des fichiers, vérifier un fichier sans l'écrire déchiffré,
+ouvrir les fichiers chiffrés depuis le système, gros fichiers sur Firefox et
+Safari sans limite de mémoire, et tout en français ou en anglais. Aucun
+changement du format de fichier ni du chiffrement.
+
 ### Ajouté
 
-- CLI : messages en français ou en anglais, selon la langue du système (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, ou les paramètres régionaux sous Windows). `cadenas passphrase` utilise la liste de mots de cette langue, sauf avec `--lang`.
-- Documentation en anglais par défaut, avec une version française de chaque document (`*.fr.md`) et un lien pour changer de langue en haut. Les liens du pied de page du site mènent aux documents dans la langue affichée, et les notes de release sont en anglais.
-- `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
-- Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).
-- Tests de bout en bout du site dans Chromium, Firefox et WebKit (Playwright), imposés par la CI : chiffrer puis déchiffrer, interopérabilité avec la bibliothèque et le format age, archive de plusieurs fichiers, mauvais mot de passe, fonctionnement hors ligne, CSP effectivement appliquée, aucune requête hors du site, audit d'accessibilité axe (WCAG 2.1 AA, thèmes clair et sombre) et parcours complet au clavier. `npm run test:e2e`.
-- Site installé (Chrome, Edge) : cadenas apparaît dans « Ouvrir avec » pour les fichiers `.cadenas` et `.age`, qui s'ouvrent prêts à déchiffrer.
 - Option « Masquer le nom du fichier » (site) et `--hide-name` (CLI) : le fichier est rangé dans une archive `.zip` avant chiffrement, et le résultat reçoit un nom neutre (`cadenas-AAAA-MM-JJ.zip.cadenas`). Le nom d'origine n'est visible qu'après déchiffrement. Aucun changement du format.
 - CLI : commande `cadenas verify <fichier>`, qui vérifie qu'un fichier `.cadenas` ou `.age` est intact et que le mot de passe est bon, sans rien écrire (code de sortie 0 ou 1, pratique pour contrôler des sauvegardes).
+- Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).
+- Site installé (Chrome, Edge) : cadenas apparaît dans « Ouvrir avec » pour les fichiers `.cadenas` et `.age`, qui s'ouvrent prêts à déchiffrer.
+- Documentation en anglais par défaut, avec une version française de chaque document (`*.fr.md`) et un lien pour changer de langue en haut. Les liens du pied de page du site mènent aux documents dans la langue affichée, et les notes de release sont en anglais.
+- `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
+- Tests de bout en bout du site dans Chromium, Firefox et WebKit (Playwright), imposés par la CI : chiffrer puis déchiffrer, interopérabilité avec la bibliothèque et le format age, archive de plusieurs fichiers, mauvais mot de passe, fonctionnement hors ligne, CSP effectivement appliquée, aucune requête hors du site, audit d'accessibilité axe (WCAG 2.1 AA, thèmes clair et sombre) et parcours complet au clavier. `npm run test:e2e`.
 - CI : le site est construit sur Linux, Windows et macOS, avec Node.js 22 et 24, et les six builds doivent être identiques au bit près (build reproductible). `scripts/site-hashes.js` produit la liste des empreintes (`site-files.sha256` des releases) ; `SECURITY.md` explique comment vérifier soi-même que le site publié correspond au code source.
+
+### Modifié
+
+- CLI : messages en français ou en anglais, selon la langue du système (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, ou les paramètres régionaux sous Windows). `cadenas passphrase` utilise la liste de mots de cette langue, sauf avec `--lang`.
+- CLI : les messages sont désormais en anglais, sauf si la langue du système est le français (ils étaient toujours en français). Les scripts qui les lisent devraient s'appuyer sur le code de sortie, inchangé.
+- `cadenas passphrase` : sans `--lang`, la liste de mots suit la langue de l'interface (c'était toujours le français).
 
 ### Sécurité
 
 - Publication : `scripts/verify-tag.js` vérifie aussi que le tag désigne le commit de sa version (`package.json`) ; les workflows release, npm et Docker refusent donc un tag posé sur le mauvais commit, avant toute publication.
 - Nouveau script `npm run release:tag` : pose le tag signé seulement depuis un main propre et à jour, pour une version présente au CHANGELOG, puis le vérifie.
-
+- Site : la politique de sécurité (CSP) autorise les iframes du site lui-même (`frame-src 'self'`), uniquement pour les téléchargements en flux ; celles d'autres sites restent bloquées.
 ## [1.4.1] - 2026-09-30
 
 Durcissement du service worker du site. Aucun changement du format de
@@ -249,7 +261,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...HEAD
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0

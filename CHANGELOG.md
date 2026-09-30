@@ -9,23 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-30
+
+Hide file names, verify a file without decrypting it to disk, open encrypted
+files straight from the system, large files on Firefox and Safari without
+memory limits, and everything in English or French. No change to the file
+format or the encryption.
+
 ### Added
 
-- CLI: messages in English or French, following the system language (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, or the regional settings on Windows). `cadenas passphrase` uses the word list of that language unless `--lang` is given.
-- Documentation in English by default, with a French version of each document (`*.fr.md`) and a language switch at the top. The website footer links to the documents in the displayed language, and release notes are in English.
-- `packaging/`: Homebrew formula (macOS, Linux) and winget manifests (Windows), generated for a released version by `scripts/packaging.js` from the release checksums and the npm package. Publishing procedure in `packaging/README.md`.
-- Website, Firefox and Safari: above 256 MiB, the result is downloaded as encryption proceeds, served by the service worker, instead of being kept entirely in memory. No more memory-related size limit on these browsers (after a first visit to the site).
-- End-to-end tests of the website in Chromium, Firefox and WebKit (Playwright), enforced by CI: encrypt then decrypt, interoperability with the library and the age format, multi-file archive, wrong password, offline operation, CSP actually applied, no requests outside the site, axe accessibility audit (WCAG 2.1 AA, light and dark themes) and full keyboard navigation. `npm run test:e2e`.
-- Installed website (Chrome, Edge): cadenas appears in "Open with" for `.cadenas` and `.age` files, which open ready to decrypt.
 - "Hide file name" option (website) and `--hide-name` (CLI): the file is placed in a `.zip` archive before encryption, and the result is given a neutral name (`cadenas-YYYY-MM-DD.zip.cadenas`). The original name is only visible after decryption. No change to the format.
 - CLI: `cadenas verify <file>` command, which checks that a `.cadenas` or `.age` file is intact and the password is correct, without writing anything (exit code 0 or 1, handy for verifying backups).
+- Website, Firefox and Safari: above 256 MiB, the result is downloaded as encryption proceeds, served by the service worker, instead of being kept entirely in memory. No more memory-related size limit on these browsers (after a first visit to the site).
+- Installed website (Chrome, Edge): cadenas appears in "Open with" for `.cadenas` and `.age` files, which open ready to decrypt.
+- Documentation in English by default, with a French version of each document (`*.fr.md`) and a language switch at the top. The website footer links to the documents in the displayed language, and release notes are in English.
+- `packaging/`: Homebrew formula (macOS, Linux) and winget manifests (Windows), generated for a released version by `scripts/packaging.js` from the release checksums and the npm package. Publishing procedure in `packaging/README.md`.
+- End-to-end tests of the website in Chromium, Firefox and WebKit (Playwright), enforced by CI: encrypt then decrypt, interoperability with the library and the age format, multi-file archive, wrong password, offline operation, CSP actually applied, no requests outside the site, axe accessibility audit (WCAG 2.1 AA, light and dark themes) and full keyboard navigation. `npm run test:e2e`.
 - CI: the website is built on Linux, Windows and macOS, with Node.js 22 and 24, and the six builds must be bit-for-bit identical (reproducible build). `scripts/site-hashes.js` produces the list of hashes (`site-files.sha256` in releases); `SECURITY.md` explains how to verify for yourself that the published site matches the source code.
+
+### Changed
+
+- CLI: messages in English or French, following the system language (`LC_ALL`, `LC_MESSAGES`, `LANG`, `LANGUAGE`, or the regional settings on Windows). `cadenas passphrase` uses the word list of that language unless `--lang` is given.
+- CLI: messages are now in English unless the system language is French (they were always in French). Scripts that read them should rely on the exit code, which is unchanged.
+- `cadenas passphrase`: without `--lang`, the word list follows the interface language (it was always French).
 
 ### Security
 
 - Publishing: `scripts/verify-tag.js` also checks that the tag points to the commit carrying its version (`package.json`); the release, npm and Docker workflows therefore reject a tag placed on the wrong commit, before any publication.
 - New `npm run release:tag` script: creates the signed tag only from a clean, up-to-date main, for a version listed in the CHANGELOG, then verifies it.
-
+- Website: the Content Security Policy now allows frames from the site itself (`frame-src 'self'`), used only for streamed downloads; frames from other sites stay blocked.
 ## [1.4.1] - 2026-09-30
 
 Hardening of the website's service worker. No change to the file format or
@@ -247,7 +259,8 @@ In summary:
 
 - Project initialization: `package.json`, MIT license, README, `.editorconfig`, `.gitignore`.
 
-[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0

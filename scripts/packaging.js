@@ -43,7 +43,12 @@ async function releaseDate() {
     headers: { accept: 'application/vnd.github+json' },
   });
   if (!response.ok) throw new Error(`Release v${version} : ${response.status} ${response.statusText}`);
-  return (await response.json()).published_at.slice(0, 10);
+  // La date entre dans un manifeste : seuls l'année, le mois et le jour en
+  // sont retenus, en nombres.
+  const date = new Date((await response.json()).published_at);
+  if (Number.isNaN(date.getTime())) throw new Error(`Release v${version} : date de publication invalide.`);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
 }
 const sums = new Map(
   (await download(`${releaseUrl}/SHA256SUMS`))

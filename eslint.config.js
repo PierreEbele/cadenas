@@ -5,7 +5,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', 'src/wordlists/'] },
+  { ignores: ['build/', 'dist/', 'src/wordlists/'] },
   js.configs.recommended,
   {
     languageOptions: {

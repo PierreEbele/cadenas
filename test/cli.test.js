@@ -195,6 +195,49 @@ describe('entrée et sortie standard', () => {
   });
 });
 
+describe('verify', () => {
+  test('bon mot de passe : code 0, taille déchiffrée, aucun fichier écrit', () => {
+    writeFileSync(file('v.txt'), Buffer.alloc(150_000, 3));
+    cadenas(['lock', '--password-stdin', 'v.txt'], 'pwd');
+    rmSync(file('v.txt'));
+    const before = readdirSync(dir).sort();
+
+    const result = cadenas(['verify', '--password-stdin', 'v.txt.cadenas'], 'pwd');
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stderr, /intact.*format cadenas, 150,0 ko/);
+    assert.deepEqual(readdirSync(dir).sort(), before);
+  });
+
+  test('fichier age et entrée standard', () => {
+    writeFileSync(file('va.txt'), 'age');
+    cadenas(['lock', '--age', '--password-stdin', 'va.txt'], 'pwd');
+    writeFileSync(file('pwd.txt'), 'pwd');
+    const result = cadenasRaw(['verify', '-', '--password-file', 'pwd.txt'], readFileSync(file('va.txt.age')));
+    assert.equal(result.code, 0, result.stderr);
+    assert.match(result.stderr, /format age, 3 octets/);
+  });
+
+  test('mauvais mot de passe ou fichier altéré : code 1', () => {
+    const wrong = cadenas(['verify', '--password-stdin', 'v.txt.cadenas'], 'mauvais');
+    assert.equal(wrong.code, 1);
+    assert.match(wrong.stderr, /Mot de passe incorrect/);
+
+    const sealed = readFileSync(file('v.txt.cadenas'));
+    sealed[sealed.length - 10] ^= 1;
+    writeFileSync(file('v-altere.cadenas'), sealed);
+    const altered = cadenas(['verify', '--password-stdin', 'v-altere.cadenas'], 'pwd');
+    assert.equal(altered.code, 1);
+    assert.match(altered.stderr, /endommagé|modifié/);
+  });
+
+  test('options qui écrivent un fichier refusées : code 2', () => {
+    assert.equal(cadenas(['verify', '-o', 'x.txt', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', '-f', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', '--age', 'v.txt.cadenas']).code, 2);
+    assert.equal(cadenas(['verify', 'a.cadenas', 'b.cadenas']).code, 2);
+  });
+});
+
 describe('passphrase', () => {
   test('5 mots français par défaut, sur stdout', () => {
     const result = cadenas(['passphrase']);

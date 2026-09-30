@@ -52,6 +52,7 @@
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-include=\"bin/**\" --test-coverage-exclude=\"src/wordlists/**\" --test-coverage-lines=80",
     "test:e2e": "playwright test",
     "lint": "eslint .",
+    "release:tag": "node scripts/tag-release.js",
     "prepublishOnly": "npm test"
   },
   "publishConfig": {

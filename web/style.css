@@ -473,6 +473,37 @@ input[aria-invalid='true'] {
   outline-offset: 2px;
 }
 
+/* Case à cocher (sélecteur plus précis que « .field > label ») */
+.field > .check {
+  display: flex;
+  margin-bottom: 0;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 0.925rem;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.check input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.check-hint {
+  margin: 0.3rem 0 0 1.75rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-wrap: pretty;
+}
+
 .hint {
   margin: 1rem 0 0;
   color: var(--text-muted);

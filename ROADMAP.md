@@ -10,28 +10,14 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 - Faire relire le format `.cadenas` et son implémentation par des
   spécialistes indépendants, et publier le rapport.
-- Vérifier dans la CI que le build du site est reproductible (deux builds
-  successifs doivent donner des fichiers identiques au bit près).
 
 ### Qualité
 
-- Tests de bout en bout du site dans de vrais navigateurs (Chromium,
-  Firefox, WebKit) : chiffrer puis déchiffrer, fonctionnement hors ligne,
-  politique de sécurité (CSP) effectivement appliquée.
-- Audit d'accessibilité automatisé (axe) dans ces tests, et navigation
-  complète au clavier et au lecteur d'écran.
+- Parcours complet au lecteur d'écran (NVDA, VoiceOver), vérifié à la main :
+  l'audit axe et le parcours au clavier sont déjà testés automatiquement.
 
 ### Fonctionnalités
 
-- Option « masquer le nom du fichier » : le fichier est placé dans une
-  archive avant chiffrement et le résultat reçoit un nom neutre, sans
-  changer le format.
-- Fichiers volumineux sur Firefox et Safari : téléchargement en flux via le
-  service worker, sans limite de mémoire.
-- Ouverture directe des fichiers `.cadenas` et `.age` depuis le système
-  quand le site est installé (gestion des fichiers des applications web).
-- Commande `cadenas verify` : vérifier qu'un fichier est intact et que le
-  mot de passe est bon, sans rien écrire.
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants : publier la formule

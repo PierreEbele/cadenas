@@ -6,9 +6,11 @@
  *   { mode: 'encrypt' | 'decrypt', password, format,
  *     files: [{ file, path }],   // un seul fichier, ou plusieurs à archiver
  *     archive: boolean,          // regrouper les fichiers dans un .zip avant chiffrement
- *     handle? }                  // FileSystemFileHandle : écrire directement sur le disque
+ *     handle?,                   // FileSystemFileHandle : écrire directement sur le disque
+ *     port? }                    // MessagePort vers le service worker : téléchargement en flux
  * Messages émis :
  *   { type: 'phase', phase: 'key' | 'process' }
+ *   { type: 'stream' }           // le flux est prêt : la page lance le téléchargement
  *   { type: 'progress', done, total }
  *   { type: 'done', blob | saved: true, size, format }
  *   { type: 'error', code }
@@ -30,6 +32,15 @@ self.onmessage = async ({ data: job }) => {
     }
 
     self.postMessage({ type: 'phase', phase: 'process' });
+    if (job.port) {
+      // Téléchargement en flux via le service worker : les blocs partent au
+      // rythme où le navigateur les écrit sur le disque.
+      self.postMessage({ type: 'stream' });
+      const written = await pipeToPort(output, job.port);
+      self.postMessage({ type: 'progress', done: size, total: size });
+      self.postMessage({ type: 'done', saved: true, size: written, format });
+      return;
+    }
     if (job.handle) {
       // Écriture directe sur le disque (File System Access) : mémoire constante,
       // quelle que soit la taille. En cas d'erreur, pipeTo annule l'écriture et
@@ -75,6 +86,43 @@ function openInput({ files, archive }) {
     })),
   );
   return { stream: createArchive(entries), size: archiveSize(entries) };
+}
+
+/**
+ * Envoie un flux au service worker, un bloc à chaque demande (« pull »).
+ * Résout avec le nombre d'octets envoyés ; rejette si le téléchargement est
+ * annulé ou si le flux échoue (le service worker fait alors échouer le
+ * téléchargement, et aucun fichier incomplet n'est présenté comme valide).
+ */
+function pipeToPort(stream, port) {
+  const reader = stream.getReader();
+  let written = 0;
+  return new Promise((resolve, reject) => {
+    port.onmessage = async ({ data }) => {
+      if (data === 'cancel') {
+        reader.cancel().catch(() => {});
+        port.close();
+        return reject(new CadenasError('DOWNLOAD_CANCELLED', 'Téléchargement annulé.'));
+      }
+      if (data !== 'pull') return;
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          port.postMessage({ done: true });
+          port.close();
+          return resolve(written);
+        }
+        written += value.length;
+        // Copie : une vue sur un tampon plus grand l'enverrait en entier.
+        const chunk = value.slice();
+        port.postMessage({ chunk }, [chunk.buffer]);
+      } catch (err) {
+        port.postMessage({ error: true });
+        port.close();
+        reject(err);
+      }
+    };
+  });
 }
 
 /** Relaie un flux en signalant régulièrement le nombre d'octets lus. */

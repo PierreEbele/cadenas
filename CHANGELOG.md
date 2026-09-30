@@ -10,6 +10,17 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 ### Ajouté
 
 - `packaging/` : formule Homebrew (macOS, Linux) et manifestes winget (Windows), générés pour une version publiée par `scripts/packaging.js` à partir des empreintes de la release et du paquet npm. Procédure de publication dans `packaging/README.md`.
+- Site, Firefox et Safari : au-delà de 256 Mio, le résultat est téléchargé au fil du chiffrement, servi par le service worker, au lieu d'être gardé entier en mémoire. Plus de limite de taille liée à la mémoire sur ces navigateurs (une fois le site visité une première fois).
+- Tests de bout en bout du site dans Chromium, Firefox et WebKit (Playwright), imposés par la CI : chiffrer puis déchiffrer, interopérabilité avec la bibliothèque et le format age, archive de plusieurs fichiers, mauvais mot de passe, fonctionnement hors ligne, CSP effectivement appliquée, aucune requête hors du site, audit d'accessibilité axe (WCAG 2.1 AA, thèmes clair et sombre) et parcours complet au clavier. `npm run test:e2e`.
+- Site installé (Chrome, Edge) : cadenas apparaît dans « Ouvrir avec » pour les fichiers `.cadenas` et `.age`, qui s'ouvrent prêts à déchiffrer.
+- Option « Masquer le nom du fichier » (site) et `--hide-name` (CLI) : le fichier est rangé dans une archive `.zip` avant chiffrement, et le résultat reçoit un nom neutre (`cadenas-AAAA-MM-JJ.zip.cadenas`). Le nom d'origine n'est visible qu'après déchiffrement. Aucun changement du format.
+- CLI : commande `cadenas verify <fichier>`, qui vérifie qu'un fichier `.cadenas` ou `.age` est intact et que le mot de passe est bon, sans rien écrire (code de sortie 0 ou 1, pratique pour contrôler des sauvegardes).
+- CI : le site est construit sur Linux, Windows et macOS, avec Node.js 22 et 24, et les six builds doivent être identiques au bit près (build reproductible). `scripts/site-hashes.js` produit la liste des empreintes (`site-files.sha256` des releases) ; `SECURITY.md` explique comment vérifier soi-même que le site publié correspond au code source.
+
+### Sécurité
+
+- Publication : `scripts/verify-tag.js` vérifie aussi que le tag désigne le commit de sa version (`package.json`) ; les workflows release, npm et Docker refusent donc un tag posé sur le mauvais commit, avant toute publication.
+- Nouveau script `npm run release:tag` : pose le tag signé seulement depuis un main propre et à jour, pour une version présente au CHANGELOG, puis le vérifie.
 
 ## [1.4.1] - 2026-09-30
 

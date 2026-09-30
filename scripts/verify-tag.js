@@ -5,10 +5,14 @@
  *
  * Usage : node scripts/verify-tag.js v1.4.0
  *
+ * Vérifie aussi que le tag pointe sur un commit dont package.json porte la
+ * même version : un tag posé sur le mauvais commit est refusé.
+ *
  * Les workflows de publication (release, npm, Docker) l'exécutent avant de
- * publier quoi que ce soit : une version dont le tag n'est pas signé n'est
- * jamais publiée. CADENAS_ALLOWED_SIGNERS peut désigner un fichier
- * allowed_signers déjà prêt (vérification hors ligne).
+ * publier quoi que ce soit : une version dont le tag n'est pas signé, ou pas
+ * posé sur le commit de cette version, n'est jamais publiée.
+ * CADENAS_ALLOWED_SIGNERS peut désigner un fichier allowed_signers déjà prêt
+ * (vérification hors ligne).
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -21,6 +25,10 @@ const tag = process.argv[2];
 if (!tag) {
   console.error('Usage : node scripts/verify-tag.js <tag>');
   process.exit(2);
+}
+if (!/^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(tag)) {
+  console.error(`✘ ${tag} n'est pas un tag de version (vX.Y.Z).`);
+  process.exit(1);
 }
 
 // Clé publique SSH : type connu, puis données en base64. Tout le reste
@@ -43,6 +51,25 @@ async function signingKeys() {
   return keys;
 }
 
+// Version lue dans le package.json du commit tagué, pas dans la copie de
+// travail : le résultat ne dépend pas de ce qui est extrait sur le disque.
+function taggedVersion() {
+  const json = execFileSync('git', ['show', `${tag}^{commit}:package.json`], { encoding: 'utf8' });
+  return JSON.parse(json).version;
+}
+
+let version;
+try {
+  version = taggedVersion();
+} catch {
+  console.error(`✘ Impossible de lire package.json au commit du tag ${tag}.`);
+  process.exit(1);
+}
+if (tag !== `v${version}`) {
+  console.error(`✘ ${tag} est posé sur un commit dont package.json est en version ${version}.`);
+  process.exit(1);
+}
+
 let signersFile = process.env.CADENAS_ALLOWED_SIGNERS;
 let tempDir;
 if (!signersFile) {
@@ -61,7 +88,7 @@ try {
   execFileSync('git', ['-c', `gpg.ssh.allowedSignersFile=${signersFile}`, 'verify-tag', '--', tag], {
     stdio: 'inherit',
   });
-  console.log(`✔ ${tag} est signé par une clé de signature de ${MAINTAINER}.`);
+  console.log(`✔ ${tag} est signé par une clé de signature de ${MAINTAINER}, sur le commit de la version ${version}.`);
 } catch {
   console.error(`✘ ${tag} n'est pas signé par une clé de signature de ${MAINTAINER}.`);
   process.exitCode = 1;

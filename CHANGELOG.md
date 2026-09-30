@@ -7,6 +7,15 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.4.1] - 2026-09-30
+
+Durcissement du service worker du site. Aucun changement du format de
+fichier ni du chiffrement.
+
+### Sécurité
+
+- Site : le service worker vérifie l'origine des messages qu'il reçoit avant d'installer une nouvelle version (alerte CodeQL « Missing origin verification in `postMessage` handler »).
+
 ## [1.4.0] - 2026-09-28
 
 README en anglais, projet documenté (badge OpenSSF Best Practices, niveau
@@ -221,7 +230,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...HEAD
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/PierreEbele/cadenas/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PierreEbele/cadenas/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PierreEbele/cadenas/compare/v1.1.0...v1.2.0

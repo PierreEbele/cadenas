@@ -10,8 +10,6 @@ priorités peuvent changer : les discussions ont lieu dans les
 
 - Faire relire le format `.cadenas` et son implémentation par des
   spécialistes indépendants, et publier le rapport.
-- Vérifier dans la CI que le build du site est reproductible (deux builds
-  successifs doivent donner des fichiers identiques au bit près).
 
 ### Qualité
 

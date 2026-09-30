@@ -10,6 +10,12 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 ### Ajouté
 
 - CLI : commande `cadenas verify <fichier>`, qui vérifie qu'un fichier `.cadenas` ou `.age` est intact et que le mot de passe est bon, sans rien écrire (code de sortie 0 ou 1, pratique pour contrôler des sauvegardes).
+- CI : le site est construit sur Linux, Windows et macOS, avec Node.js 22 et 24, et les six builds doivent être identiques au bit près (build reproductible). `scripts/site-hashes.js` produit la liste des empreintes (`site-files.sha256` des releases) ; `SECURITY.md` explique comment vérifier soi-même que le site publié correspond au code source.
+
+### Sécurité
+
+- Publication : `scripts/verify-tag.js` vérifie aussi que le tag désigne le commit de sa version (`package.json`) ; les workflows release, npm et Docker refusent donc un tag posé sur le mauvais commit, avant toute publication.
+- Nouveau script `npm run release:tag` : pose le tag signé seulement depuis un main propre et à jour, pour une version présente au CHANGELOG, puis le vérifie.
 
 ## [1.4.1] - 2026-09-30
 

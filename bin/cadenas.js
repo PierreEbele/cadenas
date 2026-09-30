@@ -3,8 +3,8 @@
  * cadenas — chiffrer un fichier avec un mot de passe, en ligne de commande.
  */
 import { randomBytes } from 'node:crypto';
-import { createReadStream, createWriteStream, readFileSync } from 'node:fs';
-import { lstat, open, readdir, rename, rm, stat } from 'node:fs/promises';
+import { createReadStream, createWriteStream, readFileSync, rmSync } from 'node:fs';
+import { chmod, lstat, open, readdir, rename, rm, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { argv, exit, stderr, stdin, stdout } from 'node:process';
 import { Readable } from 'node:stream';
@@ -128,7 +128,7 @@ async function lock(inputs, options) {
   const progress = new Progress(t('progress.encrypt'), source.size);
   progress.phase(t('progress.key'));
   const encrypted = await encrypt(progress.count(source.stream()), password, { format });
-  await writeOutput(encrypted, output);
+  await writeOutput(encrypted, output, { force: options.force });
   progress.done();
   if (output !== STDIO) {
     const path = displayPath(output);
@@ -147,7 +147,7 @@ async function unlock(input, options) {
   const progress = new Progress(t('progress.decrypt'), source.size);
   progress.phase(t('progress.key'));
   const { stream } = await decrypt(progress.count(source.stream()), password);
-  await writeOutput(stream, output);
+  await writeOutput(stream, output, { force: options.force });
   progress.done();
   if (output !== STDIO) stderr.write(`${t('done.decrypted', { path: displayPath(output) })}\n`);
 }
@@ -315,15 +315,43 @@ async function ensureWritable(output, force) {
  * fichier partiel. Vers la sortie standard : en flux ; en cas d'erreur, le
  * code de sortie non nul signale que les données sont incomplètes.
  */
-async function writeOutput(webStream, output) {
+async function writeOutput(webStream, output, { force = false } = {}) {
   if (output === STDIO) return pipeline(Readable.fromWeb(webStream), stdout);
   const temp = join(dirname(output), `.${basename(output)}.${randomBytes(4).toString('hex')}.tmp`);
+  // Interruption (Ctrl+C, arrêt) : le fichier temporaire, qui peut contenir
+  // une partie du clair, est supprimé avant de quitter.
+  const onSignal = (signal) => {
+    rmSync(temp, { force: true });
+    if (stderr.isTTY) stderr.write('\r\x1b[K');
+    exit(signal === 'SIGINT' ? 130 : 128 + (signal === 'SIGHUP' ? 1 : 15));
+  };
+  const signals = ['SIGINT', 'SIGTERM', 'SIGHUP'];
+  for (const signal of signals) process.on(signal, onSignal);
   try {
-    await pipeline(Readable.fromWeb(webStream), createWriteStream(temp, { flags: 'wx' }));
-    await rename(temp, output);
+    // 0600 : lisible par son seul propriétaire, comme le fichier final qui
+    // en hérite (sans effet sous Windows).
+    await pipeline(Readable.fromWeb(webStream), createWriteStream(temp, { flags: 'wx', mode: 0o600 }));
+    await replaceFile(temp, output, force);
   } catch (err) {
     await rm(temp, { force: true });
     throw err;
+  } finally {
+    for (const signal of signals) process.off(signal, onSignal);
+  }
+}
+
+/**
+ * Renomme temp en output. Avec -f, un fichier existant en lecture seule
+ * (Windows refuse alors le renommage) est d'abord supprimé.
+ */
+async function replaceFile(temp, output, force) {
+  try {
+    await rename(temp, output);
+  } catch (err) {
+    if (!force || (err.code !== 'EPERM' && err.code !== 'EACCES')) throw err;
+    await chmod(output, 0o600).catch(() => {});
+    await rm(output, { force: true });
+    await rename(temp, output);
   }
 }
 

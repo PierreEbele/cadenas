@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Releases: the Homebrew formula is tested and published, and a winget pull request is opened, automatically after each GitHub release (`homebrew` and `winget` jobs of `release.yml`). `scripts/packaging.js` accepts `--homebrew` or `--winget` to generate only one of them.
 - Installation with Homebrew (macOS, Linux): `brew install pierreebele/cadenas/cadenas`, from the [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas) tap, tested on macOS and Linux.
 
+### Fixed
+
+- Armored age files: only the start of the file is read to recognize a passphrase file, instead of converting the whole file to text (twice the memory, and a crash above 512 MB).
+- CLI: `-f` now also overwrites a read-only output file on Windows.
+- Website: a `.cadenas` or `.age` file whose content is not recognized (damaged) is reported, instead of being encrypted a second time.
+- Building the standalone executables works from a path with spaces or accents.
+
+### Security
+
+- Format: Argon2id parameters are limited to 256 MiB and 16 passes (instead of 1 GiB and 64), in FORMAT.md and in the code. A crafted file can no longer impose more than about twenty times the default cost before its header is authenticated. Files written by cadenas (64 MiB, 3 passes) are not affected; files written with larger parameters through the library are now rejected.
+- Derived keys: the header key is now wiped from memory after use, like the Argon2id output and the content key.
+- CLI: output files are created readable by their owner only (`0600`), and the temporary file, which may hold part of the decrypted content, is deleted on Ctrl+C or when the process is stopped.
+- CLI: escape sequences sent by the arrow, Delete or Home keys are ignored while typing the password; their characters were silently added to it. The terminal is restored even if the program is stopped while the password is typed.
+- Website: the page refuses to run inside a frame of another site. On GitHub Pages, the security policy only comes through `<meta>`, where `frame-ancestors` is ignored.
+- Archives: drive letters (`C:`) are removed from entry paths and `:` is replaced with `_`, which a Windows extractor could interpret as an alternate data stream.
+
 ## [1.5.0] - 2026-09-30
 
 Hide file names, verify a file without decrypting it to disk, open encrypted

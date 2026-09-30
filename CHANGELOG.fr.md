@@ -15,6 +15,22 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Releases : la formule Homebrew est testée et publiée, et une pull request winget est ouverte, automatiquement après chaque release GitHub (jobs `homebrew` et `winget` de `release.yml`). `scripts/packaging.js` accepte `--homebrew` ou `--winget` pour ne générer que l'un des deux.
 - Installation avec Homebrew (macOS, Linux) : `brew install pierreebele/cadenas/cadenas`, depuis le dépôt [PierreEbele/homebrew-cadenas](https://github.com/PierreEbele/homebrew-cadenas), testé sur macOS et Linux.
 
+### Corrigé
+
+- Fichiers age armurés : seul le début du fichier est lu pour reconnaître un fichier à mot de passe, au lieu de convertir tout le fichier en texte (mémoire doublée, et plantage au-delà de 512 Mo).
+- CLI : `-f` écrase désormais aussi un fichier de sortie en lecture seule sous Windows.
+- Site : un fichier `.cadenas` ou `.age` dont le contenu n'est pas reconnu (endommagé) est signalé, au lieu d'être chiffré une seconde fois.
+- La construction des exécutables autonomes fonctionne depuis un chemin avec espaces ou accents.
+
+### Sécurité
+
+- Format : les paramètres Argon2id sont limités à 256 Mio et 16 passes (au lieu de 1 Gio et 64), dans FORMAT.md et dans le code. Un fichier forgé ne peut plus imposer qu'une vingtaine de fois le coût par défaut avant l'authentification de son en-tête. Les fichiers écrits par cadenas (64 Mio, 3 passes) ne sont pas concernés ; ceux écrits avec des paramètres plus élevés par la bibliothèque sont désormais refusés.
+- Clés dérivées : la clé d'en-tête est désormais effacée de la mémoire après usage, comme la sortie d'Argon2id et la clé de contenu.
+- CLI : les fichiers produits sont créés lisibles par leur seul propriétaire (`0600`), et le fichier temporaire, qui peut contenir une partie du clair, est supprimé sur Ctrl+C ou à l'arrêt du processus.
+- CLI : les séquences d'échappement des touches flèches, Suppr ou Début sont ignorées pendant la saisie du mot de passe ; leurs caractères s'y ajoutaient en silence. Le terminal est rétabli même si le programme est arrêté pendant la saisie.
+- Site : la page refuse de fonctionner dans une iframe d'un autre site. Sur GitHub Pages, la politique de sécurité n'arrive que par `<meta>`, où `frame-ancestors` est ignoré.
+- Archives : les lettres de lecteur (`C:`) sont retirées des chemins, et `:` est remplacé par `_`, qu'un extracteur Windows pourrait prendre pour un flux de données alternatif.
+
 ## [1.5.0] - 2026-09-30
 
 Masquer le nom des fichiers, vérifier un fichier sans l'écrire déchiffré,

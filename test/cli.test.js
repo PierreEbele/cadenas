@@ -1,7 +1,7 @@
 import { after, before, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -101,6 +101,40 @@ describe('sécurité des fichiers', () => {
     assert.match(result.stderr, /endommagé|modifié/);
     assert.equal(existsSync(file('e-out.txt')), false);
     assert.equal(readdirSync(dir).some((name) => name.endsWith('.tmp')), false);
+  });
+
+  test('-f écrase aussi un fichier en lecture seule', () => {
+    writeFileSync(file('ro.txt'), 'nouveau');
+    writeFileSync(file('ro.cadenas'), 'ancien');
+    chmodSync(file('ro.cadenas'), 0o444);
+    const result = cadenas(['lock', '-f', '--password-stdin', '-o', 'ro.cadenas', 'ro.txt'], 'pwd');
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(readFileSync(file('ro.cadenas')).subarray(0, 7).toString(), 'CADENAS');
+  });
+
+  test('fichier produit lisible par son seul propriétaire', { skip: process.platform === 'win32' }, () => {
+    writeFileSync(file('perm.txt'), 'secret');
+    cadenas(['lock', '--password-stdin', 'perm.txt'], 'pwd');
+    rmSync(file('perm.txt'));
+    cadenas(['unlock', '--password-stdin', 'perm.txt.cadenas'], 'pwd');
+    assert.equal(statSync(file('perm.txt')).mode & 0o777, 0o600);
+  });
+
+  test('Ctrl+C pendant l’écriture : fichier temporaire supprimé', { skip: process.platform === 'win32' }, async () => {
+    writeFileSync(file('sig-pwd.txt'), 'pwd');
+    const child = spawn(process.execPath, [BIN, 'lock', '-', '--password-file', 'sig-pwd.txt', '-o', 'sig.cadenas'], {
+      cwd: dir,
+      env: FRENCH,
+    });
+    child.stdin.write(Buffer.alloc(200_000, 1)); // données envoyées, entrée laissée ouverte
+    const temp = () => readdirSync(dir).find((name) => name.startsWith('.sig.cadenas.') && name.endsWith('.tmp'));
+    for (let i = 0; i < 200 && !temp(); i++) await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.ok(temp(), 'fichier temporaire créé');
+    const code = new Promise((resolve) => child.on('exit', resolve));
+    child.kill('SIGINT');
+    assert.equal(await code, 130);
+    assert.equal(temp(), undefined);
+    assert.equal(existsSync(file('sig.cadenas')), false);
   });
 
   test('refuse d’écraser sans -f, accepte avec -f', () => {

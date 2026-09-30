@@ -59,18 +59,35 @@ export function promptPassword(question, { stdinIsData = false } = {}) {
     input.setEncoding('utf8');
     input.resume();
 
+    // Le terminal ne doit jamais rester sans écho : mode normal rétabli si le
+    // programme se termine pendant la saisie (erreur, signal).
+    const restore = () => input.setRawMode(false);
+    const onSignal = (signal) => {
+      restore();
+      process.exit(128 + (signal === 'SIGHUP' ? 1 : 15));
+    };
+    process.once('exit', restore);
+    process.once('SIGTERM', onSignal);
+    process.once('SIGHUP', onSignal);
+
     const finish = (error) => {
       input.off('data', onData);
-      input.setRawMode(false);
+      process.off('exit', restore);
+      process.off('SIGTERM', onSignal);
+      process.off('SIGHUP', onSignal);
+      restore();
       input.pause();
       stderr.write('\n');
       if (error) reject(error);
       else resolve(chars.join(''));
     };
 
+    const isKey = escapeFilter();
+
     function onData(data) {
       // Un collage arrive en un seul morceau : on traite caractère par caractère.
       for (const char of data) {
+        if (!isKey(char)) continue;
         switch (char) {
           case '\r':
           case '\n':
@@ -92,6 +109,37 @@ export function promptPassword(question, { stdinIsData = false } = {}) {
 
     input.on('data', onData);
   });
+}
+
+/**
+ * Filtre des séquences d'échappement du terminal (flèches, Suppr, Début…) :
+ * renvoie une fonction qui dit, caractère par caractère, s'il s'agit d'une
+ * vraie touche. Sans ce filtre, les caractères d'une séquence (« [D »,
+ * « [3~ »…) s'ajouteraient en silence au mot de passe, saisi sans écho.
+ * État : 0 hors séquence, 1 après ESC, 2 dans une séquence CSI (ESC [ …
+ * jusqu'à l'octet final), 3 après ESC O (une seule touche suit).
+ */
+export function escapeFilter() {
+  let state = 0;
+  return (char) => {
+    if (state === 1) {
+      state = char === '[' ? 2 : char === 'O' ? 3 : 0;
+      return false;
+    }
+    if (state === 2) {
+      if (char >= '@' && char <= '~') state = 0;
+      return false;
+    }
+    if (state === 3) {
+      state = 0;
+      return false;
+    }
+    if (char === '\u001b') {
+      state = 1;
+      return false;
+    }
+    return true;
+  };
 }
 
 /** Première ligne d'un texte, sans le saut de ligne final. */

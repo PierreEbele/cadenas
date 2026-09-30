@@ -12,13 +12,17 @@ import { makeZip, predictLength } from 'client-zip';
 /**
  * Nettoie un chemin relatif pour l'archive : séparateurs « / », pas de
  * chemin absolu, pas de « . » ni de « .. » (une archive ne doit jamais
- * pouvoir écrire hors du dossier où on l'extrait).
+ * pouvoir écrire hors du dossier où on l'extrait). Pas de lecteur Windows
+ * (« C: ») ni de « : », qu'un extracteur Windows prendrait pour un flux de
+ * données alternatif (NTFS) : remplacé par « _ ».
  */
 export function normalizeEntryPath(path) {
   const parts = String(path)
     .replaceAll('\\', '/')
+    .replace(/^[A-Za-z]:(?=\/|$)/, '')
     .split('/')
-    .filter((part) => part !== '' && part !== '.' && part !== '..');
+    .filter((part) => part !== '' && part !== '.' && part !== '..')
+    .map((part) => part.replaceAll(':', '_'));
   if (parts.length === 0) throw new TypeError(`Chemin invalide dans l'archive : ${path}`);
   return parts.join('/');
 }

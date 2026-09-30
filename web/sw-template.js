@@ -106,6 +106,11 @@ function openDownload({ id, name }, port) {
     new CountQueuingStrategy({ highWaterMark: 0 }),
   );
   downloads.set(id, { name, stream });
+  // Page fermée avant de lancer le téléchargement : oublié au bout de 10
+  // minutes (la dérivation de la clé passe avant, et peut être longue).
+  setTimeout(() => {
+    if (downloads.has(id)) aborts.get(id)?.();
+  }, 10 * 60_000);
   port.postMessage('ready');
 }
 

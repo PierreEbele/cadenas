@@ -7,6 +7,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- CLI : commande `cadenas verify <fichier>`, qui vérifie qu'un fichier `.cadenas` ou `.age` est intact et que le mot de passe est bon, sans rien écrire (code de sortie 0 ou 1, pratique pour contrôler des sauvegardes).
+
 ## [1.4.1] - 2026-09-30
 
 Durcissement du service worker du site. Aucun changement du format de

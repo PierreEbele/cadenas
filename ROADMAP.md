@@ -30,8 +30,6 @@ priorités peuvent changer : les discussions ont lieu dans les
   service worker, sans limite de mémoire.
 - Ouverture directe des fichiers `.cadenas` et `.age` depuis le système
   quand le site est installé (gestion des fichiers des applications web).
-- Commande `cadenas verify` : vérifier qu'un fichier est intact et que le
-  mot de passe est bon, sans rien écrire.
 - Documentation en anglais au-delà du README (guide de contribution,
   sécurité) et messages de la ligne de commande en anglais.
 - Installation par les gestionnaires de paquets courants (Homebrew, winget).

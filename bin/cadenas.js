@@ -45,6 +45,8 @@ Options :
   -o, --output <chemin>     fichier de sortie (« - » : sortie standard)
   -f, --force               écrase le fichier de sortie s'il existe
       --age                 chiffre au format age, lisible par age / rage
+      --hide-name           masque le nom : fichier(s) rangé(s) dans une archive .zip,
+                            résultat nommé cadenas-AAAA-MM-JJ.zip.cadenas
       --password-file <f>   lit le mot de passe dans un fichier (première ligne)
       --password-stdin      lit le mot de passe sur l'entrée standard
   -h, --help                affiche cette aide
@@ -81,6 +83,7 @@ async function main() {
         output: { type: 'string', short: 'o' },
         force: { type: 'boolean', short: 'f', default: false },
         age: { type: 'boolean', default: false },
+        'hide-name': { type: 'boolean', default: false },
         'password-stdin': { type: 'boolean', default: false },
         'password-file': { type: 'string' },
         words: { type: 'string', short: 'w' },
@@ -111,6 +114,10 @@ async function main() {
   }
   if (options['password-stdin'] && inputs.includes(STDIO)) {
     throw new UsageError('L’entrée standard sert déjà aux données : utilisez --password-file.');
+  }
+  if (options['hide-name'] && command !== 'lock') throw new UsageError('--hide-name ne s’utilise qu’avec lock.');
+  if (options['hide-name'] && inputs.includes(STDIO)) {
+    throw new UsageError('--hide-name ne s’utilise pas avec l’entrée standard, qui n’a pas de nom.');
   }
   if (command === 'unlock' || command === 'verify') {
     if (options.age) throw new UsageError('--age ne s’utilise qu’avec lock : le format est détecté automatiquement.');
@@ -145,7 +152,7 @@ async function passphrase(options, extra) {
 
 async function lock(inputs, options) {
   const format = options.age ? 'age' : 'cadenas';
-  const source = await openSource(inputs);
+  const source = await openSource(inputs, { hideName: options['hide-name'] });
   const output = resolveOutput(options.output, () => join(source.dir, encryptedName(source.name, format)), source.fromStdin);
   await ensureWritable(output, options.force);
 
@@ -198,15 +205,16 @@ async function verify(input, options) {
 
 /**
  * Décrit ce qui sera chiffré : l'entrée standard, un fichier, ou une archive
- * .zip de plusieurs fichiers / dossiers.
+ * .zip de plusieurs fichiers / dossiers. Avec hideName, même un fichier seul
+ * est rangé dans une archive au nom neutre, qui garde son nom à l'intérieur.
  */
-async function openSource(inputs) {
+async function openSource(inputs, { hideName = false } = {}) {
   if (inputs[0] === STDIO) {
     return { fromStdin: true, count: 1, size: undefined, stream: () => Readable.toWeb(stdin) };
   }
 
   const infos = await Promise.all(inputs.map(statInput));
-  if (inputs.length === 1 && infos[0].isFile()) {
+  if (inputs.length === 1 && infos[0].isFile() && !hideName) {
     const path = resolve(inputs[0]);
     return {
       dir: dirname(path),
@@ -235,10 +243,11 @@ async function openSource(inputs) {
       open: () => Readable.toWeb(createReadStream(absolute)),
     })),
   );
-  const singleFolder = inputs.length === 1 ? basename(resolve(inputs[0])) : null;
   const first = resolve(inputs[0]);
+  const singleInput = inputs.length === 1;
+  const singleFolder = singleInput && infos[0].isDirectory() && !hideName ? basename(first) : null;
   return {
-    dir: singleFolder ? dirname(first) : resolve('.'),
+    dir: singleInput ? dirname(first) : resolve('.'),
     name: archiveName(singleFolder),
     count: entries.length,
     size: archiveSize(entries),

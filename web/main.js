@@ -36,6 +36,8 @@ const ui = {
   confirmField: $('confirm-field'),
   confirm: $('confirm'),
   formatField: $('format-field'),
+  hideName: $('hide-name'),
+  hideNameField: $('hide-name-field'),
   hint: $('password-hint'),
   largeHint: $('large-hint'),
   submit: $('submit'),
@@ -217,6 +219,7 @@ function renderFile() {
   ui.options.disabled = false;
   ui.confirmField.hidden = !encrypting;
   ui.formatField.hidden = !encrypting;
+  ui.hideNameField.hidden = !encrypting;
   ui.hint.hidden = !encrypting;
   ui.strength.hidden = !encrypting;
   ui.generate.hidden = !encrypting;
@@ -305,7 +308,11 @@ ui.form.addEventListener('submit', async (event) => {
   }
 
   const format = encrypting ? ui.form.elements.format.value : null;
-  const sourceName = state.archive ? archiveName(state.folder) : state.file.name;
+  // Nom masqué : même un fichier seul est rangé dans une archive, qui garde
+  // son nom à l'intérieur ; le résultat reçoit un nom neutre, daté.
+  const hideName = encrypting && ui.hideName.checked;
+  const archive = state.archive || hideName;
+  const sourceName = archive ? archiveName(hideName ? null : state.folder) : state.file.name;
   const outputName = encrypting ? encryptedName(sourceName, format) : decryptedName(sourceName);
 
   // Gros volume : on demande où enregistrer avant de commencer (le dialogue
@@ -320,7 +327,7 @@ ui.form.addEventListener('submit', async (event) => {
     }
   }
 
-  run({ files: state.items, archive: state.archive, password, mode: state.mode, format, handle }, outputName);
+  run({ files: state.items, archive, password, mode: state.mode, format, handle }, outputName);
 });
 
 const totalSize = () => state.items.reduce((sum, item) => sum + item.file.size, 0);

@@ -2,14 +2,32 @@
 
 [English](CODE_SIGNING.md) · **Français**
 
-Free code signing provided by [SignPath.io](https://about.signpath.io),
-certificate by [SignPath Foundation](https://signpath.org) (signature de code
-gratuite fournie par SignPath.io, certificat de la SignPath Foundation).
+## État
 
-## Ce qui est signé
+**L'exécutable Windows n'est pas encore signé.** cadenas a demandé une
+signature de code gratuite à la [SignPath Foundation](https://signpath.org) en
+octobre 2026 ; la demande a été refusée car le projet n'est pas encore assez
+connu. Elle sera renouvelée plus tard. Windows peut donc afficher un
+avertissement SmartScreen (« Informations complémentaires » → « Exécuter
+quand même »).
+
+En attendant, vous pouvez vérifier qu'un exécutable a bien été construit par
+ce dépôt, à partir de son code source, grâce à sa provenance signée :
+
+```bash
+gh attestation verify cadenas-vX.Y.Z-windows-x64.exe --repo PierreEbele/cadenas
+```
+
+L'étape de signature est déjà dans le [workflow de release](../.github/workflows/release.yml),
+inactive tant que le projet n'est pas accepté. La politique ci-dessous est
+celle qui s'appliquera alors.
+
+## Ce qui sera signé
 
 L'exécutable autonome Windows de chaque release
-(`cadenas-vX.Y.Z-windows-x64.exe`). Il est construit à partir du code source
+(`cadenas-vX.Y.Z-windows-x64.exe`), avec une signature de code gratuite
+fournie par SignPath.io et un certificat de la SignPath Foundation. Il est
+construit à partir du code source
 de ce dépôt par le [workflow de release](../.github/workflows/release.yml),
 sur GitHub Actions, à partir d'un tag de version signé ; la demande de
 signature est envoyée à SignPath par ce workflow, et le fichier signé est

@@ -2,13 +2,30 @@
 
 **English** · [Français](CODE_SIGNING.fr.md)
 
-Free code signing provided by [SignPath.io](https://about.signpath.io),
-certificate by [SignPath Foundation](https://signpath.org).
+## Status
 
-## What is signed
+**The Windows executable is not code-signed yet.** cadenas applied for free
+code signing from the [SignPath Foundation](https://signpath.org) in
+October 2026; the application was declined because the project is not
+widely known yet. It will apply again later. Windows may therefore show a
+SmartScreen warning ("More info" → "Run anyway").
+
+Until then, you can check that an executable was built by this repository,
+from its source code, with its signed build provenance:
+
+```bash
+gh attestation verify cadenas-vX.Y.Z-windows-x64.exe --repo PierreEbele/cadenas
+```
+
+The signing step is already in the [release workflow](../.github/workflows/release.yml),
+inactive until the project is accepted. The policy below is the one that
+will then apply.
+
+## What will be signed
 
 The standalone Windows executable of each release
-(`cadenas-vX.Y.Z-windows-x64.exe`). It is built from this repository's source
+(`cadenas-vX.Y.Z-windows-x64.exe`), with free code signing provided by
+SignPath.io and a certificate by SignPath Foundation. It is built from this repository's source
 code by the [release workflow](../.github/workflows/release.yml), on GitHub
 Actions, from a signed version tag; the signing request is sent to SignPath
 by that workflow, and the signed file is checked before being published. No

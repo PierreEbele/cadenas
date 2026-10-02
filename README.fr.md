@@ -1,6 +1,6 @@
 # cadenas
 
-[English](README.fr.md) · **Français**
+[English](README.md) · **Français**
 
 > Chiffrez un fichier avec un mot de passe, simplement.
 

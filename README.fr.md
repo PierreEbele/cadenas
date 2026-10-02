@@ -1,6 +1,6 @@
 # cadenas
 
-[English](README.fr.md) · **Français**
+[English](README.md) · **Français**
 
 > Chiffrez un fichier avec un mot de passe, simplement.
 
@@ -15,11 +15,15 @@ navigateur** : aucun fichier ni mot de passe n'est envoyé sur Internet. Le mêm
 existe en ligne de commande.
 
 <p align="center">
+  <a href="https://pierreebele.github.io/cadenas/"><strong>Essayer maintenant</strong></a> ·
+  <a href="#ligne-de-commande">Ligne de commande</a> ·
+  <a href="#héberger-soi-même-avec-docker">Docker</a> ·
+  <a href="docs/FORMAT.fr.md">Format</a>
+</p>
+
+<p align="center">
   <a href="https://pierreebele.github.io/cadenas/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
-      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="Le site cadenas : un fichier rapport-annuel-2026.pdf est sélectionné, une phrase de passe de cinq mots vient d'être générée et jugée excellente, le format .cadenas est choisi et le bouton Chiffrer est prêt." width="420">
-    </picture>
+    <img src="docs/images/demo-fr.gif" alt="Démonstration du site cadenas : un fichier rapport-annuel-2026.pdf est choisi, une phrase de passe de cinq mots est générée et jugée excellente, le fichier est chiffré en quelques secondes et rapport-annuel-2026.pdf.cadenas est prêt à être téléchargé." width="480">
   </a>
 </p>
 
@@ -29,16 +33,54 @@ existe en ligne de commande.
 - **Solide** : Argon2id et XChaCha20-Poly1305 ; toute modification du fichier chiffré est détectée.
 - **Ouvert** : code libre, [format documenté](docs/FORMAT.fr.md), compatible avec
   [age](https://age-encryption.org).
+- **Partout** : site (fonctionne hors ligne, installable), ligne de commande
+  pour Windows, macOS et Linux, image Docker, bibliothèque JavaScript.
 
 ## Sommaire
 
+- [Pourquoi cadenas ?](#pourquoi-cadenas-)
 - [Utiliser le site](#utiliser-le-site)
 - [Héberger soi-même avec Docker](#héberger-soi-même-avec-docker)
 - [Ligne de commande](#ligne-de-commande)
 - [Formats `.cadenas` et `.age`](#formats-cadenas-et-age)
 - [Sécurité](#sécurité)
 - [Utiliser cadenas comme bibliothèque](#utiliser-cadenas-comme-bibliothèque)
+- [Questions fréquentes](#questions-fréquentes)
 - [Développement](#développement)
+
+## Pourquoi cadenas ?
+
+Vous voulez envoyer un document sensible par e-mail, stocker une sauvegarde
+dans le cloud ou garder un fichier sur une clé USB, et il vous faut juste un
+mot de passe dessus. Les outils existants sont soit en ligne de commande, soit
+à installer, soit conçus pour autre chose (archives, disques chiffrés).
+cadenas fait une seule chose : **un fichier, un mot de passe, depuis n'importe
+quel appareil muni d'un navigateur**.
+
+| | **cadenas** | [age](https://age-encryption.org) | [7-Zip](https://www.7-zip.org) | [VeraCrypt](https://www.veracrypt.fr) |
+|---|:---:|:---:|:---:|:---:|
+| Fonctionne dans le navigateur, rien à installer | ✅ | ❌ | ❌ | ❌ |
+| Fonctionne sur téléphone (iOS, Android) | ✅ | ❌ | ❌ | ❌ |
+| Interface graphique | ✅ | ❌ | ✅ | ✅ |
+| Ligne de commande | ✅ | ✅ | ✅ | ✅ |
+| Chiffre un simple fichier (pas de volume à monter) | ✅ | ✅ | ✅ | ❌ |
+| Chiffrement authentifié : toute modification est détectée | ✅ | ✅ | ❌ <sup>1</sup> | ❌ <sup>2</sup> |
+| Dérivation du mot de passe gourmande en mémoire (freine les attaques sur GPU) | ✅ Argon2id | ✅ scrypt | ❌ <sup>3</sup> | — |
+| Lit et écrit les fichiers age | ✅ | ✅ | ❌ | ❌ |
+| Version web auto-hébergeable (Docker) | ✅ | ❌ | ❌ | ❌ |
+| Libre et open source | ✅ | ✅ | ✅ | ✅ |
+| Audit de sécurité indépendant | ❌ [pas encore](docs/AUDIT.fr.md) | — | — | ✅ <sup>4</sup> |
+
+<sup>1</sup> Les archives 7z vérifient un CRC des données déchiffrées, pas une étiquette cryptographique.<br>
+<sup>2</sup> Les volumes VeraCrypt utilisent le mode XTS, qui ne détecte pas les modifications.<br>
+<sup>3</sup> 7-Zip dérive la clé par SHA-256 itéré.<br>
+<sup>4</sup> Audité par Quarkslab en 2016.<br>
+— : dépend de la version, ou non vérifié par nous.
+
+**Prenez plutôt un autre outil** si vous voulez du chiffrement par clé
+publique ([age](https://age-encryption.org)), un disque entier chiffré ou des
+volumes cachés ([VeraCrypt](https://www.veracrypt.fr)), ou avant tout des
+archives compressées ([7-Zip](https://www.7-zip.org)).
 
 ## Utiliser le site
 
@@ -198,6 +240,42 @@ const plain = await readAll(stream);
 `encrypt(flux, motDePasse, { format: 'age' })` produit un fichier age. Les erreurs
 sont des `CadenasError` avec un `code` stable (`WRONG_PASSWORD`, `CORRUPTED`,
 `TRUNCATED`, `UNKNOWN_FORMAT`…), documentés dans [`src/errors.js`](src/errors.js).
+
+## Questions fréquentes
+
+**Chiffrer des fichiers sur un site web, vraiment ?**
+La page est un fichier statique : une fois chargée, sa propre politique de
+sécurité du contenu (`connect-src 'none'`) lui interdit d'ouvrir la moindre
+connexion réseau. Elle ne pourrait pas envoyer votre fichier même si elle
+essayait. Des tests automatiques le vérifient dans Chromium, Firefox et WebKit
+à chaque modification. Vous pouvez aussi l'utiliser hors ligne, l'héberger
+vous-même avec Docker, ou passer par la ligne de commande.
+
+**Comment vérifier que rien n'est envoyé ?**
+Ouvrez les outils de développement du navigateur, onglet Réseau, puis
+chiffrez un fichier : aucune requête ne part ailleurs qu'à l'adresse du site
+(la page charge seulement ses propres scripts). Ou coupez Internet après la
+première visite : le site continue de fonctionner.
+
+**Et si cadenas disparaît un jour ?**
+Vos fichiers restent lisibles. Le format `.cadenas` est [entièrement
+spécifié](docs/FORMAT.fr.md) et n'utilise que des primitives standard, et le
+format `.age` se déchiffre avec [age](https://github.com/FiloSottile/age) ou
+[rage](https://github.com/str4d/rage), sans cadenas.
+
+**J'ai oublié mon mot de passe. Pouvez-vous m'aider ?**
+Non, et personne ne le peut : il n'y a ni porte dérobée ni récupération.
+Utilisez le bouton « Générer une phrase de passe » et notez-la en lieu sûr.
+
+**La personne à qui j'envoie le fichier pourra-t-elle l'ouvrir ?**
+Oui, si elle connaît le mot de passe : elle ouvre le même site, dépose le
+fichier et tape le mot de passe. Sans compte ni installation.
+
+**Quelle taille de fichier au maximum ?**
+Pas de limite fixe : les fichiers sont traités par blocs de 64 Kio. Dans
+Chrome, Edge, Firefox et Safari, les résultats de plus de 256 Mio sont écrits
+sur le disque au fur et à mesure au lieu d'être gardés en mémoire. La ligne de
+commande traite tout en flux.
 
 ## Développement
 

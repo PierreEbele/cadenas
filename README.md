@@ -15,11 +15,15 @@
 Internet. The same tool is available on the command line.
 
 <p align="center">
+  <a href="https://pierreebele.github.io/cadenas/"><strong>Try it now</strong></a> ·
+  <a href="#command-line">Command line</a> ·
+  <a href="#self-host-with-docker">Docker</a> ·
+  <a href="docs/FORMAT.md">Format</a>
+</p>
+
+<p align="center">
   <a href="https://pierreebele.github.io/cadenas/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-dark.png">
-      <img src="https://raw.githubusercontent.com/PierreEbele/cadenas/main/docs/images/screenshot-light.png" alt="The cadenas website: a file named rapport-annuel-2026.pdf is selected, a five-word passphrase has just been generated and rated excellent, the .cadenas format is chosen and the Encrypt button is ready." width="420">
-    </picture>
+    <img src="docs/images/demo-en.gif" alt="Demo of the cadenas website: a file named annual-report-2026.pdf is chosen, a five-word passphrase is generated and rated excellent, the file is encrypted in a few seconds and annual-report-2026.pdf.cadenas is ready to download." width="480">
   </a>
 </p>
 
@@ -29,16 +33,53 @@ Internet. The same tool is available on the command line.
 - **Strong**: Argon2id and XChaCha20-Poly1305; any change to an encrypted file is detected.
 - **Open**: free software, [documented format](docs/FORMAT.md), compatible with
   [age](https://age-encryption.org).
+- **Everywhere**: website (works offline, installable), command line for
+  Windows, macOS and Linux, Docker image, JavaScript library.
 
 ## Contents
 
+- [Why cadenas?](#why-cadenas)
 - [Use the website](#use-the-website)
 - [Self-host with Docker](#self-host-with-docker)
 - [Command line](#command-line)
 - [`.cadenas` and `.age` formats](#cadenas-and-age-formats)
 - [Security](#security)
 - [Use cadenas as a library](#use-cadenas-as-a-library)
+- [FAQ](#faq)
 - [Development](#development)
+
+## Why cadenas?
+
+You want to send a sensitive document by email, store a backup in the cloud or
+keep a file on a USB stick, and you just need a password on it. Existing tools
+are either command-line only, need to be installed, or are built for something
+else (archives, encrypted disks). cadenas does one thing: **one file, one
+password, from any device with a browser**.
+
+| | **cadenas** | [age](https://age-encryption.org) | [7-Zip](https://www.7-zip.org) | [VeraCrypt](https://www.veracrypt.fr) |
+|---|:---:|:---:|:---:|:---:|
+| Works in the browser, nothing to install | ✅ | ❌ | ❌ | ❌ |
+| Works on a phone (iOS, Android) | ✅ | ❌ | ❌ | ❌ |
+| Graphical interface | ✅ | ❌ | ✅ | ✅ |
+| Command line | ✅ | ✅ | ✅ | ✅ |
+| Encrypts a plain file (no volume to mount) | ✅ | ✅ | ✅ | ❌ |
+| Authenticated encryption: any tampering is detected | ✅ | ✅ | ❌ <sup>1</sup> | ❌ <sup>2</sup> |
+| Memory-hard password derivation (slows down GPU attacks) | ✅ Argon2id | ✅ scrypt | ❌ <sup>3</sup> | — |
+| Reads and writes age files | ✅ | ✅ | ❌ | ❌ |
+| Self-hostable web version (Docker) | ✅ | ❌ | ❌ | ❌ |
+| Free and open source | ✅ | ✅ | ✅ | ✅ |
+| Independent security audit | ❌ [not yet](docs/AUDIT.md) | — | — | ✅ <sup>4</sup> |
+
+<sup>1</sup> 7z archives check a CRC of the decrypted data, not a cryptographic tag.<br>
+<sup>2</sup> VeraCrypt volumes use XTS mode, which does not detect changes.<br>
+<sup>3</sup> 7-Zip derives the key with iterated SHA-256.<br>
+<sup>4</sup> Audited by Quarkslab in 2016.<br>
+—: depends on the version, or not checked by us.
+
+**Use something else when**: you want public-key encryption (use
+[age](https://age-encryption.org)), a whole encrypted disk or hidden volumes
+(use [VeraCrypt](https://www.veracrypt.fr)), or compressed archives first and
+foremost (use [7-Zip](https://www.7-zip.org)).
 
 ## Use the website
 
@@ -198,6 +239,41 @@ const plain = await readAll(stream);
 `encrypt(stream, password, { format: 'age' })` produces an age file. Errors are
 `CadenasError` instances with a stable `code` (`WRONG_PASSWORD`, `CORRUPTED`,
 `TRUNCATED`, `UNKNOWN_FORMAT`…), documented in [`src/errors.js`](src/errors.js).
+
+## FAQ
+
+**Encrypting files on a website, really?**
+The page is a static file: once loaded, it is forbidden by its own Content
+Security Policy (`connect-src 'none'`) to open any network connection, so it
+could not send your file even if it tried. Automated tests check it in
+Chromium, Firefox and WebKit at every change. You can also use it offline, self-host it with Docker, or
+use the command line instead.
+
+**How do I check that nothing is sent?**
+Open your browser's developer tools, Network tab, then encrypt a file: no
+request goes anywhere but the site's own address (the page only loads its own
+scripts). Or disconnect from the Internet after the first visit: the
+site keeps working.
+
+**What if cadenas disappears one day?**
+Your files stay readable. The `.cadenas` format is [fully
+specified](docs/FORMAT.md) and built only from standard primitives, and the
+`.age` format can be decrypted by [age](https://github.com/FiloSottile/age) or
+[rage](https://github.com/str4d/rage), with no cadenas involved.
+
+**I forgot my password. Can you help?**
+No, and nobody can: there is no back door and no recovery. Use the
+“Generate a passphrase” button and write it down somewhere safe.
+
+**Can the person I send the file to open it?**
+Yes, if they know the password: they open the same website, drop the file and
+type the password. No account, no installation.
+
+**How large can a file be?**
+There is no fixed limit: files are processed in 64 KiB chunks. In Chrome,
+Edge, Firefox and Safari, results larger than 256 MiB are written to disk as
+they are produced instead of being held in memory. The command line streams
+everything.
 
 ## Development
 

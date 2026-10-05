@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Security
+
+- age files: before running scrypt, cadenas rejects a work factor above 18 (256 MiB, age's default and the same bound as Argon2id). A crafted file with a work factor of 20 used 1 GiB of memory before the password was checked. Encrypting with a higher work factor is refused too.
+- age files: a header larger than 64 KiB and an armored file larger than 128 MiB are rejected without being read in full (new `TOO_LARGE` error).
+- Command line: a file created at the output path while the password is typed, or during processing, is no longer overwritten without `-f`.
+- The password bytes and the key are wiped after use in more cases (failed read during encryption).
+- CI: the Pages permissions are limited to the deployment job, `actions/checkout` no longer keeps the token where it is not needed, and Dependabot waits 7 days before proposing a new version.
+
+### Fixed
+
+- `--password-file` and `--password-stdin` ignore the byte order mark (BOM) added by Windows Notepad or PowerShell, which made the password wrong.
+- Password input: pressing Esc no longer swallows the next key.
+
+### Documentation
+
+- `docs/FORMAT.md`: unknown `kdf` byte, armored age form and age limits.
+- `docs/ASSURANCE.md`: on GitHub Pages, the page CSP does not apply to the workers.
+
 ## [1.6.0] - 2026-10-01
 
 Security hardening after two external reviews (Argon2id cost limits, key

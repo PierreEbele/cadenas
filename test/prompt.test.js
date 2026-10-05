@@ -28,3 +28,11 @@ test('une séquence coupée entre deux morceaux reste ignorée', () => {
   const second = [...'Dcd'].filter(isKey).join('');
   assert.equal(first + second, 'abcd');
 });
+
+test('une pression isolée sur Échap n’avale pas la touche suivante', () => {
+  const isKey = escapeFilter();
+  const first = [...'ab\u001b'].filter(isKey).join('');
+  isKey.endOfChunk();
+  const second = [...'cd'].filter(isKey).join('');
+  assert.equal(first + second, 'abcd');
+});

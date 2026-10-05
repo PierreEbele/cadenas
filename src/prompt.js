@@ -105,6 +105,7 @@ export function promptPassword(question, { stdinIsData = false } = {}) {
             if (char >= ' ') chars.push(char);
         }
       }
+      isKey.endOfChunk();
     }
 
     input.on('data', onData);
@@ -118,10 +119,14 @@ export function promptPassword(question, { stdinIsData = false } = {}) {
  * « [3~ »…) s'ajouteraient en silence au mot de passe, saisi sans écho.
  * État : 0 hors séquence, 1 après ESC, 2 dans une séquence CSI (ESC [ …
  * jusqu'à l'octet final), 3 après ESC O (une seule touche suit).
+ *
+ * Une séquence arrive d'un seul morceau : un ESC en fin de morceau est donc
+ * une simple pression sur Échap, et `endOfChunk()` l'oublie pour que la
+ * touche suivante ne soit pas avalée.
  */
 export function escapeFilter() {
   let state = 0;
-  return (char) => {
+  const isKey = (char) => {
     if (state === 1) {
       state = char === '[' ? 2 : char === 'O' ? 3 : 0;
       return false;
@@ -140,10 +145,17 @@ export function escapeFilter() {
     }
     return true;
   };
+  isKey.endOfChunk = () => {
+    if (state === 1) state = 0;
+  };
+  return isKey;
 }
 
-/** Première ligne d'un texte, sans le saut de ligne final. */
-const firstLine = (text) => text.split(/\r?\n/)[0];
+/**
+ * Première ligne d'un texte, sans le saut de ligne final ni l'indicateur
+ * d'ordre des octets (BOM) qu'ajoutent le Bloc-notes de Windows ou PowerShell.
+ */
+const firstLine = (text) => text.replace(/^\uFEFF/, '').split(/\r?\n/)[0];
 
 /** Lit la première ligne de l'entrée standard (pour --password-stdin). */
 export async function readPasswordFromStdin() {

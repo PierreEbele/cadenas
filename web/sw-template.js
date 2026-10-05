@@ -6,8 +6,10 @@
  *   chiffrement, pour qu'ils ne soient jamais gardés entiers en mémoire.
  *
  * Il ne voit jamais les mots de passe. Un résultat servi en flux le traverse,
- * sans quitter l'appareil : le service worker n'a aucun accès au réseau hors
- * de ce site (sa propre CSP), et ne garde rien.
+ * sans quitter l'appareil : le service worker ne fait aucune requête hors de
+ * ce site et ne garde rien. Avec l'image Docker, sa propre CSP (en-tête HTTP)
+ * le lui interdit en plus ; sur GitHub Pages, sans en-têtes, la CSP de la
+ * page (balise <meta>) ne s'applique pas aux workers (docs/ASSURANCE.md).
  *
  * Ce fichier est un modèle : au build, vite.config.js y injecte la liste des
  * fichiers à mettre en cache et une version, puis le publie sous sw.js.

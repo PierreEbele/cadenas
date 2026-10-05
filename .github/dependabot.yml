@@ -1,12 +1,18 @@
 # Mises à jour automatiques des dépendances : une PR par semaine et par
 # écosystème, regroupées pour limiter le bruit. Les alertes de sécurité,
 # elles, ouvrent une PR dès qu'une faille est publiée.
+#
+# cooldown : une nouvelle version n'est proposée qu'après quelques jours, le
+# temps qu'une version piégée publiée par un compte compromis soit repérée et
+# retirée. Les mises à jour de sécurité ne sont pas concernées.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       production:
         dependency-type: production
@@ -20,6 +26,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ['*']
@@ -30,5 +38,7 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: chore(docker)

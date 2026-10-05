@@ -59,8 +59,8 @@ fall outside these bounds:
 | `t` | 1 | 16 |
 | `p` | 1 | 16 |
 
-A reader that encounters an unknown `version` must stop with an explicit
-error rather than attempt to read the file.
+A reader that encounters an unknown `version` or `kdf` must stop with an
+explicit error rather than attempt to read the file.
 
 ## Key derivation
 
@@ -123,8 +123,14 @@ encrypted_size = 82 + n + 16 × max(1, ⌈n / 65536⌉)
 ## Format detection
 
 A file is a `.cadenas` file if it begins with the 7 bytes `CADENAS`.
-A file beginning with `age-encryption.org/v1` is an
+A file beginning with `age-encryption.org/v1`, or with
+`-----BEGIN AGE ENCRYPTED FILE-----` (armored form), is an
 [age](https://age-encryption.org/v1) file, which cadenas can also read.
+
+cadenas only reads age files encrypted with a passphrase (`scrypt`
+stanza). Before running scrypt, it rejects a work factor above 18
+(256 MiB of memory, age's default and the same bound as Argon2id above), a
+header larger than 64 KiB, and an armored file larger than 128 MiB.
 
 ## Test vector
 

@@ -100,3 +100,12 @@ a modified site (hence the published checksums).
 The `.cadenas` format has not been audited by independent specialists yet.
 This audit is planned in the [roadmap](../ROADMAP.md); its scope and the
 questions for the auditors are in [AUDIT.md](AUDIT.md).
+
+On GitHub Pages, which cannot send HTTP headers, the CSP arrives through a
+`<meta>` tag. It protects the page itself, but browsers apply to a worker
+(the encryption worker, the service worker) the policy of that worker's own
+HTTP response, so on GitHub Pages the workers run without a CSP. The workers
+only run the site's own code and make no network request; reaching them
+would first require an injection into that code. The Docker image sends the
+CSP as a header to every file, workers included: it is the most strictly
+confined deployment.

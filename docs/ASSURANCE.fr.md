@@ -106,3 +106,12 @@ Le format `.cadenas` n'a pas encore été audité par des spécialistes
 indépendants. Cet audit est prévu dans la [feuille de route](../ROADMAP.fr.md) ;
 son périmètre et les questions posées aux auditeurs sont dans
 [AUDIT.fr.md](AUDIT.fr.md).
+
+Sur GitHub Pages, qui ne permet pas d'envoyer d'en-têtes HTTP, la CSP passe
+par une balise `<meta>`. Elle protège la page elle-même, mais les navigateurs
+appliquent à un worker (le worker de chiffrement, le service worker) la
+politique de sa propre réponse HTTP : sur GitHub Pages, les workers tournent
+donc sans CSP. Ils n'exécutent que le code du site et ne font aucune requête
+réseau ; les atteindre supposerait d'abord une injection dans ce code.
+L'image Docker envoie la CSP en en-tête pour chaque fichier, workers
+compris : c'est le déploiement le plus strictement confiné.

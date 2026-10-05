@@ -88,15 +88,22 @@ function checkParams({ m, t, p }) {
 }
 
 async function deriveKeys(password, salt, { m, t, p }) {
-  const master = await argon2id({
-    password: new TextEncoder().encode(password.normalize('NFC')),
-    salt,
-    memorySize: m,
-    iterations: t,
-    parallelism: p,
-    hashLength: 32,
-    outputType: 'binary',
-  });
+  // Effacement au mieux : la chaîne JavaScript elle-même ne peut pas l'être.
+  const passwordBytes = new TextEncoder().encode(password.normalize('NFC'));
+  let master;
+  try {
+    master = await argon2id({
+      password: passwordBytes,
+      salt,
+      memorySize: m,
+      iterations: t,
+      parallelism: p,
+      hashLength: 32,
+      outputType: 'binary',
+    });
+  } finally {
+    passwordBytes.fill(0);
+  }
   const macKey = hkdf(sha256, master, undefined, INFO_HEADER, 32);
   const encKey = hkdf(sha256, master, undefined, INFO_PAYLOAD, 32);
   master.fill(0);
@@ -181,10 +188,15 @@ export async function encrypt(input, password, options = {}) {
     async pull(controller) {
       // On garde toujours au moins un octet d'avance : sans cela, impossible
       // de savoir si le bloc courant est le dernier.
-      while (!inputDone && queue.length <= CHUNK_SIZE) {
-        const { done, value } = await reader.read();
-        if (done) inputDone = true;
-        else queue.push(value);
+      try {
+        while (!inputDone && queue.length <= CHUNK_SIZE) {
+          const { done, value } = await reader.read();
+          if (done) inputDone = true;
+          else queue.push(value);
+        }
+      } catch (err) {
+        encKey.fill(0);
+        throw err;
       }
       if (queue.length > CHUNK_SIZE) {
         controller.enqueue(seal(queue.take(CHUNK_SIZE), false));

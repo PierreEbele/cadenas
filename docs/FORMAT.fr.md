@@ -60,8 +60,8 @@ paramètres sortent de ces bornes :
 | `t` | 1 | 16 |
 | `p` | 1 | 16 |
 
-Un lecteur qui rencontre une `version` inconnue doit s'arrêter avec une erreur
-explicite plutôt que de tenter une lecture.
+Un lecteur qui rencontre une `version` ou un `kdf` inconnus doit s'arrêter
+avec une erreur explicite plutôt que de tenter une lecture.
 
 ## Dérivation des clés
 
@@ -124,8 +124,15 @@ taille_chiffrée = 82 + n + 16 × max(1, ⌈n / 65536⌉)
 ## Détection du format
 
 Un fichier est un `.cadenas` s'il commence par les 7 octets `CADENAS`.
-Un fichier commençant par `age-encryption.org/v1` est un fichier
+Un fichier commençant par `age-encryption.org/v1`, ou par
+`-----BEGIN AGE ENCRYPTED FILE-----` (forme armurée), est un fichier
 [age](https://age-encryption.org/v1) que cadenas sait aussi lire.
+
+cadenas ne lit que les fichiers age chiffrés par mot de passe (recette
+`scrypt`). Avant de lancer scrypt, il refuse un coût supérieur à 18
+(256 Mio de mémoire, la valeur par défaut d'age et la même limite
+qu'Argon2id ci-dessus), un en-tête de plus de 64 Kio et un fichier armuré de
+plus de 128 Mio.
 
 ## Vecteur de test
 

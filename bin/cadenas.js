@@ -4,7 +4,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { createReadStream, createWriteStream, readFileSync, rmSync } from 'node:fs';
-import { chmod, lstat, open, readdir, rename, rm, stat } from 'node:fs/promises';
+import { chmod, link, lstat, open, readdir, rename, rm, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { argv, exit, stderr, stdin, stdout } from 'node:process';
 import { Readable } from 'node:stream';
@@ -343,8 +343,27 @@ async function writeOutput(webStream, output, { force = false } = {}) {
 /**
  * Renomme temp en output. Avec -f, un fichier existant en lecture seule
  * (Windows refuse alors le renommage) est d'abord supprimé.
+ *
+ * Sans -f, un fichier apparu pendant la saisie du mot de passe ou le
+ * traitement ne doit pas être écrasé : link() échoue s'il existe, alors que
+ * rename() le remplacerait. Sur les systèmes de fichiers sans liens (FAT,
+ * exFAT…), on revérifie juste avant de renommer.
  */
 async function replaceFile(temp, output, force) {
+  if (!force) {
+    try {
+      await link(temp, output);
+      // Le fichier final est complet : un échec ici (antivirus Windows…) ne
+      // laisse qu'un fichier temporaire de trop, pas une erreur.
+      await rm(temp, { force: true }).catch(() => {});
+      return;
+    } catch (err) {
+      if (err.code === 'EEXIST') {
+        throw new CadenasError('EXISTS', t('error.EXISTS', { path: displayPath(output) }));
+      }
+      await ensureWritable(output, false);
+    }
+  }
   try {
     await rename(temp, output);
   } catch (err) {
@@ -427,6 +446,7 @@ const LIBRARY_CODES = new Set([
   'WRONG_PASSWORD',
   'TRUNCATED',
   'CORRUPTED',
+  'TOO_LARGE',
   'NO_TERMINAL',
 ]);
 

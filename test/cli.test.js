@@ -137,6 +137,22 @@ describe('sécurité des fichiers', () => {
     assert.equal(existsSync(file('sig.cadenas')), false);
   });
 
+  test('n’écrase pas un fichier apparu pendant la saisie du mot de passe', async () => {
+    writeFileSync(file('race.txt'), 'nouveau');
+    const child = spawn(process.execPath, [BIN, 'lock', '--password-stdin', 'race.txt'], { cwd: dir, env: FRENCH });
+    let stderrText = '';
+    child.stderr.on('data', (chunk) => (stderrText += chunk));
+    const code = new Promise((resolve) => child.on('close', resolve));
+    // La CLI attend le mot de passe : le fichier de sortie apparaît entre-temps.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    writeFileSync(file('race.txt.cadenas'), 'à garder');
+    child.stdin.end('pwd\n');
+    assert.equal(await code, 1, stderrText);
+    assert.match(stderrText, /existe déjà/);
+    assert.equal(readFileSync(file('race.txt.cadenas'), 'utf8'), 'à garder');
+    assert.deepEqual(readdirSync(dir).filter((name) => name.endsWith('.tmp')), []);
+  });
+
   test('refuse d’écraser sans -f, accepte avec -f', () => {
     writeFileSync(file('f.txt'), 'v1');
     assert.equal(cadenas(['lock', '--password-stdin', 'f.txt'], 'pwd').code, 0);
@@ -232,6 +248,16 @@ describe('entrée et sortie standard', () => {
     const unlocked = cadenasRaw(['unlock', '-', '--password-file', 'secret.txt'], locked.stdout);
     assert.equal(unlocked.code, 0, unlocked.stderr);
     assert.deepEqual(unlocked.stdout, data);
+  });
+
+  test('--password-file ignore le BOM et le CRLF d’un fichier Windows', () => {
+    writeFileSync(file('bom.txt'), 'bom');
+    writeFileSync(file('pwd-plain.txt'), 'motdepasse');
+    writeFileSync(file('pwd-bom.txt'), '\uFEFFmotdepasse\r\n');
+    assert.equal(cadenas(['lock', '--password-file', 'pwd-plain.txt', 'bom.txt']).code, 0);
+    const result = cadenasRaw(['unlock', '--password-file', 'pwd-bom.txt', '-o', '-', 'bom.txt.cadenas'], undefined);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout.toString(), 'bom');
   });
 
   test('-o - : un fichier vers la sortie standard', () => {

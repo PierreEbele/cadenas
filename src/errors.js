@@ -11,6 +11,7 @@
  * - WRONG_PASSWORD       mot de passe incorrect (ou en-tête altéré)
  * - TRUNCATED            fichier incomplet
  * - CORRUPTED            contenu altéré ou endommagé
+ * - TOO_LARGE            fichier trop volumineux pour être traité
  */
 export class CadenasError extends Error {
   constructor(code, message, options) {

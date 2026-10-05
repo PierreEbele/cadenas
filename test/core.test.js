@@ -103,6 +103,62 @@ describe('compatibilité age', () => {
   test('mot de passe vide', async () => {
     await assert.rejects(enc(text('x'), '', FAST_AGE), hasCode('EMPTY_PASSWORD'));
   });
+
+  test('coût scrypt trop élevé refusé avant tout calcul', async () => {
+    const sealed = await ageFile(text('x'), 'pwd');
+    const header = new TextDecoder().decode(sealed.subarray(0, 120));
+    for (const workFactor of ['19', '20', '22', '064', 'x']) {
+      const forged = text(header.replace(/^(-> scrypt \S+) 10$/m, `$1 ${workFactor}`));
+      const file = new Uint8Array([...forged, ...sealed.subarray(120)]);
+      const start = Date.now();
+      await assert.rejects(dec(file, 'pwd'), hasCode('INVALID_PARAMS'), workFactor);
+      assert.ok(Date.now() - start < 1000, `refus immédiat (${workFactor})`);
+    }
+  });
+
+  test('fichier age reçu octet par octet', async () => {
+    const sealed = await ageFile(text('goutte à goutte'), 'pwd');
+    let i = 0;
+    const drip = new ReadableStream({
+      pull(controller) {
+        if (i >= sealed.length) return controller.close();
+        controller.enqueue(sealed.slice(i, ++i));
+      },
+    });
+    const { stream } = await decrypt(drip, 'pwd');
+    assert.equal(new TextDecoder().decode(await readAll(stream)), 'goutte à goutte');
+  });
+
+  test('chiffrer avec un coût scrypt trop élevé est refusé', async () => {
+    await assert.rejects(enc(text('x'), 'pwd', { format: 'age', workFactor: 19 }), hasCode('INVALID_PARAMS'));
+  });
+
+  test('en-tête age sans fin refusé sans tout lire', async () => {
+    let sent = 0;
+    const endless = new ReadableStream({
+      pull(controller) {
+        if (sent === 0) controller.enqueue(text('age-encryption.org/v1\n-> scrypt '));
+        else controller.enqueue(new Uint8Array(65536).fill(0x41));
+        sent++;
+        if (sent > 10_000) controller.close();
+      },
+    });
+    await assert.rejects(decrypt(endless, 'pwd'), hasCode('CORRUPTED'));
+    assert.ok(sent < 10, `lecture arrêtée tôt (${sent} morceaux)`);
+  });
+
+  test('fichier age armuré trop volumineux refusé', async () => {
+    const chunk = text('A'.repeat(1024 * 1024));
+    let sent = 0;
+    const huge = new ReadableStream({
+      pull(controller) {
+        controller.enqueue(sent === 0 ? text('-----BEGIN AGE ENCRYPTED FILE-----\n') : chunk);
+        sent++;
+      },
+    });
+    await assert.rejects(decrypt(huge, 'pwd'), hasCode('TOO_LARGE'));
+    assert.ok(sent < 140, `lecture arrêtée à la limite (${sent} Mo)`);
+  });
 });
 
 describe('détection', () => {

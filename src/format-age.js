@@ -38,13 +38,6 @@ function indexOf(bytes, pattern, from = 0) {
   return -1;
 }
 
-function concat(a, b) {
-  const out = new Uint8Array(a.length + b.length);
-  out.set(a);
-  out.set(b, a.length);
-  return out;
-}
-
 /**
  * Lit l'en-tête age (jusqu'à la ligne « --- ») sans le perdre, vérifie qu'il
  * s'agit d'un chiffrement par mot de passe au coût raisonnable, et renvoie un
@@ -56,23 +49,42 @@ async function checkHeader(input) {
     await reader.cancel().catch(() => {});
     throw error;
   };
-  let buffer = new Uint8Array(0);
+  // Tampon agrandi par doublement, et recherche reprise là où elle s'était
+  // arrêtée : un en-tête reçu octet par octet reste en temps linéaire.
+  let buffer = new Uint8Array(4096);
+  let length = 0;
   let done = false;
   let headerEnd = -1;
+  let marker = -1;
+  let searched = 0;
   while (headerEnd < 0) {
-    const marker = indexOf(buffer, HEADER_END);
+    const view = buffer.subarray(0, length);
+    if (marker < 0) {
+      marker = indexOf(view, HEADER_END, Math.max(0, searched - HEADER_END.length + 1));
+      searched = marker >= 0 ? marker + HEADER_END.length : length;
+    }
     if (marker >= 0) {
-      const newline = buffer.indexOf(0x0a, marker + HEADER_END.length);
-      if (newline >= 0) headerEnd = newline;
+      headerEnd = view.indexOf(0x0a, searched);
+      searched = length;
     }
     if (headerEnd >= 0) break;
-    if (buffer.length > MAX_HEADER || done) {
+    if (length > MAX_HEADER || done) {
       return fail(new CadenasError('CORRUPTED', 'L’en-tête du fichier age est invalide.'));
     }
     const result = await reader.read();
-    if (result.done) done = true;
-    else buffer = concat(buffer, result.value);
+    if (result.done) {
+      done = true;
+    } else {
+      if (length + result.value.length > buffer.length) {
+        const grown = new Uint8Array(Math.max(buffer.length * 2, length + result.value.length));
+        grown.set(view);
+        buffer = grown;
+      }
+      buffer.set(result.value, length);
+      length += result.value.length;
+    }
   }
+  buffer = buffer.subarray(0, length);
   if (headerEnd > MAX_HEADER) {
     return fail(new CadenasError('CORRUPTED', 'L’en-tête du fichier age est invalide.'));
   }

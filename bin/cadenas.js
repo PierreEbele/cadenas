@@ -353,7 +353,9 @@ async function replaceFile(temp, output, force) {
   if (!force) {
     try {
       await link(temp, output);
-      await rm(temp, { force: true });
+      // Le fichier final est complet : un échec ici (antivirus Windows…) ne
+      // laisse qu'un fichier temporaire de trop, pas une erreur.
+      await rm(temp, { force: true }).catch(() => {});
       return;
     } catch (err) {
       if (err.code === 'EEXIST') {

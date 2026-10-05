@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Security
 
-- age files: before running scrypt, cadenas rejects a work factor above 18 (256 MiB, age's default and the same bound as Argon2id). A crafted file with a work factor of 20 used 1 GiB of memory before the password was checked. Encrypting with a higher work factor is refused too.
+- age files: before running scrypt, cadenas rejects a work factor above 18 (256 MiB, age's default and the same bound as Argon2id). A crafted file with a work factor of 20 used 1 GiB of memory before the password was checked. Encrypting with a higher work factor is refused too. Files encrypted by cadenas always use 18; an age file made with `age` and a higher work factor (19 to 22) can no longer be opened by cadenas.
 - age files: a header larger than 64 KiB and an armored file larger than 128 MiB are rejected without being read in full (new `TOO_LARGE` error).
 - Command line: a file created at the output path while the password is typed, or during processing, is no longer overwritten without `-f`.
 - The password bytes and the key are wiped after use in more cases (failed read during encryption).
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- `--password-file` and `--password-stdin` ignore the byte order mark (BOM) added by Windows Notepad or PowerShell, which made the password wrong.
+- `--password-file` and `--password-stdin` ignore the byte order mark (BOM) added by Windows Notepad or PowerShell, which made the password wrong. A file encrypted with such a password file by an earlier version has the BOM in its password and opens only with cadenas 1.6.0 or earlier.
 - Password input: pressing Esc no longer swallows the next key.
 
 ### Documentation

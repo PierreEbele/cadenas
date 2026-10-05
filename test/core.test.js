@@ -116,6 +116,19 @@ describe('compatibilité age', () => {
     }
   });
 
+  test('fichier age reçu octet par octet', async () => {
+    const sealed = await ageFile(text('goutte à goutte'), 'pwd');
+    let i = 0;
+    const drip = new ReadableStream({
+      pull(controller) {
+        if (i >= sealed.length) return controller.close();
+        controller.enqueue(sealed.slice(i, ++i));
+      },
+    });
+    const { stream } = await decrypt(drip, 'pwd');
+    assert.equal(new TextDecoder().decode(await readAll(stream)), 'goutte à goutte');
+  });
+
   test('chiffrer avec un coût scrypt trop élevé est refusé', async () => {
     await assert.rejects(enc(text('x'), 'pwd', { format: 'age', workFactor: 19 }), hasCode('INVALID_PARAMS'));
   });

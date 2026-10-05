@@ -11,7 +11,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Sécurité
 
-- Fichiers age : avant de lancer scrypt, cadenas refuse un coût supérieur à 18 (256 Mio, la valeur par défaut d'age et la même limite qu'Argon2id). Un fichier piégé au coût 20 consommait 1 Gio de mémoire avant la vérification du mot de passe. Chiffrer avec un coût plus élevé est aussi refusé.
+- Fichiers age : avant de lancer scrypt, cadenas refuse un coût supérieur à 18 (256 Mio, la valeur par défaut d'age et la même limite qu'Argon2id). Un fichier piégé au coût 20 consommait 1 Gio de mémoire avant la vérification du mot de passe. Chiffrer avec un coût plus élevé est aussi refusé. Les fichiers chiffrés par cadenas utilisent toujours 18 ; un fichier créé avec `age` et un coût plus élevé (19 à 22) ne peut plus être ouvert par cadenas.
 - Fichiers age : un en-tête de plus de 64 Kio et un fichier armuré de plus de 128 Mio sont refusés sans être lus en entier (nouvelle erreur `TOO_LARGE`).
 - Ligne de commande : un fichier apparu à l'emplacement de sortie pendant la saisie du mot de passe ou le traitement n'est plus écrasé sans `-f`.
 - Les octets du mot de passe et la clé sont effacés après usage dans plus de cas (lecture en échec pendant le chiffrement).
@@ -19,7 +19,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ### Corrigé
 
-- `--password-file` et `--password-stdin` ignorent l'indicateur d'ordre des octets (BOM) ajouté par le Bloc-notes de Windows ou PowerShell, qui rendait le mot de passe faux.
+- `--password-file` et `--password-stdin` ignorent l'indicateur d'ordre des octets (BOM) ajouté par le Bloc-notes de Windows ou PowerShell, qui rendait le mot de passe faux. Un fichier chiffré avec un tel fichier de mot de passe par une version précédente a ce BOM dans son mot de passe et ne s'ouvre qu'avec cadenas 1.6.0 ou antérieur.
 - Saisie du mot de passe : appuyer sur Échap n'avale plus la touche suivante.
 
 ### Documentation

@@ -138,6 +138,12 @@ test('après un chiffrement, l’adresse de déchiffrement est indiquée', async
   await submit(page, 'secret');
   await expect(page.locator('#result')).toBeVisible({ timeout: 60_000 });
   await expect(page.locator('#share-link')).toHaveAttribute('href', /#dechiffrer$/);
+  await expect(page.locator('#share-link')).toHaveAttribute('target', '_blank');
+
+  // Changer d'adresse avant d'avoir téléchargé ne doit pas effacer le résultat.
+  await page.evaluate(() => (location.hash = '#dechiffrer'));
+  await expect(page.locator('#result')).toBeVisible();
+  await expect(page.locator('#download')).toHaveAttribute('href', /^blob:/);
 
   await page.locator('#restart').click();
   await page.locator('#view-switch-button').click();

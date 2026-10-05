@@ -182,7 +182,13 @@ function renderView() {
 }
 
 function setView(view) {
-  if (isBusy() || state.view === view) return;
+  if (state.view === view) return;
+  // Pendant un traitement, ou avec un résultat pas encore téléchargé, on
+  // reste sur place : changer de vue effacerait ce résultat.
+  if (isBusy() || (state.downloadUrl && !state.downloaded)) {
+    history.replaceState(null, '', state.view === 'decrypt' ? t('switch.hash') : location.pathname + location.search);
+    return;
+  }
   state.view = view;
   const url = view === 'decrypt' ? t('switch.hash') : location.pathname + location.search;
   history.replaceState(null, '', url);

@@ -26,8 +26,20 @@ if (window.top !== window.self) {
 const LARGE_FILE = 256 * 1024 * 1024;
 const canSaveDirectly = typeof window.showSaveFilePicker === 'function';
 
+// Adresses de la version « déchiffrer » de la page, à partager avec la
+// personne qui reçoit un fichier chiffré.
+const DECRYPT_HASHES = ['#dechiffrer', '#decrypt'];
+
 const ui = {
   form: $('form'),
+  tagline: $('tagline'),
+  dropTitle: $('drop-title'),
+  dropHint: $('drop-hint'),
+  viewSwitch: $('view-switch'),
+  viewSwitchText: $('view-switch-text'),
+  viewSwitchButton: $('view-switch-button'),
+  share: $('share'),
+  shareLink: $('share-link'),
   dropzone: $('dropzone'),
   fileInput: $('file'),
   folderInput: $('folder'),
@@ -78,7 +90,8 @@ const state = {
   folder: null, // nom du dossier choisi, s'il n'y en a qu'un
   archive: false, // plusieurs fichiers (ou un dossier) → archive .zip
   file: null, // le fichier, s'il n'y en a qu'un
-  mode: 'encrypt', // 'encrypt' | 'decrypt'
+  view: DECRYPT_HASHES.includes(location.hash) ? 'decrypt' : 'encrypt', // page d'accueil : chiffrer ou déchiffrer
+  mode: 'encrypt', // 'encrypt' | 'decrypt' : ce que le fichier choisi déclenche
   sourceFormat: null, // format détecté si le fichier est déjà chiffré
   worker: null,
   stream: null, // téléchargement en flux en cours : { id, port, keepAlive, frame }
@@ -140,6 +153,7 @@ ui.lang.addEventListener('click', () => {
 
 /** Réapplique tous les textes (statiques et dépendant de l'état). */
 function render() {
+  renderView();
   applyTranslations();
   ui.lang.lang = getLanguage() === 'fr' ? 'en' : 'fr';
   setRevealed(ui.password.type === 'text');
@@ -149,6 +163,35 @@ function render() {
   if (state.result) renderResult();
   if (state.error) ui.error.textContent = t(state.error.key, state.error.params);
 }
+
+// ---------------------------------------------------------------------------
+// Chiffrer ou déchiffrer : la version « déchiffrer » ne montre que ce qui sert
+// à ouvrir un fichier reçu (un seul fichier, pas de dossier).
+
+/** Choisit les textes selon la vue ; appliqués ensuite par applyTranslations(). */
+function renderView() {
+  const decrypt = state.view === 'decrypt';
+  ui.tagline.dataset.i18n = decrypt ? 'tagline.decrypt' : 'tagline';
+  ui.dropTitle.dataset.i18n = decrypt ? 'drop.titleDecrypt' : 'drop.title';
+  ui.dropHint.dataset.i18nHtml = decrypt ? 'drop.hintDecrypt' : 'drop.hint';
+  ui.viewSwitchText.dataset.i18n = decrypt ? 'switch.toEncryptText' : 'switch.toDecryptText';
+  ui.viewSwitchButton.dataset.i18n = decrypt ? 'switch.toEncrypt' : 'switch.toDecrypt';
+  ui.restart.dataset.i18n = decrypt ? 'result.restartDecrypt' : 'result.restart';
+  ui.pickFolder.hidden = decrypt;
+  ui.fileInput.multiple = !decrypt;
+}
+
+function setView(view) {
+  if (isBusy() || state.view === view) return;
+  state.view = view;
+  const url = view === 'decrypt' ? t('switch.hash') : location.pathname + location.search;
+  history.replaceState(null, '', url);
+  reset();
+  render();
+}
+
+ui.viewSwitchButton.addEventListener('click', () => setView(state.view === 'decrypt' ? 'encrypt' : 'decrypt'));
+window.addEventListener('hashchange', () => setView(DECRYPT_HASHES.includes(location.hash) ? 'decrypt' : 'encrypt'));
 
 // ---------------------------------------------------------------------------
 // Choix du fichier
@@ -201,6 +244,7 @@ async function selectItems({ items, folder }) {
     const ext = encryptedExts.find((e) => file.name.toLowerCase().endsWith(e));
     if (!sourceFormat && ext) return showError('error.damagedEncrypted', { ext });
   }
+  if (state.view === 'decrypt' && !sourceFormat) return showError('error.notEncrypted');
   Object.assign(state, { items, folder, archive, file: archive ? null : items[0].file, sourceFormat });
   state.mode = state.sourceFormat ? 'decrypt' : 'encrypt';
   ui.password.value = '';
@@ -212,7 +256,7 @@ async function selectItems({ items, folder }) {
 }
 
 function renderFile() {
-  const { file, items, archive, folder, mode, sourceFormat } = state;
+  const { file, items, archive, folder, mode } = state;
   const encrypting = mode === 'encrypt';
   const total = totalSize();
   const size = formatSize(total);
@@ -222,6 +266,7 @@ function renderFile() {
   ui.emptyView.hidden = true;
   ui.fileView.hidden = false;
   ui.altPick.hidden = true;
+  ui.viewSwitch.hidden = true;
   if (archive) {
     ui.fileName.textContent = archiveName(folder);
     ui.fileBadge.textContent = 'zip';
@@ -231,7 +276,7 @@ function renderFile() {
     ui.fileBadge.textContent = encrypting ? extensionOf(file.name) : '🔒';
     ui.fileInfo.textContent = encrypting
       ? t('file.willEncrypt', { size })
-      : t('file.willDecrypt', { size, format: sourceFormat });
+      : t('file.willDecrypt', { size });
   }
 
   ui.options.disabled = false;
@@ -502,6 +547,11 @@ function renderResult() {
   ui.download.textContent = t('result.download', { name });
   ui.resultHint.hidden = encrypting || !name.toLowerCase().endsWith('.zip');
   ui.resultHint.textContent = t('result.zipHint');
+  // Après un chiffrement : l'adresse où le destinataire pourra l'ouvrir.
+  ui.share.hidden = !encrypting;
+  const shareUrl = location.origin + location.pathname + t('switch.hash');
+  ui.shareLink.href = shareUrl;
+  ui.shareLink.textContent = shareUrl.replace(/^https?:\/\//, '');
 }
 
 function showFailure(code) {
@@ -559,6 +609,7 @@ function reset() {
   setRevealed(false);
   ui.generated.hidden = true;
   ui.altPick.hidden = false;
+  ui.viewSwitch.hidden = false;
   ui.download.hidden = false;
   ui.largeHint.hidden = true;
   ui.dropzone.classList.remove('has-file');

@@ -212,6 +212,43 @@ a {
   text-align: center;
 }
 
+.alt-pick:has(> button[hidden]) {
+  display: none;
+}
+
+.view-switch {
+  margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.share {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.share p {
+  margin: 0;
+}
+
+.share p + p {
+  margin-top: 0.35rem;
+}
+
+.share a {
+  color: var(--accent);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 .dropzone-file {
   display: flex;
   align-items: center;

@@ -114,3 +114,41 @@ test('la langue bascule en anglais et reste choisie', async ({ page }) => {
   await page.reload();
   await expect(page.locator('#submit')).toHaveText('Encrypt');
 });
+
+test('page de déchiffrement (#dechiffrer) : un seul fichier chiffré, rien d’autre', async ({ page }) => {
+  await page.goto('./#dechiffrer');
+  await expect(page.locator('#drop-title')).toHaveText('Déposez ici le fichier chiffré que vous avez reçu');
+  await expect(page.locator('#pick-folder')).toBeHidden();
+
+  await chooseFiles(page, [{ name: 'note.txt', content: 'pas chiffré' }]);
+  await expect(page.locator('#error')).toContainText('Ce n’est pas un fichier chiffré');
+  await expect(page.locator('#submit')).toBeDisabled();
+
+  const encrypted = await encryptInNode('reçu par e-mail', 'secret');
+  await chooseFiles(page, [{ name: 'lettre.txt.cadenas', content: encrypted }]);
+  await expect(page.locator('#file-info')).toContainText('fichier chiffré');
+  await submit(page, 'secret', { confirm: false });
+  const decrypted = await download(page);
+  expect(decrypted.bytes.toString()).toBe('reçu par e-mail');
+  await expect(page.locator('#restart')).toHaveText('Ouvrir un autre fichier');
+});
+
+test('après un chiffrement, l’adresse de déchiffrement est indiquée', async ({ page }) => {
+  await chooseFiles(page, [{ name: 'note.txt', content: 'à envoyer' }]);
+  await submit(page, 'secret');
+  await expect(page.locator('#result')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('#share-link')).toHaveAttribute('href', /#dechiffrer$/);
+  await expect(page.locator('#share-link')).toHaveAttribute('target', '_blank');
+
+  // Changer d'adresse avant d'avoir téléchargé ne doit pas effacer le résultat.
+  await page.evaluate(() => (location.hash = '#dechiffrer'));
+  await expect(page.locator('#result')).toBeVisible();
+  await expect(page.locator('#download')).toHaveAttribute('href', /^blob:/);
+
+  await page.locator('#restart').click();
+  await page.locator('#view-switch-button').click();
+  await expect(page).toHaveURL(/#dechiffrer$/);
+  await expect(page.locator('#tagline')).toHaveText(/Ouvrez un fichier chiffré/);
+  await page.locator('#view-switch-button').click();
+  await expect(page.locator('#pick-folder')).toBeVisible();
+});

@@ -33,7 +33,7 @@
         </svg>
         <div>
           <h1>cadenas</h1>
-          <p class="tagline" data-i18n="tagline">Chiffrez un fichier avec un mot de passe. Rien ne quitte votre navigateur.</p>
+          <p class="tagline" id="tagline" data-i18n="tagline">Chiffrez un fichier avec un mot de passe. Rien ne quitte votre navigateur.</p>
         </div>
       </header>
 
@@ -46,8 +46,8 @@
               <svg viewBox="0 0 24 24" aria-hidden="true" class="dropzone-icon">
                 <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              <span class="dropzone-title" data-i18n="drop.title">Déposez des fichiers ou un dossier ici</span>
-              <span class="dropzone-hint" data-i18n-html="drop.hint">ou <span class="link-like">parcourez vos fichiers</span></span>
+              <span class="dropzone-title" id="drop-title" data-i18n="drop.title">Déposez des fichiers ou un dossier ici</span>
+              <span class="dropzone-hint" id="drop-hint" data-i18n-html="drop.hint">ou <span class="link-like">parcourez vos fichiers</span></span>
             </span>
             <span class="dropzone-file" hidden>
               <span class="file-badge" id="file-badge" aria-hidden="true"></span>
@@ -61,6 +61,11 @@
           <p class="alt-pick" id="alt-pick">
             <input type="file" id="folder" class="visually-hidden" webkitdirectory multiple tabindex="-1" aria-hidden="true" />
             <button type="button" class="text-button" id="pick-folder" data-i18n="drop.folder">Choisir un dossier entier</button>
+          </p>
+          <!-- Déchiffrer un fichier reçu : la même page, en version réduite (#dechiffrer) -->
+          <p class="view-switch" id="view-switch">
+            <span id="view-switch-text" data-i18n="switch.toDecryptText">Vous avez reçu un fichier chiffré ?</span>
+            <button type="button" class="text-button" id="view-switch-button" data-i18n="switch.toDecrypt">Ouvrez-le ici</button>
           </p>
 
           <!-- Étape 2 : mot de passe -->
@@ -146,6 +151,10 @@
           <p class="status-title" id="result-title"></p>
           <p class="status-detail" id="result-detail"></p>
           <p class="status-detail" id="result-hint" hidden></p>
+          <div class="share" id="share" hidden>
+            <p><span data-i18n="result.share">Pour l’ouvrir, votre destinataire va sur</span> <a id="share-link" target="_blank" rel="noopener noreferrer"></a></p>
+            <p data-i18n="result.sharePassword">Envoyez-lui le mot de passe par un autre moyen que le fichier.</p>
+          </div>
           <a class="primary" id="download" download></a>
           <button type="button" class="secondary" id="restart" data-i18n="result.restart">Traiter un autre fichier</button>
         </section>

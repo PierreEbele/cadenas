@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-05
+
+A simple page to open an encrypted file you received, and security fixes
+after an audit: crafted age files can no longer exhaust memory, and the
+command line no longer overwrites a file that appears during processing.
+Two compatibility limits, detailed below: age files with a scrypt work
+factor above 18, and files encrypted with a password file starting with a
+byte order mark (BOM).
+
+### Added
+
+- Website: a page dedicated to decrypting, at `#decrypt` (`#dechiffrer` in French), to share with whoever receives an encrypted file: one file, no options, and a clear message if the chosen file is not encrypted. The home page links to it ("Received an encrypted file? Open it here"), and after encrypting, the address to give the recipient is shown, with the advice to send the password some other way.
+
+### Changed
+
+- Website: the details of an encrypted file are shorter ("3 MB · encrypted file").
+- Dependencies: vite 8.3.2, `nginx-unprivileged` base image refreshed, SignPath signing action 3.0.
+
 ### Security
 
 - age files: before running scrypt, cadenas rejects a work factor above 18 (256 MiB, age's default and the same bound as Argon2id). A crafted file with a work factor of 20 used 1 GiB of memory before the password was checked. Encrypting with a higher work factor is refused too. Files encrypted by cadenas always use 18; an age file made with `age` and a higher work factor (19 to 22) can no longer be opened by cadenas.
@@ -311,7 +329,8 @@ In summary:
 
 - Project initialization: `package.json`, MIT license, README, `.editorconfig`, `.gitignore`.
 
-[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/PierreEbele/cadenas/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1

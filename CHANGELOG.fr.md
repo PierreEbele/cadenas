@@ -9,6 +9,24 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.7.0] - 2026-10-05
+
+Une page simple pour ouvrir un fichier chiffré reçu, et des correctifs de
+sécurité après un audit : un fichier age piégé ne peut plus épuiser la
+mémoire, et la ligne de commande n'écrase plus un fichier apparu pendant le
+traitement. Deux limites de compatibilité, détaillées plus bas : les
+fichiers age au coût scrypt supérieur à 18, et les fichiers chiffrés avec un
+fichier de mot de passe commençant par un BOM.
+
+### Ajouté
+
+- Site : une page dédiée au déchiffrement, à l'adresse `#dechiffrer` (`#decrypt` en anglais), à donner à qui reçoit un fichier chiffré : un seul fichier, aucune option, et un message clair si le fichier choisi n'est pas chiffré. L'accueil y renvoie (« Vous avez reçu un fichier chiffré ? Ouvrez-le ici »), et après un chiffrement, l'adresse à donner au destinataire est affichée, avec le conseil d'envoyer le mot de passe par un autre moyen.
+
+### Modifié
+
+- Site : les infos d'un fichier chiffré sont plus courtes (« 3 Mo · fichier chiffré »).
+- Dépendances : vite 8.3.2, image de base `nginx-unprivileged` à jour, action de signature SignPath 3.0.
+
 ### Sécurité
 
 - Fichiers age : avant de lancer scrypt, cadenas refuse un coût supérieur à 18 (256 Mio, la valeur par défaut d'age et la même limite qu'Argon2id). Un fichier piégé au coût 20 consommait 1 Gio de mémoire avant la vérification du mot de passe. Chiffrer avec un coût plus élevé est aussi refusé. Les fichiers chiffrés par cadenas utilisent toujours 18 ; un fichier créé avec `age` et un coût plus élevé (19 à 22) ne peut plus être ouvert par cadenas.
@@ -314,7 +332,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...HEAD
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/PierreEbele/cadenas/compare/v1.4.0...v1.4.1

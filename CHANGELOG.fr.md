@@ -9,6 +9,13 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Sécurité
+
+- Les caractères de contrôle bidirectionnel (U+202E…) sont retirés du nom
+  du fichier déchiffré : ils ne peuvent plus déguiser son extension.
+- docs/ASSURANCE : le site sur GitHub Pages partage son origine avec les
+  autres pages du compte ; limite documentée.
+
 ## [1.7.0] - 2026-10-05
 
 Une page simple pour ouvrir un fichier chiffré reçu, et des correctifs de

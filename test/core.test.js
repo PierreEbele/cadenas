@@ -182,6 +182,9 @@ describe('détection', () => {
     assert.equal(decryptedName('photo.jpg.AGE'), 'photo.jpg');
     assert.equal(decryptedName('.cadenas'), '.cadenas.dechiffre');
     assert.equal(decryptedName('archive.bin'), 'archive.bin.dechiffre');
+    assert.equal(decryptedName('facture\u202Efdp.exe.cadenas'), 'facturefdp.exe');
+    assert.equal(decryptedName('a\u2067b\u200F\u061C.txt\u2069.age'), 'ab.txt');
+    assert.equal(decryptedName('\u202E.cadenas'), '.cadenas.dechiffre');
   });
 
   test('peek ne perd aucun octet', async () => {

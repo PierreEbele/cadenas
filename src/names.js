@@ -18,11 +18,18 @@ export function archiveName(folder, date = new Date()) {
   return `cadenas-${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}.zip`;
 }
 
+// Caractères de contrôle bidirectionnel (LRM, RLM, ALM, LRE…RLO, LRI…PDI) :
+// invisibles, ils servent à déguiser une extension
+// (« facture\u202Efdp.exe » s'affiche « facture exe.pdf »).
+const BIDI_CONTROLS = /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g;
+
 /**
  * photo.jpg.cadenas → photo.jpg ; photo.jpg.age → photo.jpg.
  * Sans extension reconnue : photo.bin → photo.bin.dechiffre.
+ * Le nom vient de l'expéditeur : ses contrôles bidirectionnels sont retirés.
  */
 export function decryptedName(name) {
+  name = name.replace(BIDI_CONTROLS, '');
   const lower = name.toLowerCase();
   for (const ext of Object.values(EXTENSIONS)) {
     if (lower.endsWith(ext) && name.length > ext.length) return name.slice(0, -ext.length);

@@ -115,3 +115,13 @@ donc sans CSP. Ils n'exécutent que le code du site et ne font aucune requête
 réseau ; les atteindre supposerait d'abord une injection dans ce code.
 L'image Docker envoie la CSP en en-tête pour chaque fichier, workers
 compris : c'est le déploiement le plus strictement confiné.
+
+Sur GitHub Pages, le site partage aussi son origine,
+`https://pierreebele.github.io`, avec toute autre page publiée par ce compte
+(site utilisateur, autres dépôts avec Pages). Le navigateur ne sépare pas
+des chemins d'une même origine : une telle page pourrait ouvrir
+`/cadenas/` dans une iframe et lire ou modifier son contenu, mot de passe
+compris, ou écrire à son service worker. La sécurité du site en ligne
+dépend donc de toutes les pages de cette origine : aucune autre page ne doit
+y être publiée. Un domaine dédié, ou l'image Docker sur son propre domaine,
+supprime cette dépendance.

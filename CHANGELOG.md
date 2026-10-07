@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Security
+
+- Bidirectional control characters (U+202E…) are removed from the name of
+  the decrypted file: they can no longer disguise its extension.
+- docs/ASSURANCE: the site on GitHub Pages shares its origin with the
+  account's other pages; limitation documented.
+
 ## [1.7.0] - 2026-10-05
 
 A simple page to open an encrypted file you received, and security fixes

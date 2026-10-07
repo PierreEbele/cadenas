@@ -109,3 +109,12 @@ only run the site's own code and make no network request; reaching them
 would first require an injection into that code. The Docker image sends the
 CSP as a header to every file, workers included: it is the most strictly
 confined deployment.
+
+On GitHub Pages, the site also shares its origin,
+`https://pierreebele.github.io`, with every other page published by this
+account (user site, other repositories with Pages). Browsers do not isolate
+paths within an origin: such a page could open `/cadenas/` in an iframe and
+read or change its content, password included, or message its service
+worker. The security of the online site therefore depends on every page of
+that origin: no other page may be published there. A dedicated domain, or
+the Docker image on its own domain, removes this dependency.

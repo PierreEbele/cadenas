@@ -133,6 +133,25 @@ jobs:
           echo "autre mot de passe" | node bin/cadenas.js unlock --password-stdin -o from-cadenas.txt by-age.age
           cmp plain.txt from-cadenas.txt
 
+  # Site de documentation (docs.getcadenas.com) : le build échoue sur un lien
+  # mort, y compris dans les documents du dépôt qu'il reprend.
+  docs:
+    name: Site de documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site-docs/package-lock.json
+      - run: npm ci
+        working-directory: site-docs
+      - run: npm run build
+        working-directory: site-docs
+
   docker:
     name: Image Docker (build et test)
     runs-on: ubuntu-latest

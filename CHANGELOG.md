@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   longer shares its origin with the account's other pages. The old address
   redirects to it.
 
+### Documentation
+
+- Documentation website, in English and French, at
+  <https://docs.getcadenas.com/>: guides (website, sharing a file, passwords,
+  command line, Docker, library, formats), FAQ and the repository's reference
+  documents, picked up on every build.
+
 ## [1.7.0] - 2026-10-05
 
 A simple page to open an encrypted file you received, and security fixes

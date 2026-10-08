@@ -1,0 +1,10 @@
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+
+# Copiés depuis le dépôt à chaque build (scripts/sync-reference.js)
+/reference/
+/project/
+/en/reference/
+/en/project/
+/public/images/

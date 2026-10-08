@@ -5,7 +5,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['build/', 'dist/', 'src/wordlists/'] },
+  { ignores: ['build/', 'dist/', 'src/wordlists/', 'site-docs/.vitepress/cache/', 'site-docs/.vitepress/dist/'] },
   js.configs.recommended,
   {
     languageOptions: {

@@ -18,6 +18,7 @@ Internet. The same tool is available on the command line.
   <a href="https://getcadenas.com/"><strong>Try it now</strong></a> ·
   <a href="#command-line">Command line</a> ·
   <a href="#self-host-with-docker">Docker</a> ·
+  <a href="https://docs.getcadenas.com/en/">Documentation</a> ·
   <a href="docs/FORMAT.md">Format</a>
 </p>
 
@@ -293,6 +294,7 @@ web/        website (page, styles, encryption worker)
 bin/        command line
 docker/     nginx configuration for the image
 docs/       format, architecture, security arguments
+site-docs/  documentation website (docs.getcadenas.com)
 test/       tests, test vector, reference implementation
 ```
 

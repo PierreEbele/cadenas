@@ -22,6 +22,18 @@ updates:
       prefix: chore(deps)
       prefix-development: chore(deps-dev)
 
+  - package-ecosystem: npm
+    directory: /site-docs
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      docs:
+        patterns: ['*']
+    commit-message:
+      prefix: docs(deps)
+
   - package-ecosystem: github-actions
     directory: /
     schedule:

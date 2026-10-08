@@ -1,0 +1,21 @@
+{
+  "name": "cadenas-docs",
+  "private": true,
+  "type": "module",
+  "description": "Site de documentation de cadenas (docs.getcadenas.com)",
+  "scripts": {
+    "sync": "node scripts/sync-reference.js",
+    "dev": "npm run sync && vitepress dev",
+    "build": "npm run sync && vitepress build && node scripts/headers.js",
+    "preview": "vitepress preview"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  },
+  "overrides": {
+    "vite": "6.4.4"
+  }
+}

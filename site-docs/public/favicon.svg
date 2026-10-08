@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .c { color: #116a55; }
+    @media (prefers-color-scheme: dark) { .c { color: #3fbf98; } }
+  </style>
+  <g class="c">
+    <path d="M10 14v-3.5a6 6 0 0 1 12 0V14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    <rect x="6" y="14" width="20" height="15" rx="4" fill="currentColor"/>
+  </g>
+  <circle cx="16" cy="20.5" r="2.2" fill="#fff"/>
+  <path d="M16 21.5v3" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

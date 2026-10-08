@@ -19,6 +19,13 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
   il ne partage plus son origine avec les autres pages du compte. L'ancienne
   adresse y redirige.
 
+### Documentation
+
+- Site de documentation, en français et en anglais, sur
+  <https://docs.getcadenas.com/> : guides (site, partage d'un fichier, mots
+  de passe, ligne de commande, Docker, bibliothèque, formats), questions
+  fréquentes et documents de référence du dépôt, repris à chaque build.
+
 ## [1.7.0] - 2026-10-05
 
 Une page simple pour ouvrir un fichier chiffré reçu, et des correctifs de

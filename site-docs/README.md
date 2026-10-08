@@ -33,20 +33,22 @@ origine : sur le même domaine, le code de la documentation pourrait lire la
 page de chiffrement ou parler à son service worker. Le sous-domaine garde
 l'application seule sur son origine (voir `docs/ASSURANCE.md`).
 
-## Déploiement (Cloudflare Pages)
+## Déploiement (Cloudflare)
 
 GitHub Pages n'accepte qu'un domaine par dépôt, déjà pris par l'application.
-La documentation est donc publiée par Cloudflare Pages, relié au dépôt :
+La documentation est donc publiée par Cloudflare (Workers & Pages, fichiers
+statiques seulement), relié au dépôt. `wrangler.jsonc` décrit le déploiement.
 
 | Réglage | Valeur |
 |---|---|
+| Nom du projet | `cadenas-docs` (le même que dans `wrangler.jsonc`) |
 | Branche de production | `main` |
-| Dossier racine | `site-docs` |
+| Chemin (dossier racine) | `site-docs` |
 | Commande de build | `npm run build` |
-| Dossier de sortie | `.vitepress/dist` |
+| Commande de déploiement | `npx wrangler deploy` |
 | Domaine personnalisé | `docs.getcadenas.com` |
 
-La version de Node.js est fixée par `.node-version`. Cloudflare Pages envoie
-les en-têtes de `_headers`, écrit par `scripts/headers.js` après le build :
-CSP stricte (scripts en ligne autorisés par empreinte SHA-256), `nosniff`,
-pas de référent, interdiction d'être affiché dans un cadre.
+La version de Node.js est fixée par `.node-version`. Cloudflare envoie les
+en-têtes de `_headers`, écrit par `scripts/headers.js` après le build : CSP
+stricte (scripts en ligne autorisés par empreinte SHA-256), `nosniff`, pas de
+référent, interdiction d'être affiché dans un cadre.

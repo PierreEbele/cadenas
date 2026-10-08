@@ -1,0 +1,12 @@
+// Déploiement sur Cloudflare (Workers, fichiers statiques seulement : aucun
+// code ne tourne côté serveur). Le nom doit être celui du projet Cloudflare.
+{
+  "name": "cadenas-docs",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".vitepress/dist",
+    // /guide/cli sert guide/cli.html (liens sans .html, cleanUrls de VitePress).
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

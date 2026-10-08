@@ -116,12 +116,11 @@ réseau ; les atteindre supposerait d'abord une injection dans ce code.
 L'image Docker envoie la CSP en en-tête pour chaque fichier, workers
 compris : c'est le déploiement le plus strictement confiné.
 
-Sur GitHub Pages, le site partage aussi son origine,
-`https://pierreebele.github.io`, avec toute autre page publiée par ce compte
-(site utilisateur, autres dépôts avec Pages). Le navigateur ne sépare pas
-des chemins d'une même origine : une telle page pourrait ouvrir
-`/cadenas/` dans une iframe et lire ou modifier son contenu, mot de passe
-compris, ou écrire à son service worker. La sécurité du site en ligne
-dépend donc de toutes les pages de cette origine : aucune autre page ne doit
-y être publiée. Un domaine dédié, ou l'image Docker sur son propre domaine,
-supprime cette dépendance.
+Le site en ligne est servi depuis son propre domaine,
+`https://getcadenas.com` : il ne partage son origine avec aucune autre page.
+Le navigateur ne sépare pas des chemins d'une même origine : une page de la
+même origine pourrait ouvrir le site dans une iframe et lire ou modifier son
+contenu, mot de passe compris, ou écrire à son service worker. L'ancienne
+adresse, `https://pierreebele.github.io/cadenas/`, ne fait plus que
+rediriger vers le domaine dédié. Qui héberge l'image Docker doit de même lui
+donner un domaine à elle, pas un chemin à côté d'autres pages.

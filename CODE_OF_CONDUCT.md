@@ -25,7 +25,7 @@ inappropriate in a professional setting.
 ## Reporting a behavior
 
 Write to the main maintainer, Pierre Ebele, at
-**cadenas@pierre.ebele.fr**. Every report is reviewed promptly and fairly,
+**conduct@getcadenas.com**. Every report is reviewed promptly and fairly,
 with respect for the privacy of the person making it.
 
 Possible measures (warning, temporary or permanent ban) follow the

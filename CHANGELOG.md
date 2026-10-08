@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Addresses: the website footer links to the documentation
+  (docs.getcadenas.com), and so does the command-line help; the Homebrew
+  formula, the winget manifest, the Docker image and the npm package point to
+  getcadenas.com.
+- Contacts on the domain: security@getcadenas.com (vulnerabilities, besides
+  GitHub private reporting), conduct@getcadenas.com (code of conduct),
+  contact@getcadenas.com.
+
 ### Security
 
 - Bidirectional control characters (U+202E…) are removed from the name of

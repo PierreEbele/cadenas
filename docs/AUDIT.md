@@ -117,4 +117,5 @@ To contact, with this document:
 
 ## Contact
 
-Pierre Ebele, maintainer — [@PierreEbele](https://github.com/PierreEbele).
+Pierre Ebele, maintainer — [@PierreEbele](https://github.com/PierreEbele),
+**contact@getcadenas.com**.

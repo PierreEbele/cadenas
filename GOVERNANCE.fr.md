@@ -10,7 +10,7 @@ mainteneur n'est plus disponible.
 
 | Rôle | Qui | Responsabilités |
 |---|---|---|
-| Mainteneur principal | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Relit et fusionne les pull requests ; trie les issues ; publie les versions ; traite les signalements de vulnérabilité ([SECURITY.fr.md](SECURITY.fr.md)) ; administre le dépôt GitHub, le paquet npm, l'image `ghcr.io` et le site GitHub Pages ; tient à jour la [feuille de route](ROADMAP.fr.md) ; fait respecter le [code de conduite](CODE_OF_CONDUCT.fr.md). |
+| Mainteneur principal | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Relit et fusionne les pull requests ; trie les issues ; publie les versions ; traite les signalements de vulnérabilité ([SECURITY.fr.md](SECURITY.fr.md)) ; administre le dépôt GitHub, le paquet npm, l'image `ghcr.io` et le domaine getcadenas.com et ses sites (GitHub Pages, Cloudflare pour docs.getcadenas.com) et les adresses `@getcadenas.com` ; tient à jour la [feuille de route](ROADMAP.fr.md) ; fait respecter le [code de conduite](CODE_OF_CONDUCT.fr.md). |
 | Contributeur ou contributrice | Toute personne qui ouvre une issue ou une pull request | Respecte le [guide de contribution](CONTRIBUTING.fr.md) et le code de conduite ; teste ses changements. |
 | Utilisateur ou utilisatrice | Tout le monde | Signale les bugs par une issue et les vulnérabilités en privé. |
 

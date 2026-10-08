@@ -10,7 +10,7 @@ that maintainer is no longer available.
 
 | Role | Who | Responsibilities |
 |---|---|---|
-| Main maintainer | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Reviews and merges pull requests; triages issues; publishes releases; handles vulnerability reports ([SECURITY.md](SECURITY.md)); administers the GitHub repository, the npm package, the `ghcr.io` image, and the GitHub Pages site; maintains the [roadmap](ROADMAP.md); enforces the [code of conduct](CODE_OF_CONDUCT.md). |
+| Main maintainer | Pierre Ebele ([@PierreEbele](https://github.com/PierreEbele)) | Reviews and merges pull requests; triages issues; publishes releases; handles vulnerability reports ([SECURITY.md](SECURITY.md)); administers the GitHub repository, the npm package, the `ghcr.io` image, and the getcadenas.com domain and its sites (GitHub Pages, Cloudflare for docs.getcadenas.com) and the `@getcadenas.com` addresses; maintains the [roadmap](ROADMAP.md); enforces the [code of conduct](CODE_OF_CONDUCT.md). |
 | Contributor | Anyone who opens an issue or pull request | Follows the [contribution guide](CONTRIBUTING.md) and the code of conduct; tests their changes. |
 | User | Everyone | Reports bugs via an issue and vulnerabilities privately. |
 

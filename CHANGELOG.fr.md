@@ -9,6 +9,16 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Modifié
+
+- Adresses : le pied de page du site renvoie vers la documentation
+  (docs.getcadenas.com), l'aide de la ligne de commande aussi ; la formule
+  Homebrew, le manifeste winget, l'image Docker et le paquet npm indiquent
+  getcadenas.com.
+- Contacts sur le domaine : security@getcadenas.com (vulnérabilités, en plus
+  du signalement privé GitHub), conduct@getcadenas.com (code de conduite),
+  contact@getcadenas.com.
+
 ### Sécurité
 
 - Les caractères de contrôle bidirectionnel (U+202E…) sont retirés du nom

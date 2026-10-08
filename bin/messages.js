@@ -50,7 +50,7 @@ Exemples :
   cadenas unlock sauvegarde.cadenas -o - --password-file ~/.secret | tar x
 
 Langue des messages : celle du système (LANG=fr_FR.UTF-8 ou LANG=en_US.UTF-8).
-Documentation : https://github.com/PierreEbele/cadenas`,
+Documentation : https://docs.getcadenas.com/`,
   en: `cadenas {version} — encrypt a file with a password
 
 Usage:
@@ -86,7 +86,7 @@ Examples:
   cadenas unlock backup.cadenas -o - --password-file ~/.secret | tar x
 
 Message language: the system's (LANG=en_US.UTF-8 or LANG=fr_FR.UTF-8).
-Documentation: https://github.com/PierreEbele/cadenas`,
+Documentation: https://docs.getcadenas.com/en/`,
 };
 
 export const MESSAGES = {

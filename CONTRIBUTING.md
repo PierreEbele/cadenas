@@ -92,7 +92,9 @@ leaves your computer; protect it with a passphrase.
 
 1. Move the `[Unreleased]` entries under the new version number, in
    `CHANGELOG.md` and `CHANGELOG.fr.md`. The release notes are taken from
-   `CHANGELOG.md`.
+   `CHANGELOG.md`. If the `Expires` date of
+   `web/public/.well-known/security.txt` is less than six months away, push
+   it to one year from now.
 2. `npm version <x.y.z> --no-git-tag-version`, then commit `chore(release): x.y.z`
    via a pull request, merged into main.
 3. On an up-to-date main: `npm run release:tag -- "summary" --push`. The script

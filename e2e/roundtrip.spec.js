@@ -106,11 +106,11 @@ test('nom masqué : nom neutre, nom d’origine rangé dans l’archive', async 
 
 test('la langue bascule en anglais et reste choisie', async ({ page }) => {
   const formatLink = page.locator('a[data-i18n="footer.format"]');
-  await expect(formatLink).toHaveAttribute('href', /\/docs\/FORMAT\.fr\.md$/);
+  await expect(formatLink).toHaveAttribute('href', 'https://docs.getcadenas.com/reference/format');
   await page.locator('#lang').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('#submit')).toHaveText('Encrypt');
-  await expect(formatLink).toHaveAttribute('href', /\/docs\/FORMAT\.md$/);
+  await expect(formatLink).toHaveAttribute('href', 'https://docs.getcadenas.com/en/reference/format');
   await page.reload();
   await expect(page.locator('#submit')).toHaveText('Encrypt');
 });

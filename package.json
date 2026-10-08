@@ -29,7 +29,11 @@
     "url": "git+https://github.com/PierreEbele/cadenas.git"
   },
   "license": "MIT",
-  "author": "Pierre Ebele",
+  "author": {
+    "name": "Pierre Ebele",
+    "email": "contact@getcadenas.com",
+    "url": "https://getcadenas.com/"
+  },
   "type": "module",
   "bin": {
     "cadenas": "bin/cadenas.js"

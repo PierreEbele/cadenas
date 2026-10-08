@@ -14,6 +14,8 @@ FROM nginxinc/nginx-unprivileged:stable-alpine@sha256:ed04ec1ff34502c339ee5c3ae3
 LABEL org.opencontainers.image.title="cadenas" \
       org.opencontainers.image.description="Chiffrez un fichier avec un mot de passe, directement dans le navigateur." \
       org.opencontainers.image.source="https://github.com/PierreEbele/cadenas" \
+      org.opencontainers.image.url="https://getcadenas.com/" \
+      org.opencontainers.image.documentation="https://docs.getcadenas.com/" \
       org.opencontainers.image.licenses="MIT"
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf

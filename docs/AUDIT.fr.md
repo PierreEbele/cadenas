@@ -124,4 +124,5 @@ de [SECURITY.fr.md](../SECURITY.fr.md).
 
 ## Contact
 
-Pierre Ebele, mainteneur — [@PierreEbele](https://github.com/PierreEbele).
+Pierre Ebele, mainteneur — [@PierreEbele](https://github.com/PierreEbele),
+**contact@getcadenas.com**.

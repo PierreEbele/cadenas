@@ -93,7 +93,12 @@ fichier du site : comparez-les avec ceux que sert votre instance.
 ## Signaler une vulnérabilité
 
 Merci de ne **pas** ouvrir d'issue publique. Utilisez le
-[signalement privé de vulnérabilité GitHub](https://github.com/PierreEbele/cadenas/security/advisories/new).
+[signalement privé de vulnérabilité GitHub](https://github.com/PierreEbele/cadenas/security/advisories/new)
+ou, sans compte GitHub, écrivez à **security@getcadenas.com** : le
+mainteneur ouvre alors l'avis de sécurité privé et vous y invite.
+Le même contact est publié dans
+[`/.well-known/security.txt`](https://getcadenas.com/.well-known/security.txt)
+(RFC 9116).
 
 ## Traitement des signalements
 

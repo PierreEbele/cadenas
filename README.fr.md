@@ -18,6 +18,7 @@ existe en ligne de commande.
   <a href="https://getcadenas.com/"><strong>Essayer maintenant</strong></a> ·
   <a href="#ligne-de-commande">Ligne de commande</a> ·
   <a href="#héberger-soi-même-avec-docker">Docker</a> ·
+  <a href="https://docs.getcadenas.com/">Documentation</a> ·
   <a href="docs/FORMAT.fr.md">Format</a>
 </p>
 
@@ -295,6 +296,7 @@ web/        site (page, styles, worker de chiffrement)
 bin/        ligne de commande
 docker/     configuration nginx de l'image
 docs/       format, architecture, argumentaire de sécurité
+site-docs/  site de documentation (docs.getcadenas.com)
 test/       tests, vecteur de test, implémentation de référence
 ```
 

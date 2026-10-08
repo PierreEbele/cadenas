@@ -35,7 +35,11 @@ const serviceWorker = {
   apply: 'build',
   generateBundle(_options, bundle) {
     const publicDir = new URL('./web/public/', import.meta.url);
-    const publicFiles = readdirSync(publicDir);
+    // Fichiers de premier niveau seulement : .well-known/security.txt n'a pas
+    // besoin de fonctionner hors ligne.
+    const publicFiles = readdirSync(publicDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name);
     const files = [...Object.keys(bundle), ...publicFiles]
       .filter((name) => name !== 'index.html' && !name.endsWith('.map'))
       .sort();

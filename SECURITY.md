@@ -91,7 +91,12 @@ site file: compare them with the files served by your instance.
 ## Reporting a vulnerability
 
 Please do **not** open a public issue. Use
-[GitHub's private vulnerability reporting](https://github.com/PierreEbele/cadenas/security/advisories/new).
+[GitHub's private vulnerability reporting](https://github.com/PierreEbele/cadenas/security/advisories/new),
+or, without a GitHub account, write to **security@getcadenas.com**: the
+maintainer then opens the private security advisory and invites you to it.
+The same contact is published in
+[`/.well-known/security.txt`](https://getcadenas.com/.well-known/security.txt)
+(RFC 9116).
 
 ## Handling of reports
 

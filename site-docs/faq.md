@@ -62,7 +62,8 @@ largement relu.
 
 En privé, par le
 [signalement de vulnérabilité GitHub](https://github.com/PierreEbele/cadenas/security/advisories/new),
-et non dans une issue publique. Voir [Sécurité](/reference/security).
+ou par e-mail à **security@getcadenas.com**, et non dans une issue publique.
+Voir [Sécurité](/reference/security).
 
 ## Comment contribuer ?
 

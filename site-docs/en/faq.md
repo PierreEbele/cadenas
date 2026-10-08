@@ -59,7 +59,8 @@ offers the widely reviewed age format.
 
 Privately, through
 [GitHub's private vulnerability reporting](https://github.com/PierreEbele/cadenas/security/advisories/new),
-not in a public issue. See [Security](/en/reference/security).
+or by email to **security@getcadenas.com**, not in a public issue. See
+[Security](/en/reference/security).
 
 ## How can I contribute?
 

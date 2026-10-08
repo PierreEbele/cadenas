@@ -93,7 +93,9 @@ jamais votre ordinateur ; protégez-la par une phrase de passe.
 
 1. Déplacer les entrées non publiées sous le nouveau numéro de version, dans
    `CHANGELOG.md` (`[Unreleased]`) et `CHANGELOG.fr.md` (`[Non publié]`). Les
-   notes de release sont tirées de `CHANGELOG.md`.
+   notes de release sont tirées de `CHANGELOG.md`. Si la date `Expires` de
+   `web/public/.well-known/security.txt` est à moins de six mois, la repousser
+   à un an.
 2. `npm version <x.y.z> --no-git-tag-version`, puis commit `chore(release): x.y.z`
    par une pull request, fusionnée dans main.
 3. Sur main à jour : `npm run release:tag -- "résumé" --push`. Le script refuse

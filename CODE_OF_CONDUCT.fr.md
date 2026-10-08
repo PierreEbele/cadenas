@@ -28,7 +28,7 @@ professionnel.
 ## Signaler un comportement
 
 Écrivez au mainteneur principal, Pierre Ebele, à
-**cadenas@pierre.ebele.fr**. Chaque signalement est examiné rapidement et
+**conduct@getcadenas.com**. Chaque signalement est examiné rapidement et
 équitablement, dans le respect de la vie privée de la personne qui signale.
 
 Les mesures possibles (avertissement, exclusion temporaire ou définitive)

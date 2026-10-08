@@ -15,14 +15,14 @@
 Internet. The same tool is available on the command line.
 
 <p align="center">
-  <a href="https://pierreebele.github.io/cadenas/"><strong>Try it now</strong></a> ·
+  <a href="https://getcadenas.com/"><strong>Try it now</strong></a> ·
   <a href="#command-line">Command line</a> ·
   <a href="#self-host-with-docker">Docker</a> ·
   <a href="docs/FORMAT.md">Format</a>
 </p>
 
 <p align="center">
-  <a href="https://pierreebele.github.io/cadenas/">
+  <a href="https://getcadenas.com/">
     <img src="docs/images/demo-en.gif" alt="Demo of the cadenas website: a file named annual-report-2026.pdf is chosen, a five-word passphrase is generated and rated excellent, the file is encrypted in a few seconds and annual-report-2026.pdf.cadenas is ready to download." width="480">
   </a>
 </p>
@@ -83,7 +83,7 @@ foremost (use [7-Zip](https://www.7-zip.org)).
 
 ## Use the website
 
-Online version: **<https://pierreebele.github.io/cadenas/>**
+Online version: **<https://getcadenas.com/>**
 
 1. Drop a file, several files or a whole folder (they are then bundled into
    an encrypted `.zip` archive).

@@ -110,11 +110,11 @@ would first require an injection into that code. The Docker image sends the
 CSP as a header to every file, workers included: it is the most strictly
 confined deployment.
 
-On GitHub Pages, the site also shares its origin,
-`https://pierreebele.github.io`, with every other page published by this
-account (user site, other repositories with Pages). Browsers do not isolate
-paths within an origin: such a page could open `/cadenas/` in an iframe and
-read or change its content, password included, or message its service
-worker. The security of the online site therefore depends on every page of
-that origin: no other page may be published there. A dedicated domain, or
-the Docker image on its own domain, removes this dependency.
+The online site is served from its own domain, `https://getcadenas.com`:
+it does not share its origin with any other page. Browsers do not isolate
+paths within an origin, so a page on the same origin could open the site in
+an iframe and read or change its content, password included, or message its
+service worker. The old address, `https://pierreebele.github.io/cadenas/`,
+only redirects to the dedicated domain. Anyone self-hosting the Docker image
+should likewise give it a domain of its own, not a path next to other
+pages.

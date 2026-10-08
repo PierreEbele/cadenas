@@ -15,14 +15,14 @@ navigateur** : aucun fichier ni mot de passe n'est envoyé sur Internet. Le mêm
 existe en ligne de commande.
 
 <p align="center">
-  <a href="https://pierreebele.github.io/cadenas/"><strong>Essayer maintenant</strong></a> ·
+  <a href="https://getcadenas.com/"><strong>Essayer maintenant</strong></a> ·
   <a href="#ligne-de-commande">Ligne de commande</a> ·
   <a href="#héberger-soi-même-avec-docker">Docker</a> ·
   <a href="docs/FORMAT.fr.md">Format</a>
 </p>
 
 <p align="center">
-  <a href="https://pierreebele.github.io/cadenas/">
+  <a href="https://getcadenas.com/">
     <img src="docs/images/demo-fr.gif" alt="Démonstration du site cadenas : un fichier rapport-annuel-2026.pdf est choisi, une phrase de passe de cinq mots est générée et jugée excellente, le fichier est chiffré en quelques secondes et rapport-annuel-2026.pdf.cadenas est prêt à être téléchargé." width="480">
   </a>
 </p>
@@ -84,7 +84,7 @@ archives compressées ([7-Zip](https://www.7-zip.org)).
 
 ## Utiliser le site
 
-Version en ligne : **<https://pierreebele.github.io/cadenas/>**
+Version en ligne : **<https://getcadenas.com/>**
 
 1. Déposez un fichier, plusieurs fichiers ou un dossier entier (ils sont alors
    réunis dans une archive `.zip` chiffrée).

@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   the decrypted file: they can no longer disguise its extension.
 - docs/ASSURANCE: the site on GitHub Pages shares its origin with the
   account's other pages; limitation documented.
+- The online site moves to its own domain, <https://getcadenas.com/>: it no
+  longer shares its origin with the account's other pages. The old address
+  redirects to it.
 
 ## [1.7.0] - 2026-10-05
 

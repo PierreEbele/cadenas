@@ -15,6 +15,9 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
   du fichier déchiffré : ils ne peuvent plus déguiser son extension.
 - docs/ASSURANCE : le site sur GitHub Pages partage son origine avec les
   autres pages du compte ; limite documentée.
+- Le site en ligne passe sur son propre domaine, <https://getcadenas.com/> :
+  il ne partage plus son origine avec les autres pages du compte. L'ancienne
+  adresse y redirige.
 
 ## [1.7.0] - 2026-10-05
 

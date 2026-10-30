@@ -43,7 +43,7 @@ async function download(url) {
 const releaseUrl = `https://github.com/${REPO}/releases/download/v${version}`;
 
 // Schéma des manifestes winget attendu par microsoft/winget-pkgs.
-const MANIFEST_VERSION = '1.12.0';
+const MANIFEST_VERSION = '1.28.0';
 
 async function releaseDate() {
   const response = await fetch(`https://api.github.com/repos/${REPO}/releases/tags/v${version}`, {

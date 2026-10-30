@@ -22,4 +22,4 @@ manifests generated for this release by `scripts/packaging.js`.
 - [x] This PR only modifies one (1) manifest
 - [ ] Validated manifest locally with `winget validate --manifest <path>` ([validation guide](https://github.com/microsoft/winget-pkgs/blob/master/doc/ValidationFailureGuide.md))
 - [ ] Tested manifest locally with `winget install --manifest <path>`
-- [ ] Manifest conforms to the [1.12 schema](https://github.com/microsoft/winget-pkgs/tree/master/doc/manifest/schema/1.12.0)
+- [ ] Manifest conforms to the [1.28 schema](https://github.com/microsoft/winget-pkgs/tree/master/doc/manifest/schema/1.28.0)

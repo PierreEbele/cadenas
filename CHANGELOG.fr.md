@@ -9,6 +9,10 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.7.1] - 2026-10-30
+
+Correctifs de sécurité, documentation et adresses sur getcadenas.com, et manifestes winget au schéma 1.28.0.
+
 ### Modifié
 
 - Adresses : le pied de page du site renvoie vers la documentation
@@ -18,6 +22,7 @@ et le projet respecte le [versionnage sémantique](https://semver.org/lang/fr/).
 - Contacts sur le domaine : security@getcadenas.com (vulnérabilités, en plus
   du signalement privé GitHub), conduct@getcadenas.com (code de conduite),
   contact@getcadenas.com.
+- Packaging : mise à jour du schéma de manifeste WinGet vers 1.28.0.
 
 ### Sécurité
 
@@ -359,7 +364,8 @@ En résumé :
 
 - Initialisation du projet : `package.json`, licence MIT, README, `.editorconfig`, `.gitignore`.
 
-[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.7.0...HEAD
+[Non publié]: https://github.com/PierreEbele/cadenas/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/PierreEbele/cadenas/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/PierreEbele/cadenas/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PierreEbele/cadenas/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PierreEbele/cadenas/compare/v1.4.1...v1.5.0

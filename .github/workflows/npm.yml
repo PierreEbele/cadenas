@@ -16,16 +16,34 @@ permissions:
   id-token: write
 
 jobs:
-  publish:
+  # Signature du tag, vérifiée par le script de la branche main et non par
+  # celui de l'arbre tagué : un commit tagué ne peut pas remplacer le code qui
+  # le vérifie. Le workflow lui-même est lu dans le commit tagué : ce contrôle
+  # ne protège donc pas contre qui peut modifier les workflows (voir
+  # SECURITY.fr.md, « Tags de version »).
+  verify-tag:
+    name: Signature du tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: trusted
       - name: Le tag est signé par le mainteneur
+        working-directory: trusted
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          git fetch --depth=1 --no-tags --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
           node scripts/verify-tag.js "$GITHUB_REF_NAME"
+
+  publish:
+    needs: verify-tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24

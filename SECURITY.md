@@ -62,19 +62,36 @@ in SLSA format): `gh attestation verify <file> --repo PierreEbele/cadenas
 
 **Version tags** — starting with version 1.4.0, each tag is signed
 with a maintainer SSH key ("Verified" badge on GitHub). To verify it
-yourself in a clone of the repository:
+yourself, run the script from a checkout of `main`, not from the tag under
+test (a tagged tree could contain a modified copy of the script):
 
 ```bash
+git checkout main && git pull
+git fetch origin tag vX.Y.Z
 node scripts/verify-tag.js vX.Y.Z
 ```
 
 The script fetches the signing keys published on the GitHub account
-[PierreEbele](https://github.com/PierreEbele) and runs `git verify-tag`.
+[PierreEbele](https://github.com/PierreEbele), runs `git verify-tag`, and
+checks that the tag points to a commit whose `package.json` has that
+version.
+
+The release workflows (npm, Docker, GitHub release) run the same check in
+a first job, with the script taken from `main`, before building or
+publishing anything. What it does and does not guarantee: it stops a tag
+that is unsigned or placed on the wrong commit, including one pushed by
+someone who can change the code but not the workflows. The workflows
+themselves are read from the tagged commit, so it does not stop someone
+who can push a tag and edit the workflows, nor someone who controls the
+maintainer's GitHub account (who can add a signing key). Those cases rely
+on repository settings, recommended but outside the code: a tag ruleset
+restricting `v*` tags to the maintainer, and a protected GitHub
+environment for the publication jobs, bound to the npm trusted publisher.
 
 **The site matches the source code** — the site build is reproducible:
 built from the same tag, on any system, it produces bit-for-bit identical
 files (CI verifies this on Linux, Windows, and macOS, with Node.js 22 and
-24). To verify it yourself:
+24). To verify it yourself (after checking the tag from `main` as above):
 
 ```bash
 git checkout vX.Y.Z

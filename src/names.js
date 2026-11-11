@@ -23,6 +23,20 @@ export function archiveName(folder, date = new Date()) {
 // (« facture\u202Efdp.exe » s'affiche « facture exe.pdf »).
 const BIDI_CONTROLS = /[\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]/g;
 
+// Caractères de contrôle C0, DEL et C1 (catégorie Unicode Cc) : dans un
+// terminal, ils peuvent former des séquences d'échappement (effacer la
+// ligne, changer le titre…).
+const TERMINAL_CONTROLS = /\p{Cc}/gu;
+
+/**
+ * Nom ou chemin affichable dans un terminal : chaque caractère de contrôle,
+ * y compris bidirectionnel, est remplacé par « ? ». Pour l'affichage
+ * seulement : le fichier garde son vrai nom.
+ */
+export function printableName(name) {
+  return String(name).replace(TERMINAL_CONTROLS, '?').replace(BIDI_CONTROLS, '?');
+}
+
 /**
  * photo.jpg.cadenas → photo.jpg ; photo.jpg.age → photo.jpg.
  * Sans extension reconnue : photo.bin → photo.bin.dechiffre.

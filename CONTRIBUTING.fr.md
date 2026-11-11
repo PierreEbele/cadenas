@@ -72,9 +72,13 @@ Le format v1 est figé : des fichiers existent déjà.
 
 ## Publier une version (mainteneurs)
 
-Les tags de version doivent être **signés** : les workflows de publication
-vérifient la signature (`scripts/verify-tag.js`) et refusent de publier une
+Les tags de version doivent être **signés** : avant toute construction, les
+workflows de publication vérifient la signature avec le
+`scripts/verify-tag.js` de la branche `main` et refusent de publier une
 version dont le tag n'est pas signé par une clé de signature du mainteneur.
+Les workflows eux-mêmes sont lus dans le commit tagué : cette vérification
+ne remplace pas une restriction de qui peut pousser les tags `v*` (voir
+[SECURITY.fr.md](SECURITY.fr.md)).
 
 **Une fois, sur votre ordinateur** :
 

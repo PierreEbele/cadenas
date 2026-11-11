@@ -12,6 +12,7 @@ import {
   streamFromBytes,
 } from '../src/core.js';
 import { peek } from '../src/bytes.js';
+import { printableName } from '../src/names.js';
 
 // Coûts réduits pour garder des tests rapides.
 const FAST_CADENAS = { format: 'cadenas', params: { m: 256, t: 1, p: 1 } };
@@ -185,6 +186,15 @@ describe('détection', () => {
     assert.equal(decryptedName('facture\u202Efdp.exe.cadenas'), 'facturefdp.exe');
     assert.equal(decryptedName('a\u2067b\u200F\u061C.txt\u2069.age'), 'ab.txt');
     assert.equal(decryptedName('\u202E.cadenas'), '.cadenas.dechiffre');
+  });
+
+  test('noms affichés sans caractère de contrôle', () => {
+    assert.equal(printableName('photo.jpg'), 'photo.jpg');
+    assert.equal(printableName('été/日記 (1).txt'), 'été/日記 (1).txt');
+    assert.equal(printableName('a\x1b]0;titre\x07b'), 'a?]0;titre?b');
+    assert.equal(printableName('\x1b[2J\x1b[H.txt'), '?[2J?[H.txt');
+    assert.equal(printableName('a\nb\rc\td\x00e\x7ff\x9bg'), 'a?b?c?d?e?f?g');
+    assert.equal(printableName('facture\u202Efdp.exe'), 'facture?fdp.exe');
   });
 
   test('peek ne perd aucun octet', async () => {

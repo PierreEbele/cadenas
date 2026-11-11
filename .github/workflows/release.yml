@@ -14,8 +14,38 @@ permissions:
   contents: read
 
 jobs:
+  # Signature du tag, vérifiée avant toute construction, par le script de la
+  # branche main et non par celui de l'arbre tagué : un commit tagué ne peut
+  # pas remplacer le code qui le vérifie. Le workflow lui-même est lu dans le
+  # commit tagué : ce contrôle ne protège donc pas contre qui peut modifier
+  # les workflows (voir SECURITY.fr.md, « Tags de version »).
+  # Lancé à la main sur une branche, rien n'est vérifié : verified reste vide
+  # et la release n'est pas publiée.
+  verify-tag:
+    name: Signature du tag
+    runs-on: ubuntu-latest
+    outputs:
+      verified: ${{ steps.verify.outputs.verified }}
+    steps:
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          path: trusted
+      - id: verify
+        name: Le tag est signé par le mainteneur
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: trusted
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --depth=1 --no-tags --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          node scripts/verify-tag.js "$GITHUB_REF_NAME"
+          echo "verified=true" >> "$GITHUB_OUTPUT"
+
   site:
     name: Site statique
+    needs: verify-tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,6 +70,7 @@ jobs:
 
   binaries:
     name: Exécutable ${{ matrix.name }}
+    needs: verify-tag
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -111,8 +142,8 @@ jobs:
 
   publish:
     name: Publication de la release
-    needs: [site, binaries]
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [verify-tag, site, binaries]
+    if: startsWith(github.ref, 'refs/tags/v') && needs.verify-tag.outputs.verified == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -120,12 +151,6 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Le tag est signé par le mainteneur
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
-          node scripts/verify-tag.js "$GITHUB_REF_NAME"
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: release

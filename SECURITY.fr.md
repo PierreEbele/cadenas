@@ -64,19 +64,39 @@ format SLSA) : `gh attestation verify <fichier> --repo PierreEbele/cadenas
 
 **Tags de version** — à partir de la version 1.4.0, chaque tag est signé
 avec une clé SSH du mainteneur (badge « Verified » sur GitHub). Pour le
-vérifier soi-même dans un clone du dépôt :
+vérifier soi-même, lancez le script depuis une copie de `main`, pas depuis
+le tag vérifié (l'arbre d'un tag pourrait contenir une copie modifiée du
+script) :
 
 ```bash
+git checkout main && git pull
+git fetch origin tag vX.Y.Z
 node scripts/verify-tag.js vX.Y.Z
 ```
 
 Le script récupère les clés de signature publiées sur le compte GitHub
-[PierreEbele](https://github.com/PierreEbele) et lance `git verify-tag`.
+[PierreEbele](https://github.com/PierreEbele), lance `git verify-tag` et
+vérifie que le tag pointe sur un commit dont `package.json` porte cette
+version.
+
+Les workflows de publication (npm, Docker, release GitHub) font la même
+vérification dans un premier job, avec le script pris sur `main`, avant
+de construire ou de publier quoi que ce soit. Ce que cela garantit et ne
+garantit pas : un tag non signé ou posé sur le mauvais commit est refusé,
+y compris s'il est poussé par quelqu'un qui peut modifier le code mais pas
+les workflows. Les workflows eux-mêmes sont lus dans le commit tagué : cela
+n'arrête ni quelqu'un qui peut pousser un tag et modifier les workflows, ni
+quelqu'un qui contrôle le compte GitHub du mainteneur (il peut y ajouter
+une clé de signature). Ces cas reposent sur des réglages du dépôt,
+recommandés mais hors du code : une règle de tags (ruleset) qui réserve les
+tags `v*` au mainteneur, et un environnement GitHub protégé pour les jobs
+de publication, lié à la publication de confiance npm.
 
 **Le site correspond au code source** — le build du site est reproductible :
 construit depuis le même tag, sur n'importe quel système, il donne des
 fichiers identiques au bit près (la CI le vérifie sur Linux, Windows et
-macOS, avec Node.js 22 et 24). Pour le vérifier soi-même :
+macOS, avec Node.js 22 et 24). Pour le vérifier soi-même (après avoir
+vérifié le tag depuis `main` comme ci-dessus) :
 
 ```bash
 git checkout vX.Y.Z

@@ -230,6 +230,13 @@ describe('plusieurs fichiers et dossiers', () => {
     assert.match(result.stderr, /Aucun fichier/);
   });
 
+  test('nom affiché sans séquence d’échappement du terminal', () => {
+    const result = cadenas(['unlock', '--password-stdin', 'x\x1b[2Jy.cadenas'], 'pwd');
+    assert.equal(result.code, 1);
+    assert.ok(!result.stderr.includes('\x1b'), JSON.stringify(result.stderr));
+    assert.match(result.stderr, /x\?\[2Jy\.cadenas/);
+  });
+
   test('un seul fichier à la fois au déchiffrement', () => {
     assert.equal(cadenas(['unlock', 'a.cadenas', 'b.cadenas']).code, 2);
   });

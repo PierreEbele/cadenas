@@ -28,7 +28,9 @@ boundaries, secure design principles, common weaknesses countered.
   to exploit the program (malformed file, extreme parameters);
 - a third-party script or service trying to exfiltrate data from the page;
 - an attack on the release pipeline (modified package, image or
-  executable).
+  executable) by someone who does not control the maintainer's GitHub
+  account; see "Release pipeline compromise" below for what is and is not
+  covered.
 
 **Out of scope**: an already compromised device (spyware, keylogger), a
 malicious browser, a weak password chosen despite the warnings, the name
@@ -82,7 +84,7 @@ a modified site (hence the published checksums).
 | Exfiltration and script injection (CWE-79) | Strict CSP with no external or inline script; no third-party resource; no `innerHTML` fed by the user. |
 | Exposure of sensitive information (CWE-200, CWE-532) | The password is never logged; input without echo in the terminal, escape sequences (arrow keys) ignored, terminal restored even on interruption; derived keys (Argon2id output, header and content keys) wiped from memory after use — the password itself, a JavaScript string, cannot be wiped; output files created readable by their owner only, temporary file deleted on interruption. |
 | Vulnerable dependencies (CWE-1395) | Dependabot (npm, actions, Docker), CodeQL analysis on every push and every week, OpenSSF Scorecard. |
-| Release pipeline compromise | Publication only by GitHub Actions (actions pinned by hash), after checking the SSH signature of the tag and that it points to the commit of its version; npm provenance, image signed with cosign, attestations and `SHA256SUMS` for the releases; reproducible site build. |
+| Release pipeline compromise | Publication only by GitHub Actions (actions pinned by hash). Before anything is built, a first job checks the SSH signature of the tag and that it points to the commit of its version, with the `scripts/verify-tag.js` of the `main` branch rather than the one in the tagged tree; npm provenance, image signed with cosign, attestations and `SHA256SUMS` for the releases; reproducible site build. Limits: the workflows themselves are read from the tagged commit, so this check catches mistakes and a tag pushed by someone who can change the code but not the workflows; it does not stop someone who can push a tag and edit the workflows, nor someone who controls the maintainer's account (who can add a signing key). Recommended repository settings, outside the code: a tag ruleset that restricts creating, updating and deleting `v*` tags to the maintainer, and a protected GitHub environment for the publication jobs, bound to the npm trusted publisher. |
 
 ## Continuous verification
 

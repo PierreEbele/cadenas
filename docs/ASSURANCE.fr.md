@@ -32,7 +32,9 @@ contrées.
 - un script ou un service tiers qui tenterait d'exfiltrer des données
   depuis la page ;
 - une attaque sur la chaîne de publication (paquet, image ou exécutable
-  modifié).
+  modifié) par quelqu'un qui ne contrôle pas le compte GitHub du
+  mainteneur ; voir « Compromission de la chaîne de publication » plus bas
+  pour ce qui est couvert et ce qui ne l'est pas.
 
 **Hors du périmètre** : un appareil déjà compromis (logiciel espion, clavier
 enregistreur), un navigateur malveillant, un mot de passe faible choisi
@@ -87,7 +89,7 @@ les empreintes publiées).
 | Exfiltration et injection de script (CWE-79) | CSP stricte sans script externe ni en ligne ; aucune ressource tierce ; aucun `innerHTML` alimenté par l'utilisateur. |
 | Exposition d'informations sensibles (CWE-200, CWE-532) | Le mot de passe n'est jamais journalisé ; saisie sans écho dans le terminal, séquences d'échappement (flèches) ignorées, terminal rétabli même en cas d'interruption ; clés dérivées (sortie d'Argon2id, clés d'en-tête et de contenu) effacées de la mémoire après usage — le mot de passe lui-même, chaîne JavaScript, ne peut pas l'être ; fichiers produits lisibles par leur seul propriétaire, fichier temporaire supprimé en cas d'interruption. |
 | Dépendances vulnérables (CWE-1395) | Dependabot (npm, actions, Docker), analyse CodeQL à chaque push et chaque semaine, OpenSSF Scorecard. |
-| Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte), après vérification de la signature SSH du tag et du commit de sa version ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. |
+| Compromission de la chaîne de publication | Publication uniquement par GitHub Actions (actions épinglées par empreinte). Avant toute construction, un premier job vérifie la signature SSH du tag et le commit de sa version, avec le `scripts/verify-tag.js` de la branche `main` et non celui de l'arbre tagué ; provenance npm, image signée avec cosign, attestations et `SHA256SUMS` pour les releases ; build du site reproductible. Limites : les workflows eux-mêmes sont lus dans le commit tagué, ce contrôle arrête donc les erreurs et un tag poussé par quelqu'un qui peut modifier le code mais pas les workflows ; il n'arrête ni quelqu'un qui peut pousser un tag et modifier les workflows, ni quelqu'un qui contrôle le compte du mainteneur (il peut y ajouter une clé de signature). Réglages du dépôt recommandés, hors du code : une règle de tags (ruleset) qui réserve au mainteneur la création, la modification et la suppression des tags `v*`, et un environnement GitHub protégé pour les jobs de publication, lié à la publication de confiance npm. |
 
 ## Vérification continue
 

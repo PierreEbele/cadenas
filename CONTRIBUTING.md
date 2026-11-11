@@ -71,9 +71,12 @@ The v1 format is frozen: files already exist.
 
 ## Publishing a version (maintainers)
 
-Version tags must be **signed**: the release workflows verify the signature
-(`scripts/verify-tag.js`) and refuse to publish a version whose tag is not
-signed with a maintainer signing key.
+Version tags must be **signed**: before building anything, the release
+workflows verify the signature with the `scripts/verify-tag.js` of the
+`main` branch and refuse to publish a version whose tag is not signed with
+a maintainer signing key. The workflows themselves are read from the tagged
+commit, so this check does not replace restricting who can push `v*` tags
+(see [SECURITY.md](SECURITY.md)).
 
 **Once, on your computer**:
 

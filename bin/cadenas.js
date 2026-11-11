@@ -23,6 +23,7 @@ import {
   encryptedName,
   prepareEntries,
 } from '../src/core.js';
+import { printableName } from '../src/names.js';
 import { DEFAULT_WORDS, LANGUAGES, MAX_WORDS, MIN_WORDS, generatePassphrase } from '../src/passphrase.js';
 import { PromptCancelled, promptPassword, readPasswordFromFile, readPasswordFromStdin } from '../src/prompt.js';
 import { detectLanguage, translator } from './messages.js';
@@ -200,7 +201,7 @@ async function openSource(inputs, { hideName = false } = {}) {
     const path = resolve(input);
     if (infos[i].isDirectory()) await collectDirectory(path, basename(path), files);
     else if (infos[i].isFile()) files.push({ absolute: path, path: basename(path), info: infos[i] });
-    else throw new CadenasError('NOT_A_FILE', t('error.NOT_A_FILE_OR_FOLDER', { path: input }));
+    else throw new CadenasError('NOT_A_FILE', t('error.NOT_A_FILE_OR_FOLDER', { path: printableName(input) }));
   }
   if (files.length === 0) throw new CadenasError('EMPTY', t('error.EMPTY'));
 
@@ -246,7 +247,7 @@ async function openEncrypted(input) {
   if (input === STDIO) return { fromStdin: true, size: undefined, stream: () => Readable.toWeb(stdin) };
   const path = resolve(input);
   const info = await statInput(input);
-  if (!info.isFile()) throw new CadenasError('NOT_A_FILE', t('error.NOT_A_FILE', { path: input }));
+  if (!info.isFile()) throw new CadenasError('NOT_A_FILE', t('error.NOT_A_FILE', { path: printableName(input) }));
   if (!detectFormat(await readHead(path))) {
     throw new CadenasError('UNKNOWN_FORMAT', t('error.UNKNOWN_FORMAT'));
   }
@@ -257,7 +258,7 @@ async function statInput(input) {
   try {
     return await lstat(input).then((info) => (info.isSymbolicLink() ? stat(input) : info));
   } catch (err) {
-    if (err.code === 'ENOENT') throw new CadenasError('NOT_FOUND', t('error.NOT_FOUND', { path: input }));
+    if (err.code === 'ENOENT') throw new CadenasError('NOT_FOUND', t('error.NOT_FOUND', { path: printableName(input) }));
     throw err;
   }
 }
@@ -434,7 +435,7 @@ function formatSize(bytes) {
  * leur code ; celles de la CLI sont déjà dans la bonne langue.
  */
 function errorMessage(err) {
-  return LIBRARY_CODES.has(err.code) ? t(`error.${err.code}`) : err.message;
+  return LIBRARY_CODES.has(err.code) ? t(`error.${err.code}`) : printableName(err.message);
 }
 
 const LIBRARY_CODES = new Set([
@@ -450,9 +451,10 @@ const LIBRARY_CODES = new Set([
   'NO_TERMINAL',
 ]);
 
+/** Chemin à afficher : relatif si possible, sans caractère de contrôle. */
 function displayPath(path) {
   const rel = relative('.', path);
-  return rel && !rel.startsWith('..') ? rel : path;
+  return printableName(rel && !rel.startsWith('..') ? rel : path);
 }
 
 main().catch((err) => {
@@ -469,6 +471,6 @@ main().catch((err) => {
     stderr.write(`${t('error.prefix', { message: errorMessage(err) })}\n`);
     exit(1);
   }
-  stderr.write(`${t('error.unexpected', { message: err?.message ?? err })}\n`);
+  stderr.write(`${t('error.unexpected', { message: printableName(err?.message ?? err) })}\n`);
   exit(1);
 });

@@ -9,7 +9,7 @@ COPY web ./web
 RUN npm run build
 
 # --- Étape 2 : serveur de fichiers statiques, sans droits root ----------------
-FROM nginxinc/nginx-unprivileged:stable-alpine@sha256:ed04ec1ff34502c339ee5c3ae3f855442398edc1d05591e2b98981dcbbd20b1e
+FROM nginxinc/nginx-unprivileged:stable-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 
 LABEL org.opencontainers.image.title="cadenas" \
       org.opencontainers.image.description="Chiffrez un fichier avec un mot de passe, directement dans le navigateur." \
